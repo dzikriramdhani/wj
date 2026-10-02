@@ -1,0 +1,225 @@
+/* ============================================================
+   LOGIN PAGE — Editorial Minimalist Theme
+   ============================================================ */
+
+.main {
+  background: var(--color-bg);
+  min-height: 100vh;
+  display: flex;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  min-height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Left: Branding */
+.brandCol {
+  display: none;
+  background: var(--color-text);
+  color: var(--color-bg);
+  padding: var(--space-4xl);
+  position: relative;
+}
+
+@media (min-width: 1024px) {
+  .brandCol {
+    display: flex;
+    align-items: flex-end;
+  }
+}
+
+.brandContent {
+  width: 100%;
+}
+
+.logo {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-bg);
+  text-decoration: none;
+  margin-bottom: var(--space-4xl);
+}
+
+.brandTitle {
+  font-size: 72px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin: 0 0 var(--space-xl) 0;
+  color: var(--color-bg);
+}
+
+.brandDesc {
+  font-size: 18px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+  max-width: 400px;
+}
+
+/* Right: Form */
+.formCol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4xl) var(--space-xl);
+}
+
+.formWrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.formTitle {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 0 0 var(--space-3xl) 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-secondary);
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.labelRow label {
+  margin-bottom: 0;
+}
+
+.forgotLink {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  color: var(--color-text);
+}
+
+.input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-sm) 0;
+  font-size: 18px;
+  font-family: inherit;
+  color: var(--color-text);
+  border-radius: 0;
+  transition: border-color var(--transition-fast);
+  width: 100%;
+}
+
+.input:focus {
+  outline: none;
+  border-bottom-color: var(--color-text);
+}
+
+.passwordWrapper {
+  position: relative;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.submitBtn {
+  background: var(--color-text);
+  color: var(--color-text-light);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: var(--space-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+  margin-top: var(--space-md);
+}
+
+.submitBtn:hover {
+  opacity: 0.8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-2xl) 0;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-light);
+}
+
+.switchText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+.switchLink {
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.switchLink:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,313 @@
+﻿/* ============================================================
+   CONTACT PAGE
+   Editorial Minimalist Theme
+   ============================================================ */
+
+.main {
+  background: var(--color-bg); /* #F6F6F6 */
+  min-height: 100vh;
+  padding-top: 80px;
+  color: var(--color-text);
+}
+
+/* 1. Hero Section */
+.heroSection {
+  padding: var(--space-3xl) var(--space-xl) var(--space-3xl);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2xl);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breadcrumb a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.breadcrumbSep {
+  color: var(--color-border);
+}
+
+.heroTitle {
+  font-size: 100px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -3px;
+  margin: 0;
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 60px;
+    letter-spacing: -1.5px;
+  }
+}
+
+/* 2. Content Layout */
+.contentSection {
+  padding: 0 var(--space-xl) var(--space-4xl);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4xl);
+  padding-top: var(--space-2xl);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4xl);
+  }
+}
+
+/* Left Column (Info) */
+.infoCol {
+  border-right: none;
+}
+
+@media (min-width: 1024px) {
+  .infoCol {
+    border-right: 1px solid var(--color-border-light);
+    padding-right: var(--space-4xl);
+  }
+}
+
+.infoIntro {
+  margin-bottom: var(--space-3xl);
+}
+
+.infoHeading {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.infoDesc {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.infoBlock {
+  margin-bottom: var(--space-3xl);
+}
+
+.infoTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--color-text);
+  padding-bottom: var(--space-sm);
+}
+
+.infoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.infoList li {
+  font-size: 18px;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.infoIcon {
+  font-size: 12px;
+  font-weight: 600;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.addressText {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.timeList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.timeList li {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 16px;
+}
+
+.timeList li:last-child {
+  border-bottom: none;
+}
+
+.timeLabel {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.timeValue {
+  color: var(--color-text-secondary);
+}
+
+.timeClosed .timeValue {
+  color: var(--color-text); /* could use a specific muted red if desired, but sticking to black/gray for minimal */
+  font-style: italic;
+}
+
+
+/* Right Column (Form) */
+.formCol {
+  padding-top: var(--space-md);
+}
+
+.formSectionTitle {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin: 0 0 var(--space-3xl) 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Editorial Input Styles */
+.input, .textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-sm) 0;
+  font-size: 18px;
+  font-family: inherit;
+  color: var(--color-text);
+  border-radius: 0;
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus, .textarea:focus {
+  outline: none;
+  border-bottom-color: var(--color-text);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.formActions {
+  margin-top: var(--space-3xl);
+}
+
+.formStatus {
+  margin: var(--space-md) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.submitBtn {
+  background: var(--color-text);
+  color: var(--color-text-light);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: var(--space-md) var(--space-2xl);
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .submitBtn {
+    width: auto;
+  }
+}
+
+.submitBtn:hover {
+  opacity: 0.8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 3. Map Section */
+.mapSection {
+  padding: 0 var(--space-xl) var(--space-4xl);
+}
+
+.mapPlaceholder {
+  width: 100%;
+  height: 400px;
+  background: #e8e8e6;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: var(--space-xl);
+}
+
+.mapText {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+

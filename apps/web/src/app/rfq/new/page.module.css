@@ -1,0 +1,331 @@
+﻿/* ============================================================
+   CUSTOM SOURCING / RFQ PAGE
+   Editorial Minimalist Theme
+   ============================================================ */
+
+.main {
+  background: var(--color-bg); /* #F6F6F6 */
+  min-height: 100vh;
+  padding-top: 80px;
+  color: var(--color-text);
+}
+
+/* 1. Hero Section */
+.heroSection {
+  padding: var(--space-3xl) var(--space-xl) var(--space-3xl);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2xl);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breadcrumb a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.breadcrumbSep {
+  color: var(--color-border);
+}
+
+.heroTitle {
+  font-size: 100px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -3px;
+  margin: 0;
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 60px;
+    letter-spacing: -1.5px;
+  }
+}
+
+.introText {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -1.5px;
+  color: var(--color-text-secondary);
+  margin: var(--space-md) 0 0 0;
+}
+
+/* 2. Content Layout */
+.contentSection {
+  padding: 0 var(--space-xl) var(--space-5xl);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4xl);
+  padding-top: var(--space-2xl);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-3xl);
+  }
+}
+
+/* 3. Form Column */
+.formCol {
+  border-right: none;
+}
+
+@media (min-width: 1024px) {
+  .formCol {
+    border-right: 1px solid var(--color-border-light);
+    padding-right: var(--space-3xl);
+  }
+}
+
+.formIntro {
+  margin-bottom: var(--space-3xl);
+}
+
+.formHeading {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.formDesc {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.formSection {
+  margin-bottom: var(--space-3xl);
+}
+
+.formSectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--color-text);
+  padding-bottom: var(--space-sm);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Editorial Input Styles */
+.input, .textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-sm) 0;
+  font-size: 18px;
+  font-family: inherit;
+  color: var(--color-text);
+  border-radius: 0;
+  transition: border-color var(--transition-fast);
+}
+
+.input:focus, .textarea:focus {
+  outline: none;
+  border-bottom-color: var(--color-text);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+select.input {
+  appearance: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.formActions {
+  margin-top: var(--space-3xl);
+}
+
+.submitBtn {
+  background: var(--color-text);
+  color: var(--color-text-light);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: var(--space-md) var(--space-2xl);
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.submitBtn:hover {
+  opacity: 0.8;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 4. Sidebar */
+.sidebarCol {
+  padding-top: var(--space-md);
+}
+
+.sidebarBlock {
+  margin-bottom: var(--space-3xl);
+}
+
+.sidebarTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: var(--space-xl);
+  border-bottom: 1px solid var(--color-text);
+  padding-bottom: var(--space-sm);
+}
+
+.sidebarList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebarList li {
+  font-size: 18px;
+  color: var(--color-text);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.sidebarIcon {
+  font-size: 12px;
+  font-weight: 600;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+.processList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.processItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.processStep {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+
+.processTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 var(--space-xs) 0;
+  color: var(--color-text);
+}
+
+.processDesc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Success View */
+.successWrapper {
+  padding: var(--space-5xl) var(--space-xl);
+  max-width: 600px;
+}
+
+.successIcon {
+  font-size: 48px;
+  margin-bottom: var(--space-lg);
+  color: var(--color-text);
+}
+
+.successHeading {
+  font-size: 48px;
+  font-weight: 500;
+  letter-spacing: -1.5px;
+  margin: 0 0 var(--space-md) 0;
+}
+
+.successDesc {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 var(--space-2xl) 0;
+}
+
+.btnPrimary {
+  display: inline-block;
+  background: var(--color-text);
+  color: var(--color-text-light);
+  text-decoration: none;
+  padding: var(--space-sm) var(--space-xl);
+  font-weight: 500;
+  transition: opacity var(--transition-fast);
+}
+
+.btnPrimary:hover {
+  opacity: 0.8;
+}
+
+

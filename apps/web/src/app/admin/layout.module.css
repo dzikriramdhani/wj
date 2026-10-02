@@ -1,0 +1,187 @@
+.adminLayout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+.sidebar {
+  width: 260px;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-normal);
+  z-index: 50;
+}
+
+.logoArea {
+  padding: var(--space-xl);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logoText {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.nav {
+  flex: 1;
+  padding: var(--space-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-xl);
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.navLinkActive {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.icon {
+  font-size: var(--font-size-lg);
+}
+
+.userInfo {
+  padding: var(--space-lg) var(--space-xl);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.userName {
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  margin: 0;
+}
+
+.userRole {
+  font-size: var(--font-size-xs);
+  color: #f0d891;
+  background-color: rgba(212, 175, 55, 0.15); /* Gold with opacity */
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  width: fit-content;
+}
+
+.logoutBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+  text-align: left;
+  font-family: inherit;
+}
+
+.logoutBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* for flex children overflow */
+}
+
+.topBar {
+  height: 70px;
+  background-color: var(--color-bg-white);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.menuToggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  color: var(--color-text);
+  padding: var(--space-xs);
+}
+
+.breadcrumb {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.topBarUser {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.contentArea {
+  padding: var(--space-2xl);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+  }
+  
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+  
+  .menuToggle {
+    display: block;
+  }
+  
+  .overlayOpen {
+    display: block;
+  }
+  
+  .contentArea {
+    padding: var(--space-lg);
+  }
+}

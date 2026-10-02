@@ -1,0 +1,23 @@
+.main { min-height: 100vh; padding: 132px 24px 80px; background: var(--color-bg); color: var(--color-text); }
+.panel { width: min(100%, 720px); margin: 0 auto; }
+.eyebrow { margin: 0 0 10px; color: var(--color-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: .12em; }
+.title { margin: 0; font-size: clamp(40px, 7vw, 64px); font-weight: 500; letter-spacing: -.055em; line-height: 1; }
+.description { max-width: 540px; margin: 18px 0 32px; color: var(--color-text-secondary); line-height: 1.6; }
+.form { display: grid; gap: 10px; }
+.form label { font-size: 13px; font-weight: 600; }
+.form input { width: 100%; padding: 13px 14px; border: 1px solid var(--color-border); border-radius: 0; background: transparent; color: inherit; font: inherit; }
+.form button, .payButton { display: inline-flex; width: fit-content; min-height: 46px; align-items: center; justify-content: center; padding: 0 20px; border: 0; background: var(--color-text); color: var(--color-bg); font: inherit; font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.form button:disabled { opacity: .6; cursor: wait; }
+.error { margin-top: 16px; color: #b42318; font-size: 14px; }
+.order { margin-top: 36px; padding: 24px; border: 1px solid var(--color-border-light); }
+.orderHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid var(--color-border-light); }
+.orderHeader h2 { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.status { padding: 7px 10px; background: var(--color-border-light); font-size: 11px; font-weight: 600; }
+.payment { margin: 18px 0; font-size: 14px; }
+.item, .total { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; font-size: 14px; border-bottom: 1px solid var(--color-border-light); }
+.item span { color: var(--color-text-secondary); }
+.total { margin-bottom: 18px; border-bottom: 0; font-size: 16px; }
+.shipping { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--color-border-light); font-size: 14px; }
+.shipping p { color: var(--color-text-secondary); }
+.backLink { display: inline-block; margin-top: 28px; color: inherit; font-size: 13px; }
+@media (max-width: 600px) { .main { padding: 112px 18px 56px; } .order { padding: 18px; } .orderHeader { align-items: flex-start; flex-direction: column; } .item, .total { font-size: 13px; } }
