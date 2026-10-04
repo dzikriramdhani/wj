@@ -71,12 +71,34 @@ Jangan aktifkan email worker pada workflow ini sebelum inbox penerima uji diteta
 3. Jalankan SQL bootstrap pada [first-admin.md](first-admin.md) di SQL Editor project `winajaya_staging` untuk memberi role `super_admin`.
 4. Masuk kembali dengan akun itu, aktifkan TOTP, lalu buat satu akun `admin` dari **Portal Super Admin → Pengguna & role**.
 5. Gunakan akun `user`, `admin`, dan `super_admin` berbeda untuk pengujian. Password tidak dicatat di repository atau dokumen evidence.
+
+### Aktivasi TOTP untuk Admin dan Super Admin
+
+Lakukan langkah berikut satu kali untuk akun `admin`, lalu ulangi untuk akun `super_admin`.
+
+1. Buka `https://wj-staging.vercel.app/login` dan masuk dengan akun yang sesuai.
+2. Buka **Akun Saya**. Bila membuka `/admin` atau `/super-admin` lebih dahulu, aplikasi akan mengarahkan ke halaman ini dengan status MFA diperlukan.
+3. Pada kartu **Keamanan Akun → Verifikasi dua langkah**, klik **Aktifkan MFA**.
+4. Pindai QR code menggunakan Google Authenticator, Microsoft Authenticator, 1Password, atau aplikasi TOTP lain yang dikuasai pemegang akun. Jangan menyimpan screenshot QR code atau membagikan secret TOTP.
+5. Masukkan kode enam digit yang sedang aktif, lalu klik **Verifikasi & aktifkan MFA**. Status kartu harus berubah menjadi **Aktif** dan aplikasi meneruskan akun ke portalnya.
+6. Keluar, masuk kembali, lalu buka `/admin` untuk Admin atau `/super-admin` untuk Super Admin. Portal hanya boleh terbuka setelah kode TOTP berhasil diverifikasi.
+
+Jika tombol menampilkan pesan TOTP belum aktif, buka **Supabase Dashboard → project `winajaya_staging` → Authentication → Multi-factor Auth** dan aktifkan enrollment serta verification untuk TOTP. Aplikasi ini sudah memiliki flow enroll, challenge, dan verify sesuai [panduan TOTP Supabase](https://supabase.com/docs/guides/auth/auth-mfa/totp).
+
 ## 5. Email, monitor, backup, dan bukti
 
-- Siapkan satu inbox penerima STAGING yang dapat menerima email konfirmasi, reset password, dan email transaksi. Jangan gunakan inbox customer.
-- Koneksi SMTP STAGING lulus setelah `SMTP_HOST` dikoreksi menjadi `smtp.gmail.com`, tetapi pengiriman email belum diuji karena inbox penerima belum ditetapkan dan belum ada persetujuan eksplisit untuk mengirim email keluar.
-- Buat uptime monitor HTTP `GET` ke `https://wj-staging.vercel.app/api/health`, interval 5 menit, ekspektasi HTTP `200` dan body `{"status":"ok","service":"winajaya"}`.
-- GitHub Actions juga menjalankan pemeriksaan health setiap lima menit. Tetapkan penerima notifikasi kegagalan pada pengaturan repository atau gunakan provider monitoring dengan kanal alert yang disetujui sebelum menyatakan gate alert lulus.
-- Buat backup STAGING lalu restore ke project disposable sebelum menyatakan restore test lulus. Catat waktu backup, waktu restore, dan hasil health check tanpa menyimpan secret.
+- Satu email verifikasi SMTP STAGING berhasil dikirim ke inbox yang disetujui pada 4 Oktober 2026. Worker outbox belum diaktifkan: terdapat email lain yang pending dan tidak boleh dikirim tanpa persetujuan penerimanya.
+
+### Monitoring dan alert
+
+GitHub Actions sudah memeriksa `GET https://wj-staging.vercel.app/api/health` setiap lima menit. Untuk menerima alert, buka [GitHub Notification Settings](https://github.com/settings/notifications), pada **System → Actions** pilih **Email** atau **On GitHub**, lalu pilih **Only notify for failed workflows** dan simpan. Pastikan repository `dzikriramdhani/wj` sedang di-watch. Ini membuat kegagalan health check atau worker muncul pada akun GitHub pemilik repository, sesuai [panduan notifikasi GitHub Actions](https://docs.github.com/en/subscriptions-and-notifications/how-tos/managing-github-actions-notifications).
+
+Untuk error aplikasi di luar tiga job tersebut, buat project error tracking terpisah, misalnya Sentry, dengan nama `winajaya-staging`. Pada provider tersebut buat alert rule untuk error baru atau lonjakan error, dengan penerima inbox operasi. Berikan DSN STAGING setelah project dibuat agar integrasi aplikasi dapat dipasang tanpa memasukkan DSN ke repository.
+
+### Restore test
+
+Restore test harus memakai project Supabase sementara, bukan `winajaya_staging`, karena restore dapat menimpa tabel dan data. Bila Anda membuatnya sendiri, buka [Supabase Dashboard](https://supabase.com/dashboard/projects) → **New project**, lalu pilih organisasi yang sama, nama `winajaya-staging-restore-YYYYMMDD`, region `ap-northeast-1`, dan ukuran Micro. Buat password database unik dan simpan di password manager; jangan kirim password melalui chat atau repository. Setelah project aktif, berikan project ref kepada operator rilis untuk menjalankan restore dan menghapus project setelah bukti dicatat.
+
+Alternatifnya, berikan persetujuan eksplisit kepada operator rilis untuk membuat project Micro sementara dan mengekspor data STAGING. Setelah selesai, bukti yang dicatat adalah project ref sementara, waktu mulai/selesai export-restore, migration version, hasil count tabel utama, health check, RPO/RTO, dan waktu penghapusan project. Tidak ada dump data atau password yang disimpan di Git.
 - Setelah notification URL Midtrans tersimpan, lakukan pembayaran Sandbox dan beri tahu hasilnya. Lalu verifikasi webhook sukses, pending, gagal, expired, dan event duplikat.
 - Catat bukti SMTP, scheduler, privileged MFA, B2B/RFQ, monitoring, restore, dan load test pada [task-status.md](task-status.md).

@@ -20,7 +20,8 @@
 - Uji private Storage `business-documents` lulus: owner organisasi dapat mengunggah dan membaca PDF uji, sementara pengguna lain dan anon ditolak. File uji dibersihkan setelah verifikasi; migration 027 memperbaiki policy baca owner.
 - Konfigurasi Auth URL dan Midtrans Sandbox notification URL telah dikonfirmasi pemilik project. Uji webhook signed membuktikan signature salah ditolak, status pending/expire diterapkan, serta settlement dan event duplikat berhasil; settlement membuat invoice dan shipment. Migration 028 memperbaiki referensi order internal pada settlement.
 - Alur B2B STAGING lulus: organisasi terverifikasi, RFQ, quotation, negosiasi, persetujuan, dan bulk order.
-- SMTP STAGING telah diperbaiki dari host tidak valid `//gmail.com` menjadi `smtp.gmail.com`; koneksi SMTP lulus tanpa mengirim email. Nilai yang sama telah dideploy ke Vercel.
+- SMTP STAGING telah diperbaiki dari host tidak valid `//gmail.com` menjadi `smtp.gmail.com`; nilai yang sama telah dideploy ke Vercel.
+- Satu email verifikasi SMTP STAGING berhasil dikirim ke inbox yang disetujui. Worker outbox belum dijalankan karena antrean masih berisi penerima lain yang belum disetujui.
 - Load ringan 20 request paralel pada health dan katalog menghasilkan 20 respons HTTP 200 dalam 2,878 ms.
 - SSO Deployment Protection telah dinonaktifkan pada `wj-staging` sesuai persetujuan, sehingga endpoint dapat diakses publik untuk Sandbox webhook dan uptime check.
 - `.vercelignore` mengecualikan seluruh file `.env*` lokal dari upload deployment.

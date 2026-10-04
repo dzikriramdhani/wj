@@ -40,6 +40,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Storefront lama dipertahankan: homepage, company, katalog, kategori, keranjang, login/register, akun, contact, dan RFQ.
 - [x] Admin mengelola produk, harga, stok, variasi, gambar, dan lookbook dari satu portal.
 - [x] Password recovery, profil, notifikasi akun, contact message, RFQ attachment, dan transactional email outbox sudah tersedia.
+- [x] Koneksi SMTP dan satu pengiriman email verifikasi STAGING ke inbox yang disetujui berhasil. Worker outbox tetap dinonaktifkan sampai semua penerima pending disetujui.
 - [x] Katalog DEV berisi data sintetis yang dapat diedit.
 - [ ] Ganti produk, gambar, copy legal/perusahaan, SKU, harga, stok, bobot produk, dan konfigurasi gudang dengan data bisnis sebenarnya.
 
@@ -52,7 +53,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Migration `202610040028_fix_midtrans_settlement_order_id.sql` memperbaiki settlement webhook. Uji signed Sandbox membuktikan signature salah ditolak, `pending`, `expire`, settlement, dan event duplikat; settlement menghasilkan order `PAID`, invoice, serta shipment.
 - [x] GitHub Actions menjalankan expiry reservation dan worker operasi STAGING setiap lima menit. Run manual `37175583697` membuktikan kedua job lulus dengan `CRON_SECRET`.
 - [x] GitHub Actions memeriksa health endpoint STAGING setiap lima menit. Run `37176193812` lulus untuk health check, expiry reservation, dan worker operasi.
-- [ ] Aktifkan email worker setelah inbox penerima STAGING ditetapkan dan pengiriman email disetujui. Scheduler ERP hanya diperlukan bila integrasi ERP dipakai.
+- [ ] Aktifkan email worker setelah seluruh penerima pending disetujui. Scheduler ERP hanya diperlukan bila integrasi ERP dipakai.
 
 ## Phase 3 — B2B commerce
 
