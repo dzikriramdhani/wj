@@ -9,6 +9,6 @@ $values = @{}
 foreach ($entry in $restoreConfig) { $values[$entry.Key] = $entry.Value }
 
 & (Join-Path $PSScriptRoot 'restore-staging-test.ps1') `
-  -SourceDatabaseUrl $values['RESTORE_SOURCE_DATABASE_URL'] `
-  -TargetDatabaseUrl $values['RESTORE_TARGET_DATABASE_URL'] `
+  -SourceDatabasePassword $values['RESTORE_SOURCE_DATABASE_PASSWORD'] `
+  -TargetDatabasePassword $values['RESTORE_TARGET_DATABASE_PASSWORD'] `
   -ArtifactDirectory (Join-Path $env:TEMP 'winajaya-staging-restore-20261004')
