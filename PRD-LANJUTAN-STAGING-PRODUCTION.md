@@ -256,8 +256,8 @@ Simpan pada lokasi akses terbatas dan tanpa secret:
 | 1 | Selesai | S0: deploy Vercel STAGING dan verifikasi endpoint publik. |
 | 2 | Berjalan | S1: SMTP connection serta scheduler reservation/operasi lima menit lulus; pengiriman email penerima uji dan MFA permanen akun privileged masih diperlukan. |
 | 3 | Menunggu S1 | S2: uji transaksi, B2B, role, RLS, dan worker. |
-| 4 | Menunggu S2 | S3: restore, security, E2E, load, monitoring, dan approval evidence. |
-| 5 | Menunggu gate STAGING | P0–P2: provision dan review PRODUCTION. |
+| 4 | Berjalan | S3: restore, security, E2E, dan load sudah dibuktikan; selesaikan error tracking aplikasi, penerima alert operasi, dan persetujuan evidence. |
+| 5 | Menunggu gate STAGING | P0–P2: provision dan review PRODUCTION setelah S3 disetujui. |
 | 6 | Menunggu P0–P2 | P3: cutover terkontrol dan monitoring 24 jam. |
 
 ## 9. Definition of Done lanjutan

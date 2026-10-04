@@ -97,17 +97,19 @@ Untuk error aplikasi di luar tiga job tersebut, buat project error tracking terp
 
 ### Restore test
 
-Restore test memakai project sementara `winajaya-staging-restore-20261004` (`fpdglanfrfsrinlslfie`), bukan `winajaya_staging`, karena restore dapat menimpa tabel dan data. Schema `001`–`029` telah diterapkan ke project sementara.
+Restore test pada 4 Oktober 2026 telah memakai project sementara `winajaya-staging-restore-20261004` (`fpdglanfrfsrinlslfie`), bukan `winajaya_staging`, karena restore dapat menimpa tabel dan data. Schema `001`–`029` telah diterapkan, data inti diverifikasi identik, lalu proyek dan seluruh artefak lokalnya dihapus. Buat project sementara baru untuk exercise berikutnya.
 
-Untuk menyelesaikan restore, buka **Supabase Dashboard → project `winajaya_staging` → Connect → Session pooler** dan gunakan password database STAGING. Ulangi pada project restore `winajaya-staging-restore-20261004` menggunakan password saat project dibuat. Jangan memasukkan nilai tersebut ke chat.
+Untuk exercise berikutnya, buka **Supabase Dashboard → project `winajaya_staging` → Connect → Session pooler** dan gunakan password database STAGING. Ulangi pada project restore baru menggunakan password saat project dibuat. Jangan memasukkan nilai tersebut ke chat.
 
 Simpan hanya di file lokal `apps/web/.env.restore-test` yang sudah diabaikan Git:
 
 ```text
 RESTORE_SOURCE_DATABASE_PASSWORD=<password database winajaya_staging>
-RESTORE_TARGET_DATABASE_PASSWORD=<password database winajaya-staging-restore-20261004>
+RESTORE_TARGET_DATABASE_PASSWORD=<password database project restore baru>
 ```
 
-Masukkan password apa adanya, termasuk karakter khusus; jangan URL encode. Kemudian jalankan `scripts/restore-staging-test.example.ps1`, atau beri tahu operator rilis bahwa file sudah ada agar skrip restore dapat dijalankan. Skrip membuat backup temporary, memulihkan ke project sementara, lalu hanya menampilkan ukuran, hash SHA-256, durasi, dan jumlah record utama. Hapus folder temporary setelah evidence dicatat. Bukti akhir: waktu mulai/selesai, migration version, count tabel utama, RPO/RTO, dan waktu penghapusan project. Tidak ada dump data atau password yang masuk Git.
+Masukkan password apa adanya, termasuk karakter khusus; jangan URL encode. Kemudian jalankan `scripts/restore-staging-test.ps1`, atau beri tahu operator rilis bahwa file sudah ada agar skrip restore dapat dijalankan. Skrip mengekspor `auth.users` dan data `public`, memulihkannya secara transaksional ke project sementara, lalu hanya menampilkan hash SHA-256, durasi, dan jumlah record utama. Hapus folder temporary setelah evidence dicatat. Bukti akhir: waktu mulai/selesai, migration version, count tabel utama, RPO/RTO, dan waktu penghapusan project. Tidak ada dump data atau password yang masuk Git.
+
+Saat menjalankan skrip, berikan `-TargetPoolerHost` dari **Connect → Session pooler** project sementara dan `-TargetDatabaseUser` dalam bentuk `postgres.<project-ref>`. Project target harus sudah menerima migration yang sama dengan STAGING. Jangan gunakan proyek PRODUCTION sebagai target restore test.
 - Setelah notification URL Midtrans tersimpan, lakukan pembayaran Sandbox dan beri tahu hasilnya. Lalu verifikasi webhook sukses, pending, gagal, expired, dan event duplikat.
 - Catat bukti SMTP, scheduler, privileged MFA, B2B/RFQ, monitoring, restore, dan load test pada [task-status.md](task-status.md).

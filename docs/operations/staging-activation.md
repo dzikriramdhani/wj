@@ -26,6 +26,7 @@
 - Load ringan 20 request paralel pada health dan katalog menghasilkan 20 respons HTTP 200 dalam 2,878 ms.
 - SSO Deployment Protection telah dinonaktifkan pada `wj-staging` sesuai persetujuan, sehingga endpoint dapat diakses publik untuk Sandbox webhook dan uptime check.
 - `.vercelignore` mengecualikan seluruh file `.env*` lokal dari upload deployment.
+- Restore test STAGING memulihkan data aplikasi serta `auth.users` ke proyek sementara terisolasi. Migration `29` dan jumlah 12 akun/profil, 1 produk, 8 pesanan, serta 6 organisasi identik dengan sumber. RPO yang diuji 0 menit dan RTO kurang dari 2 menit.
 
 ## Configure the application
 
@@ -45,7 +46,7 @@
 - Register, login, product, cart, checkout, Midtrans Sandbox webhook, invoice, fulfillment, and reservation expiry.
 - B2B organization, RFQ, quotation revision, approval, and bulk order.
 - Email worker and operations worker schedule.
-- Restore test, security test, E2E test, and load test recorded in the release evidence.
+- [x] Restore, security, E2E, dan load test tercatat pada evidence STAGING.
 
 Do not point the production domain or Midtrans production webhook at this environment.
 
@@ -56,7 +57,7 @@ Do not point the production domain or Midtrans production webhook at this enviro
 - Build aplikasi dengan environment STAGING lulus; artefak standalone untuk Docker tersedia. Domain HTTPS `https://wj-staging.vercel.app` aktif dan health endpoint memberi HTTP 200.
 - Secret STAGING telah berada pada `.env.staging` yang diabaikan Git dan sudah diisi pada Vercel. Bila template perlu dibuat kembali, gunakan `.env.staging.example` dengan placeholder tanpa nilai rahasia.
 - GitHub Actions scheduler STAGING menjalankan health check, expiry reservation, dan operasi setiap lima menit. Run `37176193812` lulus untuk seluruh job dengan secret yang tersimpan di GitHub.
-- Pengiriman email ke inbox penerima, pendaftaran TOTP permanen untuk pemilik akun privileged, restore test, monitoring/alert, dan load test kapasitas tetap harus diselesaikan pada domain `https://wj-staging.vercel.app`.
+- Pengiriman email ke inbox penerima, pendaftaran TOTP permanen untuk pemilik akun privileged, restore test, load test, dan alert GitHub Actions telah selesai. Error tracking aplikasi dengan penerima alert operasi tetap perlu disiapkan sebelum production.
 - Worker internal menerima `GET` maupun `POST` dan tetap memerlukan `Authorization: Bearer <CRON_SECRET>`. Percobaan deploy Vercel Cron setiap 2/5 menit ditolak oleh paket Hobby karena hanya mengizinkan cron harian. Konfigurasi yang ditolak telah dihapus agar deployment berikutnya tidak gagal. Pilih Vercel Pro atau scheduler eksternal yang dapat diautentikasi untuk memenuhi frekuensi PRD.
 - Quote RajaOngkir memakai batas waktu 20 detik agar perhitungan antar-kota yang lebih lambat tetap dapat selesai; error provider tetap dikembalikan sebagai respons `503` tanpa membocorkan key.
 - Worker expiry reservation telah diuji: request tanpa bearer menerima `401`, sedangkan request dengan `CRON_SECRET` berhasil. Notification URL Midtrans Sandbox dan uji event webhook tetap harus diselesaikan.
