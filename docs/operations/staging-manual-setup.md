@@ -55,7 +55,7 @@ Vercel pada paket Hobby menolak jadwal di atas karena hanya mendukung cron haria
 
 ### GitHub Actions sebagai scheduler STAGING
 
-Workflow [`staging-workers.yml`](../../.github/workflows/staging-workers.yml) sudah dipush ke branch default repository dan mengeksekusi expiry reservation serta operations worker setiap lima menit. Repository secret berikut telah disimpan:
+Workflow [`staging-workers.yml`](../../.github/workflows/staging-workers.yml) sudah dipush ke branch default repository dan memeriksa health endpoint, expiry reservation, serta operations worker setiap lima menit. Repository secret berikut telah disimpan:
 
 | Nama secret | Nilai |
 | --- | --- |
@@ -76,6 +76,7 @@ Jangan aktifkan email worker pada workflow ini sebelum inbox penerima uji diteta
 - Siapkan satu inbox penerima STAGING yang dapat menerima email konfirmasi, reset password, dan email transaksi. Jangan gunakan inbox customer.
 - Koneksi SMTP STAGING lulus setelah `SMTP_HOST` dikoreksi menjadi `smtp.gmail.com`, tetapi pengiriman email belum diuji karena inbox penerima belum ditetapkan dan belum ada persetujuan eksplisit untuk mengirim email keluar.
 - Buat uptime monitor HTTP `GET` ke `https://wj-staging.vercel.app/api/health`, interval 5 menit, ekspektasi HTTP `200` dan body `{"status":"ok","service":"winajaya"}`.
+- GitHub Actions juga menjalankan pemeriksaan health setiap lima menit. Tetapkan penerima notifikasi kegagalan pada pengaturan repository atau gunakan provider monitoring dengan kanal alert yang disetujui sebelum menyatakan gate alert lulus.
 - Buat backup STAGING lalu restore ke project disposable sebelum menyatakan restore test lulus. Catat waktu backup, waktu restore, dan hasil health check tanpa menyimpan secret.
 - Setelah notification URL Midtrans tersimpan, lakukan pembayaran Sandbox dan beri tahu hasilnya. Lalu verifikasi webhook sukses, pending, gagal, expired, dan event duplikat.
 - Catat bukti SMTP, scheduler, privileged MFA, B2B/RFQ, monitoring, restore, dan load test pada [task-status.md](task-status.md).

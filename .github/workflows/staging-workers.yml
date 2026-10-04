@@ -13,6 +13,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  health-check:
+    name: Check staging health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify public health endpoint
+        env:
+          STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+        run: |
+          response="$(curl --fail-with-body --silent --show-error --retry 2 --max-time 30 "${STAGING_APP_URL}/api/health")"
+          test "${response}" = '{"status":"ok","service":"winajaya"}'
+
   expire-reservations:
     name: Expire checkout reservations
     runs-on: ubuntu-latest
