@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { attachGuestSession, getCommerceOwner } from '@/lib/commerce-owner';
 import { getPackagingWeightGrams, getShippingOptions } from '@/lib/rajaongkir';
+import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
     }, { status: 201 });
     return attachGuestSession(response, owner);
   } catch (error) {
-    console.error('RajaOngkir quote calculation failed', error);
+    reportServerError(error, 'shipping.quote');
     return NextResponse.json({ error: 'Ongkir belum dapat dihitung. Coba kembali sebentar lagi.' }, { status: 503 });
   }
 }

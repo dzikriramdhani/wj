@@ -72,9 +72,9 @@ export default function AdminLayout({
 
   return (
     <div className={styles.adminLayout}>
-      <div className={${styles.overlay} } onClick={() => setSidebarOpen(false)} />
+      <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />
       
-      <aside className={${styles.sidebar} }>
+      <aside className={styles.sidebar}>
         <div className={styles.logoArea}>
           <h1 className={styles.logoText}>{config.title}</h1>
         </div>
@@ -89,7 +89,7 @@ export default function AdminLayout({
               <Link
                 key={item.path}
                 href={item.path}
-                className={${styles.navLink} }
+                className={styles.navLink}
               >
                 <span className={styles.icon}>
                   <IconComponent size={20} strokeWidth={1.5} />

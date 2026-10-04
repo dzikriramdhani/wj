@@ -46,3 +46,5 @@ Public catalog reads use the anonymous Data API under RLS. Private business and 
 ## Environment variables
 
 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `NEXT_PUBLIC_APP_URL` are client-visible. `SUPABASE_SECRET_KEY`, payment keys, RajaOngkir keys, SMTP credentials, and email provider keys are server-only. Never use a `NEXT_PUBLIC_` prefix for a secret.
+
+Error tracking uses Sentry when `SENTRY_DSN` is set. Set the same DSN as `NEXT_PUBLIC_SENTRY_DSN` when browser error capture is required, then set `SENTRY_ENVIRONMENT` and `NEXT_PUBLIC_SENTRY_ENVIRONMENT` to `staging` or `production`. The integration captures errors only; request bodies, payment payloads, credentials, and customer identifiers are not attached by application code.

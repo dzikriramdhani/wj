@@ -1,6 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { isCronAuthorized } from '@/lib/cron-auth';
+import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export async function POST(request: NextRequest) {
@@ -26,7 +27,9 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ success: true, processedJobs: jobs?.length ?? 0 });
   } catch (error) {
-    console.error('ERP worker failed', error);
+    reportServerError(error, 'erp.sync');
     return NextResponse.json({ error: 'Sinkronisasi ERP belum dapat diproses.' }, { status: 500 });
   }
 }
+
+export { POST as GET };

@@ -25,6 +25,7 @@ const required = [
   'EMAIL_FROM',
   'EMAIL_ADMIN',
   'ADMIN_MFA_REQUIRED',
+  'SENTRY_DSN',
 ];
 for (const name of required) if (!env[name]) failures.push(`${name} is missing`);
 const appUrl = env.NEXT_PUBLIC_APP_URL ?? '';

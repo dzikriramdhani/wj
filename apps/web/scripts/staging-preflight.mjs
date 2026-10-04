@@ -38,6 +38,7 @@ for (const name of ['SHIPPING_DEFAULT_WEIGHT_GRAMS_PER_METER', 'SHIPPING_PACKAGI
   if (!/^[0-9]+$/.test(env[name] ?? '') || Number(env[name]) <= 0) failures.push(name + ' must be a positive measured value');
 }
 if ((env.EMAIL_FROM ?? '').endsWith('@example.test') || (env.EMAIL_ADMIN ?? '').endsWith('@example.test')) failures.push('EMAIL_FROM and EMAIL_ADMIN must be STAGING addresses');
+if (!env.SENTRY_DSN && !env.NEXT_PUBLIC_SENTRY_DSN) warnings.push('SENTRY_DSN is not set; application error tracking is disabled');
 const erpUrl = env.ERP_WEBHOOK_URL?.trim() ?? '';
 const erpSecret = env.ERP_WEBHOOK_SECRET?.trim() ?? '';
 if ((erpUrl && !erpSecret) || (!erpUrl && erpSecret)) failures.push('ERP_WEBHOOK_URL and ERP_WEBHOOK_SECRET must both be set, or both left empty');

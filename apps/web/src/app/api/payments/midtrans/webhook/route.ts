@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/service';
+import { reportServerError } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     if (!data?.accepted) return NextResponse.json({ error: 'Notification tidak dapat diterapkan.' }, { status: 422 });
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Midtrans webhook processing failed', error);
+    reportServerError(error, 'payments.midtrans.webhook');
     return NextResponse.json({ error: 'Webhook belum dapat diproses.' }, { status: 500 });
   }
 }

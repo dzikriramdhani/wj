@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { withSentryConfig } from '@sentry/nextjs/config';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseImagePattern = supabaseUrl ? new URL('/storage/v1/object/public/**', supabaseUrl) : null;
@@ -17,11 +18,14 @@ const nextConfig: NextConfig = {
         { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         {
           key: 'Content-Security-Policy',
-          value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co; frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com; upgrade-insecure-requests",
+          value: "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://*.ingest.sentry.io; frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com; upgrade-insecure-requests",
         },
       ],
     }];
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  silent: true,
+  sourcemaps: { disable: !process.env.SENTRY_AUTH_TOKEN },
+});

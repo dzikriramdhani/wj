@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
 import { isCronAuthorized } from '@/lib/cron-auth';
+import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const runtime = 'nodejs';
@@ -79,7 +80,9 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ success: true, claimed: jobs.length, sent });
   } catch (error) {
-    console.error('email worker failed', error);
+    reportServerError(error, 'email.process');
     return NextResponse.json({ error: 'Email belum dapat diproses.' }, { status: 500 });
   }
 }
+
+export { POST as GET };

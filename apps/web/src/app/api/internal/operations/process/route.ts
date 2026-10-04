@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isCronAuthorized } from '@/lib/cron-auth';
+import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
 
 const erpEvents = new Set(['payment.settled', 'order.paid', 'rfq.status_changed', 'quotation.responded']);
@@ -24,7 +25,9 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ success: true, processedEvents: events?.length ?? 0 });
   } catch (error) {
-    console.error('operations worker failed', error);
+    reportServerError(error, 'operations.process');
     return NextResponse.json({ error: 'Worker operasional belum dapat diproses.' }, { status: 500 });
   }
 }
+
+export { POST as GET };

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { attachGuestSession, getCommerceOwner } from '@/lib/commerce-owner';
 import { createServiceClient } from '@/lib/supabase/service';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { reportServerError } from '@/lib/observability';
 
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2).max(120),
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       owner,
     );
   } catch (error) {
-    console.error('checkout order creation failed', error);
+    reportServerError(error, 'orders.create');
     return NextResponse.json({ error: 'Checkout gagal diproses. Silakan coba kembali.' }, { status: 500 });
   }
 }

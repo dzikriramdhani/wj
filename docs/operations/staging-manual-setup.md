@@ -93,7 +93,16 @@ Jika tombol menampilkan pesan TOTP belum aktif, buka **Supabase Dashboard → pr
 
 GitHub Actions sudah memeriksa `GET https://wj-staging.vercel.app/api/health` setiap lima menit. Untuk menerima alert, buka [GitHub Notification Settings](https://github.com/settings/notifications), pada **System → Actions** pilih **Email** atau **On GitHub**, lalu pilih **Only notify for failed workflows** dan simpan. Pastikan repository `dzikriramdhani/wj` sedang di-watch. Ini membuat kegagalan health check atau worker muncul pada akun GitHub pemilik repository, sesuai [panduan notifikasi GitHub Actions](https://docs.github.com/en/subscriptions-and-notifications/how-tos/managing-github-actions-notifications).
 
-Untuk error aplikasi di luar tiga job tersebut, buat project error tracking terpisah, misalnya Sentry, dengan nama `winajaya-staging`. Pada provider tersebut buat alert rule untuk error baru atau lonjakan error, dengan penerima inbox operasi. Berikan DSN STAGING setelah project dibuat agar integrasi aplikasi dapat dipasang tanpa memasukkan DSN ke repository.
+Untuk error aplikasi di luar tiga job tersebut, buat project error tracking **Next.js** di [Sentry](https://sentry.io/) dengan nama `winajaya-staging`. Integrasi aplikasi sudah tersedia dan tetap nonaktif sampai DSN dipasang. Pada **Vercel → project `wj-staging` → Settings → Environment Variables**, tambahkan untuk environment STAGING/Production project tersebut:
+
+| Nama | Nilai |
+| --- | --- |
+| `SENTRY_DSN` | DSN project `winajaya-staging` dari Sentry → Settings → Projects → Client Keys (DSN) |
+| `NEXT_PUBLIC_SENTRY_DSN` | DSN yang sama, untuk penangkapan error browser |
+| `SENTRY_ENVIRONMENT` | `staging` |
+| `NEXT_PUBLIC_SENTRY_ENVIRONMENT` | `staging` |
+
+Redeploy `wj-staging`. Pada Sentry → **Alerts → Create Alert**, buat alert **Issues** untuk event baru atau lonjakan error, pilih penerima inbox operasi yang disetujui, lalu kirim satu error uji terkontrol. DSN dapat berada di browser, tetapi jangan memasukkan `SENTRY_AUTH_TOKEN` ke browser atau repository.
 
 ### Restore test
 
