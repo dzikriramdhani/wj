@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 import { hasSupabasePublicEnv } from '@/lib/supabase/env';
 import { getCurrentPlatformAccess } from '@/lib/role-access';
@@ -18,3 +19,4 @@ export default async function SuperAdminLayout({ children }: { children: React.R
     </AdminShell>
   );
 }
+

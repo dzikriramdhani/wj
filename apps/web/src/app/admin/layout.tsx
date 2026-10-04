@@ -1,3 +1,4 @@
+﻿export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 import { hasSupabasePublicEnv } from '@/lib/supabase/env';
 import { getCurrentPlatformAccess, hasCurrentMfaLevel2, requiresMfaForRoles } from '@/lib/role-access';
@@ -13,3 +14,4 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const userName = access.user.email?.split('@')[0] ?? 'Administrator';
   return <AdminShell portal="admin" userName={userName}>{children}</AdminShell>;
 }
+
