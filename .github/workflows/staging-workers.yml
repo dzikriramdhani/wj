@@ -1,0 +1,40 @@
+name: STAGING workers
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-workers
+  cancel-in-progress: false
+
+jobs:
+  expire-reservations:
+    name: Expire checkout reservations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reservation expiry worker
+        env:
+          STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+          STAGING_CRON_SECRET: ${{ secrets.STAGING_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --header "Authorization: Bearer ${STAGING_CRON_SECRET}" \
+            "${STAGING_APP_URL}/api/internal/commerce/expire-reservations"
+
+  process-operations:
+    name: Process operational metrics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call operations worker
+        env:
+          STAGING_APP_URL: ${{ secrets.STAGING_APP_URL }}
+          STAGING_CRON_SECRET: ${{ secrets.STAGING_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --header "Authorization: Bearer ${STAGING_CRON_SECRET}" \
+            "${STAGING_APP_URL}/api/internal/operations/process"
