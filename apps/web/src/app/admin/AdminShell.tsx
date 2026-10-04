@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Box, Image as ImageIcon, Receipt, ClipboardList, Users, TrendingUp, ShieldCheck, Lock, Settings, Menu } from 'lucide-react';
 import styles from './layout.module.css';
 
 type PortalKind = 'admin' | 'super-admin';
@@ -10,28 +11,28 @@ type PortalKind = 'admin' | 'super-admin';
 const portalConfig: Record<PortalKind, {
   title: string;
   roleLabel: string;
-  navItems: Array<{ name: string; path: string; icon: string }>;
+  navItems: Array<{ name: string; path: string; icon: React.ElementType }>;
 }> = {
   admin: {
     title: 'WJ Admin',
     roleLabel: 'Administrator Platform',
     navItems: [
-      { name: 'Dashboard', path: '/admin', icon: '◈' },
-      { name: 'Produk & Katalog', path: '/admin/products', icon: '▦' },
-      { name: 'Lookbook', path: '/admin/lookbook', icon: '◫' },
-      { name: 'Pesanan & Pembayaran', path: '/admin/orders', icon: '▤' },
-      { name: 'RFQ & B2B', path: '/admin/rfq', icon: '▧' },
-      { name: 'Customer', path: '/admin/customers', icon: '◉' },
-      { name: 'Operasi', path: '/admin/operations', icon: '△' },
-      { name: 'Governance', path: '/admin/governance', icon: '◆' },
+      { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+      { name: 'Produk & Katalog', path: '/admin/products', icon: Box },
+      { name: 'Lookbook', path: '/admin/lookbook', icon: ImageIcon },
+      { name: 'Pesanan & Pembayaran', path: '/admin/orders', icon: Receipt },
+      { name: 'RFQ & B2B', path: '/admin/rfq', icon: ClipboardList },
+      { name: 'Customer', path: '/admin/customers', icon: Users },
+      { name: 'Operasi', path: '/admin/operations', icon: TrendingUp },
+      { name: 'Governance', path: '/admin/governance', icon: ShieldCheck },
     ],
   },
   'super-admin': {
     title: 'WJ Super Admin',
     roleLabel: 'Super Admin · MFA',
     navItems: [
-      { name: 'Pengguna & Role', path: '/super-admin', icon: '◎' },
-      { name: 'Operasi Admin', path: '/admin', icon: '⬡' },
+      { name: 'Pengguna & Role', path: '/super-admin', icon: Lock },
+      { name: 'Operasi Admin', path: '/admin', icon: Settings },
     ],
   },
 };
@@ -71,9 +72,9 @@ export default function AdminLayout({
 
   return (
     <div className={styles.adminLayout}>
-      <div className={`${styles.overlay} ${sidebarOpen ? styles.overlayOpen : ''}`} onClick={() => setSidebarOpen(false)} />
+      <div className={${styles.overlay} } onClick={() => setSidebarOpen(false)} />
       
-      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+      <aside className={${styles.sidebar} }>
         <div className={styles.logoArea}>
           <h1 className={styles.logoText}>{config.title}</h1>
         </div>
@@ -83,13 +84,16 @@ export default function AdminLayout({
             const isActive = (item.path === '/admin' || item.path === '/super-admin')
               ? pathname === item.path
               : pathname.startsWith(item.path);
+            const IconComponent = item.icon;
             return (
               <Link
                 key={item.path}
                 href={item.path}
-                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
+                className={${styles.navLink} }
               >
-                <span className={styles.icon}>{item.icon}</span>
+                <span className={styles.icon}>
+                  <IconComponent size={20} strokeWidth={1.5} />
+                </span>
                 {item.name}
               </Link>
             );
@@ -109,7 +113,7 @@ export default function AdminLayout({
         <header className={styles.topBar}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button className={styles.menuToggle} onClick={() => setSidebarOpen(true)}>
-              ☰
+              <Menu size={24} strokeWidth={1.5} />
             </button>
             <div className={styles.breadcrumb}>{getBreadcrumb()}</div>
           </div>
