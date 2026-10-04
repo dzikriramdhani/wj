@@ -1,8 +1,8 @@
 # WINAJAYA task status
 
-Status ini mengikuti roadmap di [PRD.md](../../PRD.md).
+Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-STAGING-PRODUCTION.md](../../PRD-LANJUTAN-STAGING-PRODUCTION.md).
 
-**Diperbarui:** 2 Oktober 2026. Audit produksi menempatkan PRD sebagai patokan. Database dan konfigurasi aplikasi kini berada pada tahap STAGING; peluncuran publik hanya dapat memakai proyek Supabase PRODUCTION terpisah, Midtrans production, dan seluruh bukti pengujian PRD.
+**Diperbarui:** 4 Oktober 2026. Database dan konfigurasi aplikasi kini berada pada tahap STAGING; peluncuran publik hanya dapat memakai proyek Supabase PRODUCTION terpisah, Midtrans production, dan seluruh bukti pengujian PRD.
 
 ## Status akses platform
 
@@ -19,11 +19,20 @@ Status ini mengikuti roadmap di [PRD.md](../../PRD.md).
 - [x] Next.js, TypeScript, Supabase Auth, PostgreSQL, Storage, RLS, role assignment, audit record, security headers, dan secret server-side telah tersedia.
 - [x] Trigger akun baru memberi role `user`; migration memindahkan assignment internal lama ke `admin`.
 - [x] Batas tenant organisasi B2B dan membership dijaga oleh database serta RLS.
-- [x] Proyek Supabase STAGING `winajaya_staging` sudah terpisah dari DEV dan menerima migration `001`–`025`.
+- [x] Audit RLS STAGING membuktikan User A dapat membaca order dan profil sendiri, sedangkan User B tidak menerima data milik A.
+- [x] Audit RLS STAGING membuktikan owner organisasi dapat membaca organisasi dan membership sendiri, sedangkan organisasi lain tidak menerima data tersebut.
+- [x] Audit private Storage STAGING membuktikan owner dapat unggah dan membaca `business-documents`, sedangkan pengguna lain dan anon ditolak. Migration `202610040027_fix_business_document_read_policy.sql` memperbaiki policy baca owner.
+- [x] Proyek Supabase STAGING `winajaya_staging` sudah terpisah dari DEV dan menerima migration `001`–`029`.
 - [x] Key Supabase STAGING, Midtrans Sandbox, RajaOngkir API key, SMTP, origin, bobot, dan scheduler STAGING telah diisi; koneksi Supabase serta preflight tervalidasi.
-- [ ] Ganti `NEXT_PUBLIC_APP_URL` placeholder dengan domain HTTPS STAGING yang telah dideploy, lalu gunakan domain itu pada Supabase Auth dan webhook Midtrans Sandbox.
+- [x] Konfigurasi Auth URL dan Midtrans Sandbox notification URL dari [staging-manual-setup.md](staging-manual-setup.md) telah dikonfirmasi oleh pemilik project; endpoint webhook menerima notifikasi signed pada domain STAGING.
+- [x] `NEXT_PUBLIC_APP_URL` telah menggunakan domain HTTPS STAGING yang valid dan dapat di-resolve DNS; build STAGING lulus.
+- [x] Endpoint pemantauan `GET /api/health` tersedia tanpa membocorkan secret atau data pengguna; worker scheduler menerima `GET` dan `POST` dengan otorisasi bearer `CRON_SECRET`.
+- [x] Audit HTTPS STAGING memverifikasi CSP, HSTS, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, dan Referrer Policy; worker email tanpa bearer menerima `401`.
+- [x] Project Vercel `wj-staging` memakai Next.js dan Node.js 22; deployment `dpl_9oUPwCcP2ZTKHN4Ez8Poq2YGKNkA` aktif di `https://wj-staging.vercel.app`, dengan health check lulus.
+- [x] SSO Deployment Protection sudah dinonaktifkan hanya pada project `wj-staging`, sehingga domain STAGING dapat menerima webhook, monitor uptime, dan akses akun uji.
+- [x] `.vercelignore` mengecualikan `.env` dan `.env.*`; environment runtime berasal dari Vercel, bukan dari file lokal yang diunggah saat build.
 - [x] Origin RajaOngkir STAGING telah diverifikasi melalui Search Domestic Destination: ID `5190` untuk Cijagra, Paseh, Kabupaten Bandung, Jawa Barat 40383. Bobot serta `CRON_SECRET` telah melewati preflight.
-- [ ] Pindahkan secret dari `.env.staging.example` ke `.env.staging` yang diabaikan Git atau secret store hosting, lalu kosongkan kembali file template.
+- [x] Secret STAGING berada pada `.env.staging` yang diabaikan Git. Secret yang sama harus dimasukkan ke secret store hosting saat deployment.
 - [ ] Pada domain publik: Cloudflare/TLS, custom SMTP, scheduler `CRON_SECRET`, URL webhook Midtrans production, backup/PITR, error tracking, dan monitoring.
 
 ## Phase 1 — Catalog, Auth, dan RFQ
@@ -38,8 +47,11 @@ Status ini mengikuti roadmap di [PRD.md](../../PRD.md).
 
 - [x] Checkout idempotent, reservation stok, order tracking, invoice, shipment workflow, reconciliation pembayaran, dan fulfillment tersedia.
 - [x] Checkout menyimpan keranjang saat refresh, mengisi data akun bila sudah masuk, memvalidasi MOQ dan ongkir server-side, lalu memberikan jalur retry Midtrans.
-- [x] RajaOngkir DEV dan Midtrans Sandbox Snap/webhook idempotent terhubung lewat konfigurasi environment.
-- [ ] Konfigurasi origin, courier, bobot SKU/kemasan, dan secret scheduler telah ada. Deploy STAGING lalu buktikan checkout dan webhook Midtrans Sandbox. Gunakan key Midtrans production hanya di PRODUCTION setelah bukti STAGING disetujui.
+- [x] RajaOngkir dan Midtrans Sandbox Snap terhubung lewat konfigurasi STAGING; HTTP end-to-end membuktikan quote ongkir, order, replay idempotent, dan pembuatan sesi Sandbox.
+- [x] Migration `202610030026_fix_checkout_item_json_keys.sql` memperbaiki pembacaan item checkout. Prosedur atomik STAGING berhasil membuat order uji, reservasi stok, dan status `PENDING_PAYMENT`.
+- [x] Migration `202610040028_fix_midtrans_settlement_order_id.sql` memperbaiki settlement webhook. Uji signed Sandbox membuktikan signature salah ditolak, `pending`, `expire`, settlement, dan event duplikat; settlement menghasilkan order `PAID`, invoice, serta shipment.
+- [x] GitHub Actions menjalankan expiry reservation dan worker operasi STAGING setiap lima menit. Run manual `37175583697` membuktikan kedua job lulus dengan `CRON_SECRET`.
+- [ ] Aktifkan email worker setelah inbox penerima STAGING ditetapkan dan pengiriman email disetujui. Scheduler ERP hanya diperlukan bila integrasi ERP dipakai.
 
 ## Phase 3 — B2B commerce
 
@@ -47,13 +59,14 @@ Status ini mengikuti roadmap di [PRD.md](../../PRD.md).
 - [x] Owner/Admin perusahaan dapat menambah, mengubah, dan menghapus anggota tanpa menghapus owner terakhir.
 - [x] Admin menangani RFQ, quotation, verifikasi B2B, dan harga perusahaan dari portal Admin.
 - [x] RFQ, quotation revision, negotiation message, approval, bulk order, audit entry, database function, dan RLS sudah tersedia.
-- [ ] Buat organisasi nyata, daftarkan anggotanya, dan lakukan satu alur RFQ hingga quotation dengan data bisnis sebelum go-live.
+- [x] Alur B2B STAGING diuji: organisasi terverifikasi, RFQ, quotation, negosiasi, persetujuan, dan bulk order.
 
 ## Phase 4 — Operasi dan skala
 
 - [x] Admin → Operasi menampilkan agregat transaksi/RFQ, segmentasi customer, outbox, ERP sync, pencarian terikat scope, verifikasi perusahaan, dan harga perusahaan.
 - [x] Worker menangani analytics harian, segmentasi, outbox retry, serta job ERP idempotent.
-- [ ] Siapkan scheduler operasi, receiver/secrets ERP bila digunakan, uptime/error alert, dan capacity monitoring sebelum production.
+- [x] Scheduler operasi STAGING aktif melalui GitHub Actions setiap lima menit dan telah diuji.
+- [ ] Siapkan receiver/secrets ERP bila digunakan, uptime/error alert, dan capacity monitoring sebelum production.
 
 ## Phase 5 — Enterprise readiness
 
@@ -61,6 +74,7 @@ Status ini mengikuti roadmap di [PRD.md](../../PRD.md).
 - [x] Super Admin selalu membutuhkan Supabase AAL2 MFA; Admin juga wajib AAL2 ketika aplikasi berjalan di production.
 - [x] **Akun Saya → Verifikasi dua langkah** mendukung enrollment dan verifikasi TOTP.
 - [x] Super Admin dapat memberi/mencabut Admin atau Super Admin dengan audit dan perlindungan Super Admin terakhir.
+- [x] Tiga akun uji STAGING (`user`, `admin`, `super_admin`) dibuat. Bootstrap role dan verifikasi teknis enrollment TOTP untuk Admin/Super Admin lulus; faktor TOTP sementara dihapus agar pemilik dapat mendaftarkan authenticator sendiri.
 - [ ] SAML/OIDC, universal Admin MFA, policy retention/legal, layanan search/analytics/worker terpisah, dan multi-region memerlukan provider serta kebutuhan production yang terukur.
 
 ## Role map
@@ -84,7 +98,7 @@ Status ini mengikuti roadmap di [PRD.md](../../PRD.md).
 4. Isi katalog nyata lewat **Admin → Produk** dan **Admin → Lookbook**.
 5. Tetapkan `RAJAONGKIR_ORIGIN_ID`, courier, bobot SKU, dan berat kemasan di environment deployment.
 6. Buat proyek Supabase PRODUCTION yang kosong dan terpisah; terapkan migration, bucket/policy, Auth redirect, serta bootstrap Super Admin hanya pada proyek itu.
-7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Catat hasil security, E2E, load, dan restore test.
+7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Checkout, webhook, fulfillment, RLS, private storage, B2B, load ringan, serta scheduler reservation/operasi sudah lulus; selesaikan pengiriman email nyata, monitoring/alert, serta restore test.
 8. Siapkan Midtrans production, RajaOngkir origin/courier/berat sebenarnya, custom SMTP beserta SPF/DKIM/DMARC, Cloudflare, scheduler, backup/PITR, monitoring, dan error tracking.
 9. Deploy domain HTTPS dengan secret production, webhook Midtrans production, dan scheduler. Jalankan `npm run preflight:production -- .env.production` sampai lulus sebelum DNS cutover.
 
