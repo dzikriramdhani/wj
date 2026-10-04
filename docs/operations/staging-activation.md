@@ -22,6 +22,7 @@
 - Alur B2B STAGING lulus: organisasi terverifikasi, RFQ, quotation, negosiasi, persetujuan, dan bulk order.
 - SMTP STAGING telah diperbaiki dari host tidak valid `//gmail.com` menjadi `smtp.gmail.com`; nilai yang sama telah dideploy ke Vercel.
 - Satu email verifikasi SMTP STAGING berhasil dikirim ke inbox yang disetujui. Worker outbox belum dijalankan karena antrean masih berisi penerima lain yang belum disetujui.
+- Faktor TOTP permanen untuk akun Admin dan Super Admin telah diverifikasi pada database STAGING.
 - Load ringan 20 request paralel pada health dan katalog menghasilkan 20 respons HTTP 200 dalam 2,878 ms.
 - SSO Deployment Protection telah dinonaktifkan pada `wj-staging` sesuai persetujuan, sehingga endpoint dapat diakses publik untuk Sandbox webhook dan uptime check.
 - `.vercelignore` mengecualikan seluruh file `.env*` lokal dari upload deployment.

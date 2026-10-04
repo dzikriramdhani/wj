@@ -97,8 +97,17 @@ Untuk error aplikasi di luar tiga job tersebut, buat project error tracking terp
 
 ### Restore test
 
-Restore test harus memakai project Supabase sementara, bukan `winajaya_staging`, karena restore dapat menimpa tabel dan data. Bila Anda membuatnya sendiri, buka [Supabase Dashboard](https://supabase.com/dashboard/projects) → **New project**, lalu pilih organisasi yang sama, nama `winajaya-staging-restore-YYYYMMDD`, region `ap-northeast-1`, dan ukuran Micro. Buat password database unik dan simpan di password manager; jangan kirim password melalui chat atau repository. Setelah project aktif, berikan project ref kepada operator rilis untuk menjalankan restore dan menghapus project setelah bukti dicatat.
+Restore test memakai project sementara `winajaya-staging-restore-20261004` (`fpdglanfrfsrinlslfie`), bukan `winajaya_staging`, karena restore dapat menimpa tabel dan data. Schema `001`–`029` telah diterapkan ke project sementara.
 
-Alternatifnya, berikan persetujuan eksplisit kepada operator rilis untuk membuat project Micro sementara dan mengekspor data STAGING. Setelah selesai, bukti yang dicatat adalah project ref sementara, waktu mulai/selesai export-restore, migration version, hasil count tabel utama, health check, RPO/RTO, dan waktu penghapusan project. Tidak ada dump data atau password yang disimpan di Git.
+Untuk menyelesaikan restore, buka **Supabase Dashboard → project `winajaya_staging` → Connect → Session pooler**, salin connection string, lalu ganti `[YOUR-PASSWORD]` dengan password database STAGING. Ulangi pada project restore `winajaya-staging-restore-20261004` menggunakan password saat project dibuat. Jangan memasukkan nilai tersebut ke chat.
+
+Simpan hanya di file lokal `apps/web/.env.restore-test` yang sudah diabaikan Git:
+
+```text
+RESTORE_SOURCE_DATABASE_URL=postgresql://...
+RESTORE_TARGET_DATABASE_URL=postgresql://...
+```
+
+Kemudian jalankan `scripts/restore-staging-test.example.ps1`, atau beri tahu operator rilis bahwa file sudah ada agar skrip restore dapat dijalankan. Skrip membuat backup temporary, memulihkan ke project sementara, lalu hanya menampilkan ukuran, hash SHA-256, durasi, dan jumlah record utama. Hapus folder temporary setelah evidence dicatat. Bukti akhir: waktu mulai/selesai, migration version, count tabel utama, RPO/RTO, dan waktu penghapusan project. Tidak ada dump data atau password yang masuk Git.
 - Setelah notification URL Midtrans tersimpan, lakukan pembayaran Sandbox dan beri tahu hasilnya. Lalu verifikasi webhook sukses, pending, gagal, expired, dan event duplikat.
 - Catat bukti SMTP, scheduler, privileged MFA, B2B/RFQ, monitoring, restore, dan load test pada [task-status.md](task-status.md).
