@@ -2,7 +2,7 @@
 
 Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-STAGING-PRODUCTION.md](../../PRD-LANJUTAN-STAGING-PRODUCTION.md).
 
-**Diperbarui:** 4 Oktober 2026. Database dan konfigurasi aplikasi kini berada pada tahap STAGING; peluncuran publik hanya dapat memakai proyek Supabase PRODUCTION terpisah, Midtrans production, dan seluruh bukti pengujian PRD.
+**Diperbarui:** 7 Oktober 2026. Validasi teknis STAGING selesai; peluncuran publik tetap hanya dapat memakai proyek Supabase PRODUCTION terpisah, Midtrans production, dan seluruh bukti pengujian PRD.
 
 ## Status akses platform
 
@@ -33,6 +33,8 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] `.vercelignore` mengecualikan `.env` dan `.env.*`; environment runtime berasal dari Vercel, bukan dari file lokal yang diunggah saat build.
 - [x] Restore test STAGING memulihkan data aplikasi dan `auth.users` ke proyek Supabase sementara terisolasi. Migration `29` serta jumlah 12 akun/profil, 1 produk, 8 pesanan, dan 6 organisasi sama dengan sumber; RPO 0 menit dan RTO di bawah 2 menit. Dump lokal dan proyek sementara sudah dihapus.
 - [x] Integrasi error tracking Sentry tersedia untuk browser, server, Midtrans webhook, checkout, quote ongkir, dan worker. Integrasi aktif hanya setelah DSN STAGING dipasang di Vercel; tidak ada request body atau data pelanggan yang ditambahkan oleh kode aplikasi.
+- [x] Sentry project `winajaya-staging` memakai DSN di Vercel dengan environment `staging`. Deployment `9aa477d` aktif dan menunggu pengiriman event sebelum respons error dikembalikan oleh serverless.
+- [x] Alert Sentry `Notify dzikriramdhani` ditetapkan untuk akun `dzikriramdhani24@gmail.com`. Error JSON terkontrol tanpa data pelanggan menghasilkan issue `WINAJAYA-STAGING-1` dan alert tercatat terpicu pada 7 Oktober 2026.
 - [x] Origin RajaOngkir STAGING telah diverifikasi melalui Search Domestic Destination: ID `5190` untuk Cijagra, Paseh, Kabupaten Bandung, Jawa Barat 40383. Bobot serta `CRON_SECRET` telah melewati preflight.
 - [x] Secret STAGING berada pada `.env.staging` yang diabaikan Git. Secret yang sama harus dimasukkan ke secret store hosting saat deployment.
 - [ ] Pada domain publik: Cloudflare/TLS, custom SMTP, scheduler `CRON_SECRET`, URL webhook Midtrans production, backup/PITR, error tracking, dan monitoring.
@@ -70,7 +72,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Admin → Operasi menampilkan agregat transaksi/RFQ, segmentasi customer, outbox, ERP sync, pencarian terikat scope, verifikasi perusahaan, dan harga perusahaan.
 - [x] Worker menangani analytics harian, segmentasi, outbox retry, serta job ERP idempotent.
 - [x] Scheduler operasi STAGING aktif melalui GitHub Actions setiap lima menit dan telah diuji.
-- [ ] Siapkan receiver/secrets ERP bila digunakan, penerima alert/error tracking, dan capacity monitoring sebelum production.
+- [ ] Siapkan receiver/secrets ERP bila digunakan dan capacity monitoring sebelum production.
 
 ## Phase 5 — Enterprise readiness
 
@@ -103,7 +105,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 4. Isi katalog nyata lewat **Admin → Produk** dan **Admin → Lookbook**.
 5. Tetapkan `RAJAONGKIR_ORIGIN_ID`, courier, bobot SKU, dan berat kemasan di environment deployment.
 6. Buat proyek Supabase PRODUCTION yang kosong dan terpisah; terapkan migration, bucket/policy, Auth redirect, serta bootstrap Super Admin hanya pada proyek itu.
-7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Checkout, webhook, fulfillment, RLS, private storage, B2B, load ringan, scheduler reservation/operasi, pengiriman email uji, alert GitHub Actions, dan restore test sudah lulus. Buat project Sentry, pasang DSN, tetapkan penerima alert operasi, lalu uji satu error terkontrol sebelum production.
+7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Checkout, webhook, fulfillment, RLS, private storage, B2B, load ringan, scheduler reservation/operasi, pengiriman email uji, alert GitHub Actions, restore test, serta Sentry alert terkontrol sudah lulus.
 8. Siapkan Midtrans production, RajaOngkir origin/courier/berat sebenarnya, custom SMTP beserta SPF/DKIM/DMARC, Cloudflare, scheduler, backup/PITR, monitoring, dan error tracking.
 9. Deploy domain HTTPS dengan secret production, webhook Midtrans production, dan scheduler. Jalankan `npm run preflight:production -- .env.production` sampai lulus sebelum DNS cutover.
 

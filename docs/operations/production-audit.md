@@ -5,7 +5,7 @@
 
 ## Kesimpulan
 
-Status saat ini adalah **STAGING, belum layak cutover ke PRODUCTION**. Aplikasi, deployment STAGING, checkout Sandbox, webhook, RLS, B2B, MFA, scheduler, email uji, load ringan, dan restore test sudah dibuktikan. Gate yang tersisa adalah error tracking aplikasi dengan penerima alert operasi, persetujuan/aktivasi email worker untuk antrean yang masih pending, serta seluruh provisioning PRODUCTION terpisah.
+Status saat ini adalah **STAGING tervalidasi secara teknis, belum layak cutover ke PRODUCTION**. Aplikasi, deployment STAGING, checkout Sandbox, webhook, RLS, B2B, MFA, scheduler, email uji, load ringan, restore test, Sentry, dan alert error terkontrol sudah dibuktikan. Gate yang tersisa adalah persetujuan evidence release owner, persetujuan/aktivasi email worker untuk antrean yang masih pending, serta seluruh provisioning PRODUCTION terpisah.
 
 ## Perbaikan yang diterapkan dalam audit ini
 
@@ -20,7 +20,7 @@ Status saat ini adalah **STAGING, belum layak cutover ke PRODUCTION**. Aplikasi,
 | Area PRD | Status | Bukti / tindakan yang tersisa |
 | --- | --- | --- |
 | Proyek Supabase production | Blocker | Konfigurasi aktif masih terdeteksi sebagai DEV. Buat proyek PRODUCTION terpisah dan jangan salin akun/order DEV. |
-| STAGING | Hampir selesai | Proyek `winajaya_staging` terpisah memakai migration `001`–`029`, deployment HTTPS aktif, dan seluruh bukti inti tersedia. Error tracking aplikasi, penerima alert operasi, serta persetujuan email worker masih diperlukan. |
+| STAGING | Selesai teknis | Proyek `winajaya_staging` terpisah memakai migration `001`–`029`, deployment HTTPS aktif, bukti inti tersedia, serta issue dan alert Sentry terkontrol telah terbukti. Persetujuan evidence release owner dan email worker yang masih pending perlu diselesaikan sebelum cutover. |
 | Migration terkontrol | Siap STAGING | Migration `001`–`029` sama pada workspace dan proyek STAGING. Terapkan berurutan melalui Supabase CLI pada PRODUCTION setelah gate STAGING disetujui. |
 | RLS dan RBAC | Lulus STAGING | Uji lintas user dan lintas organisasi membuktikan isolasi order, profil, organisasi, membership, dan dokumen private; role platform tiga tingkat berlaku. |
 | MFA privileged | Lulus STAGING | Faktor TOTP permanen Admin dan Super Admin telah diverifikasi. Super Admin wajib AAL2; Admin wajib AAL2 pada production. |
@@ -32,7 +32,7 @@ Status saat ini adalah **STAGING, belum layak cutover ke PRODUCTION**. Aplikasi,
 | Rate limiting | Perlu konfigurasi | Aplikasi mempunyai fallback in-memory; Cloudflare wajib menjadi pembatas yang durable untuk endpoint publik. |
 | Private storage | Lulus STAGING | Owner organisasi dapat unggah/baca dokumen private; pengguna lain dan anon ditolak. |
 | Image optimization | Partial blocker | Next Image optimisation dan remote source allowlist sudah aktif, tetapi upload belum menyimpan derivative image beserta metadata pipeline yang diminta PRD. |
-| Monitoring dan error tracking | Blocker | Health dan worker dipantau GitHub Actions setiap lima menit, tetapi error tracking aplikasi serta penerima alert operasi belum dikonfigurasi. |
+| Monitoring dan error tracking | Lulus STAGING | Health dan worker dipantau GitHub Actions setiap lima menit. Sentry `winajaya-staging` menangkap issue error terkontrol dan alert penerima operasi berhasil terpicu. |
 | Backup dan recovery | Lulus STAGING | Restore ke proyek Supabase sementara menghasilkan migration/data inti yang identik; RPO 0 menit dan RTO kurang dari 2 menit. |
 | Lint | Lulus | `npm run lint` lulus tanpa error maupun warning setelah audit. |
 | Security, E2E, load test | Lulus STAGING | Security/RLS, checkout-webhook, B2B, dan load ringan 20 request paralel telah dicatat pada evidence STAGING. |

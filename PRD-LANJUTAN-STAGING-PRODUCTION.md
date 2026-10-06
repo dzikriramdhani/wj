@@ -23,7 +23,7 @@ Target akhir adalah domain produksi yang melayani transaksi nyata dengan proyek 
 | Migration STAGING | Siap | Migration `202609290001` sampai `202610040029` telah diterapkan; migration 026 memperbaiki item checkout, 027 private business document, 028 settlement Midtrans, dan 029 constraint path notifikasi. |
 | Environment STAGING | Siap konfigurasi | Variabel runtime sudah diisi pada Vercel dan file lokal `.env.staging` diabaikan Git. |
 | Build STAGING | Lulus | Preflight STAGING, lint, dan build Vercel Node 22 berhasil. Artefak Next.js standalone tersedia. |
-| Observability dan scheduler code | Sebagian siap | `GET /api/health` tersedia; seluruh worker menerima GET/POST dan tetap mengharuskan bearer `CRON_SECRET`. GitHub Actions menjalankan health check, reservation, dan operations worker tiap lima menit; email masih menunggu inbox penerima dan persetujuan pengiriman. |
+| Observability dan scheduler STAGING | Siap | `GET /api/health` tersedia; seluruh worker menerima GET/POST dan tetap mengharuskan bearer `CRON_SECRET`. GitHub Actions menjalankan health check, reservation, dan operations worker tiap lima menit. Sentry STAGING dan alert penerima operasi telah diuji dengan error tanpa data pelanggan. |
 | Shipping STAGING | Siap konfigurasi | Origin RajaOngkir adalah ID `5190`: Cijagra, Paseh, Kabupaten Bandung, Jawa Barat 40383. |
 | Checkout STAGING | Lulus inti | Quote ongkir, order atomik, replay idempotent, sesi Midtrans Sandbox, dan webhook signed untuk pending, expire, settlement, serta duplicate telah lolos. Settlement membuat invoice dan shipment. |
 | RLS STAGING | Lulus sebagian | Audit dua akun dan dua organisasi uji membuktikan isolasi order, profil, organisasi, membership, serta private business document lintas pemilik. Alur B2B sampai bulk order juga lulus. Faktor MFA permanen masih menunggu pemilik akun. |
@@ -256,8 +256,8 @@ Simpan pada lokasi akses terbatas dan tanpa secret:
 | 1 | Selesai | S0: deploy Vercel STAGING dan verifikasi endpoint publik. |
 | 2 | Selesai | S1: SMTP, scheduler reservation/operasi, email uji, dan MFA permanen akun privileged telah dibuktikan. |
 | 3 | Selesai | S2: transaksi Sandbox, B2B, role, RLS, dan worker telah dibuktikan. |
-| 4 | Berjalan | S3: restore, security, E2E, load, serta kode error tracking sudah dibuktikan; buat project Sentry, pasang DSN, tetapkan penerima alert operasi, dan setujui evidence. |
-| 5 | Menunggu gate STAGING | P0–P2: provision dan review PRODUCTION setelah S3 disetujui. |
+| 4 | Selesai teknis | S3: restore, security, E2E, load, Sentry, dan alert error terkontrol telah dibuktikan. Persetujuan evidence oleh release owner diperlukan sebelum P0. |
+| 5 | Menunggu gate STAGING | P0–P2: provision dan review PRODUCTION setelah evidence S3 disetujui. |
 | 6 | Menunggu P0–P2 | P3: cutover terkontrol dan monitoring 24 jam. |
 
 ## 9. Definition of Done lanjutan
