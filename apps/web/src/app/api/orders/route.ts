@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       owner,
     );
   } catch (error) {
-    reportServerError(error, 'orders.create');
+    await reportServerError(error, 'orders.create');
     return NextResponse.json({ error: 'Checkout gagal diproses. Silakan coba kembali.' }, { status: 500 });
   }
 }

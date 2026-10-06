@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     }, { status: 201 });
     return attachGuestSession(response, owner);
   } catch (error) {
-    reportServerError(error, 'shipping.quote');
+    await reportServerError(error, 'shipping.quote');
     return NextResponse.json({ error: 'Ongkir belum dapat dihitung. Coba kembali sebentar lagi.' }, { status: 503 });
   }
 }

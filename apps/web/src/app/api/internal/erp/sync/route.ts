@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ success: true, processedJobs: jobs?.length ?? 0 });
   } catch (error) {
-    reportServerError(error, 'erp.sync');
+    await reportServerError(error, 'erp.sync');
     return NextResponse.json({ error: 'Sinkronisasi ERP belum dapat diproses.' }, { status: 500 });
   }
 }

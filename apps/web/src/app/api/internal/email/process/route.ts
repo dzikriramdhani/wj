@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ success: true, claimed: jobs.length, sent });
   } catch (error) {
-    reportServerError(error, 'email.process');
+    await reportServerError(error, 'email.process');
     return NextResponse.json({ error: 'Email belum dapat diproses.' }, { status: 500 });
   }
 }

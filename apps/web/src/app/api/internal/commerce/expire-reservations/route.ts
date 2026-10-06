@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (error) throw error;
     return NextResponse.json({ success: true, expiredOrders: data ?? 0 });
   } catch (error) {
-    reportServerError(error, 'commerce.expire_reservations');
+    await reportServerError(error, 'commerce.expire_reservations');
     return NextResponse.json({ error: 'Pelepasan reservasi belum dapat diproses.' }, { status: 500 });
   }
 }

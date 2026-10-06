@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     if (!data?.accepted) return NextResponse.json({ error: 'Notification tidak dapat diterapkan.' }, { status: 422 });
     return NextResponse.json({ received: true });
   } catch (error) {
-    reportServerError(error, 'payments.midtrans.webhook');
+    await reportServerError(error, 'payments.midtrans.webhook');
     return NextResponse.json({ error: 'Webhook belum dapat diproses.' }, { status: 500 });
   }
 }

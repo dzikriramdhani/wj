@@ -11,11 +11,14 @@ type Operation =
   | 'orders.create';
 
 /** Reports a failure without attaching request bodies or customer data. */
-export function reportServerError(error: unknown, operation: Operation) {
+export async function reportServerError(error: unknown, operation: Operation) {
   console.error(`${operation} failed`, error);
   Sentry.withScope((scope) => {
     scope.setTag('operation', operation);
     scope.setLevel('error');
     Sentry.captureException(error);
   });
+  // Serverless runtimes can freeze as soon as a route returns. Wait briefly so
+  // the error transport can submit the event before the response is sent.
+  await Sentry.flush(2_000);
 }

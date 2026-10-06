@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ success: true, processedEvents: events?.length ?? 0 });
   } catch (error) {
-    reportServerError(error, 'operations.process');
+    await reportServerError(error, 'operations.process');
     return NextResponse.json({ error: 'Worker operasional belum dapat diproses.' }, { status: 500 });
   }
 }
