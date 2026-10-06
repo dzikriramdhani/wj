@@ -2,7 +2,7 @@
 
 Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-STAGING-PRODUCTION.md](../../PRD-LANJUTAN-STAGING-PRODUCTION.md).
 
-**Diperbarui:** 7 Oktober 2026. Validasi teknis STAGING selesai; peluncuran publik tetap hanya dapat memakai proyek Supabase PRODUCTION terpisah, Midtrans production, dan seluruh bukti pengujian PRD.
+**Diperbarui:** 7 Oktober 2026. Validasi teknis STAGING selesai. Fondasi database PRODUCTION menggunakan project Supabase `winajaya` yang dipisahkan dari STAGING dan dibangun ulang tanpa data DEV.
 
 ## Status akses platform
 
@@ -37,7 +37,9 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Alert Sentry `Notify dzikriramdhani` ditetapkan untuk akun `dzikriramdhani24@gmail.com`. Error JSON terkontrol tanpa data pelanggan menghasilkan issue `WINAJAYA-STAGING-1` dan alert tercatat terpicu pada 7 Oktober 2026.
 - [x] Origin RajaOngkir STAGING telah diverifikasi melalui Search Domestic Destination: ID `5190` untuk Cijagra, Paseh, Kabupaten Bandung, Jawa Barat 40383. Bobot serta `CRON_SECRET` telah melewati preflight.
 - [x] Secret STAGING berada pada `.env.staging` yang diabaikan Git. Secret yang sama harus dimasukkan ke secret store hosting saat deployment.
-- [ ] Pada domain publik: Cloudflare/TLS, custom SMTP, scheduler `CRON_SECRET`, URL webhook Midtrans production, backup/PITR, error tracking, dan monitoring.
+- [x] Project Supabase PRODUCTION `winajaya` (`qcgcpheeskkdcnxspbgx`) telah direset tanpa backup sesuai persetujuan owner, tanpa seed DEV. Seluruh 26 migration, 6 bucket, dan policy telah dibangun ulang; data Auth, produk, pesanan, organisasi, serta objek Storage bernilai nol.
+- [x] Vercel project `wj` memakai URL dan key project Supabase PRODUCTION. Domain deployment yang dipilih adalah `https://wj-wine.vercel.app`.
+- [ ] Pada domain publik: custom SMTP production, scheduler `CRON_SECRET` production, URL webhook Midtrans production, backup/PITR, error tracking production, monitoring, dan transaksi produksi terkontrol.
 
 ## Phase 1 — Catalog, Auth, dan RFQ
 
@@ -106,7 +108,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 5. Tetapkan `RAJAONGKIR_ORIGIN_ID`, courier, bobot SKU, dan berat kemasan di environment deployment.
 6. Buat proyek Supabase PRODUCTION yang kosong dan terpisah; terapkan migration, bucket/policy, Auth redirect, serta bootstrap Super Admin hanya pada proyek itu.
 7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Checkout, webhook, fulfillment, RLS, private storage, B2B, load ringan, scheduler reservation/operasi, pengiriman email uji, alert GitHub Actions, restore test, serta Sentry alert terkontrol sudah lulus.
-8. Siapkan Midtrans production, RajaOngkir origin/courier/berat sebenarnya, custom SMTP beserta SPF/DKIM/DMARC, Cloudflare, scheduler, backup/PITR, monitoring, dan error tracking.
+8. Isi key Midtrans production, RajaOngkir origin/courier/berat sebenarnya, custom SMTP beserta SPF/DKIM/DMARC, scheduler, backup/PITR, monitoring, dan error tracking production.
 9. Deploy domain HTTPS dengan secret production, webhook Midtrans production, dan scheduler. Jalankan `npm run preflight:production -- .env.production` sampai lulus sebelum DNS cutover.
 
 ## Cara mengubah data operasional

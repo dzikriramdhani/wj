@@ -257,7 +257,7 @@ Simpan pada lokasi akses terbatas dan tanpa secret:
 | 2 | Selesai | S1: SMTP, scheduler reservation/operasi, email uji, dan MFA permanen akun privileged telah dibuktikan. |
 | 3 | Selesai | S2: transaksi Sandbox, B2B, role, RLS, dan worker telah dibuktikan. |
 | 4 | Selesai teknis | S3: restore, security, E2E, load, Sentry, dan alert error terkontrol telah dibuktikan. Persetujuan evidence oleh release owner diperlukan sebelum P0. |
-| 5 | Menunggu gate STAGING | P0–P2: provision dan review PRODUCTION setelah evidence S3 disetujui. |
+| 5 | Berjalan | P0: project Supabase `winajaya` telah dibersihkan dari data DEV dan menerima seluruh migration tanpa seed. Vercel `wj` sudah memakai kredensial project tersebut; layanan production lain masih perlu diverifikasi. |
 | 6 | Menunggu P0–P2 | P3: cutover terkontrol dan monitoring 24 jam. |
 
 ## 9. Definition of Done lanjutan
