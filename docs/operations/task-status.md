@@ -39,6 +39,8 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Secret STAGING berada pada `.env.staging` yang diabaikan Git. Secret yang sama harus dimasukkan ke secret store hosting saat deployment.
 - [x] Project Supabase PRODUCTION `winajaya` (`qcgcpheeskkdcnxspbgx`) telah direset tanpa backup sesuai persetujuan owner, tanpa seed DEV. Seluruh 26 migration, 6 bucket, dan policy telah dibangun ulang; data Auth, produk, pesanan, organisasi, serta objek Storage bernilai nol.
 - [x] Vercel project `wj` memakai URL dan key project Supabase PRODUCTION. Domain deployment yang dipilih adalah `https://wj-wine.vercel.app`.
+- [x] Supabase Auth PRODUCTION memakai Site URL serta redirect URL `https://wj-wine.vercel.app`. Email confirmation dan enrollment/verifikasi TOTP yang telah aktif pada project dipertahankan.
+- [x] Smoke test deployment PRODUCTION lulus: `GET /api/health` memberi HTTP 200 dengan status `ok`, sedangkan katalog publik memberi HTTP 200 dan total produk 0. Route health hanya memeriksa ketersediaan Supabase tanpa mengeluarkan data atau secret.
 - [ ] Pada domain publik: custom SMTP production, scheduler `CRON_SECRET` production, URL webhook Midtrans production, backup/PITR, error tracking production, monitoring, dan transaksi produksi terkontrol.
 
 ## Phase 1 — Catalog, Auth, dan RFQ
@@ -110,6 +112,14 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Checkout, webhook, fulfillment, RLS, private storage, B2B, load ringan, scheduler reservation/operasi, pengiriman email uji, alert GitHub Actions, restore test, serta Sentry alert terkontrol sudah lulus.
 8. Isi key Midtrans production, RajaOngkir origin/courier/berat sebenarnya, custom SMTP beserta SPF/DKIM/DMARC, scheduler, backup/PITR, monitoring, dan error tracking production.
 9. Deploy domain HTTPS dengan secret production, webhook Midtrans production, dan scheduler. Jalankan `npm run preflight:production -- .env.production` sampai lulus sebelum DNS cutover.
+
+## Task Completed — checkpoint Production P0
+
+- [x] Mengosongkan project `winajaya` dari data DEV berdasarkan persetujuan owner.
+- [x] Menerapkan seluruh migration tanpa seed DEV, membuat ulang bucket dan policy, lalu memverifikasi data aplikasi, Auth, dan Storage object kosong.
+- [x] Mengarahkan Vercel `wj` ke Supabase PRODUCTION dan mengaktifkan deployment `b299a1b`.
+- [x] Menetapkan domain deployment `https://wj-wine.vercel.app`, Supabase Auth URL, redirect URL, serta health check database.
+- [ ] Menyelesaikan P1–P3: key Midtrans production dan notification URL, SMTP/DNS production, scheduler/secret production, Sentry/alert production, backup/PITR, bootstrap Super Admin, katalog bisnis, transaksi produksi terkontrol, dan hypercare 24 jam.
 
 ## Cara mengubah data operasional
 

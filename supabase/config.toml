@@ -6,6 +6,10 @@ schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
+[auth]
+site_url = "https://wj-wine.vercel.app"
+additional_redirect_urls = ["https://wj-wine.vercel.app/**"]
+
 [db]
 major_version = 17
 
