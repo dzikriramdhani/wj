@@ -1,55 +1,67 @@
-.dashboard { display: flex; flex-direction: column; gap: 24px; color: var(--color-text); }
+﻿.dashboard { display: flex; flex-direction: column; gap: 32px; color: var(--color-text); }
 .pageHeader { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
-.eyebrow { margin: 0 0 8px; color: var(--color-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: .1em; }
-.title { margin: 0; color: var(--color-text); font-size: 30px; font-weight: 600; letter-spacing: -.03em; }
+.eyebrow { margin: 0 0 8px; color: var(--color-text-secondary); font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+.title { margin: 0; color: var(--color-text); font-size: 40px; font-weight: 600; letter-spacing: -1.5px; }
 .subtitle { margin: 6px 0 0; color: var(--color-text-secondary); font-size: 14px; }
-.primaryAction { display: inline-flex; align-items: center; gap: 20px; padding: 11px 14px; background: var(--color-text); color: var(--color-bg); font-size: 13px; font-weight: 600; text-decoration: none; transition: opacity 150ms ease; }
-.primaryAction:hover { opacity: .78; }
-.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
-.rangeCaption { color: var(--color-text-secondary); font-size: 13px; }
-.rangeControls { display: flex; gap: 4px; }
-.rangeButton { border: 1px solid transparent; padding: 7px 11px; background: transparent; color: var(--color-text-secondary); font: inherit; font-size: 12px; cursor: pointer; }
-.rangeButton:hover { color: var(--color-text); }
-.rangeButton:focus-visible, .primaryAction:focus-visible, .textLink:focus-visible { outline: 2px solid var(--color-text); outline-offset: 2px; }
-.rangeActive { border-color: var(--color-border); background: var(--color-bg-white); color: var(--color-text); }
+.primaryAction { display: inline-flex; align-items: center; gap: 20px; padding: 12px 24px; background: var(--color-text); color: var(--color-bg); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; transition: background-color 150ms ease; border: 1px solid var(--color-text); border-radius: 0; }
+.primaryAction:hover { background: transparent; color: var(--color-text); }
+
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+.rangeCaption { color: var(--color-text-secondary); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.rangeControls { display: flex; gap: 0; border: 1px solid var(--color-border); }
+.rangeButton { border: none; border-right: 1px solid var(--color-border); padding: 8px 16px; background: transparent; color: var(--color-text-secondary); font: inherit; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; transition: all 150ms ease; }
+.rangeButton:last-child { border-right: none; }
+.rangeButton:hover { color: var(--color-text); background: rgba(0,0,0,0.02); }
+.rangeActive { background: var(--color-text); color: var(--color-bg); }
+.rangeActive:hover { background: var(--color-text); color: var(--color-bg); }
+
 .metricGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
-.metric { display: flex; min-width: 0; flex-direction: column; gap: 9px; padding: 18px 0 16px; border-bottom: 1px solid var(--color-border); }
-.metricLabel { color: var(--color-text-secondary); font-size: 13px; }
-.metricValue { overflow: hidden; color: var(--color-text); font-size: clamp(23px, 2.5vw, 31px); font-weight: 600; letter-spacing: -.035em; text-overflow: ellipsis; white-space: nowrap; }
+.metric { display: flex; min-width: 0; flex-direction: column; gap: 12px; padding: 24px 0; border-bottom: 1px solid var(--color-border); }
+.metricLabel { color: var(--color-text-secondary); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.metricValue { overflow: hidden; color: var(--color-text); font-size: clamp(32px, 3vw, 48px); font-weight: 600; letter-spacing: -2px; text-overflow: ellipsis; white-space: nowrap; line-height: 1; }
 .metricNote { color: var(--color-text-secondary); font-size: 12px; }
-.mainGrid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .85fr); gap: 18px; }
-.lowerGrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 18px; }
-.panel { min-width: 0; padding: 20px; border: 1px solid var(--color-border-light); background: var(--color-bg-white); }
-.panelHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; min-height: 44px; }
-.panelTitle { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
-.panelDescription { margin: 5px 0 0; color: var(--color-text-secondary); font-size: 12px; }
-.panelTotal { font-size: 13px; font-weight: 600; white-space: nowrap; }
-.textLink { color: var(--color-text); font-size: 12px; font-weight: 600; text-decoration-thickness: 1px; text-underline-offset: 3px; white-space: nowrap; }
-.chart { display: flex; height: 188px; align-items: stretch; gap: 5px; padding-top: 20px; }
+
+.mainGrid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(270px, .85fr); gap: 24px; }
+.lowerGrid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 24px; }
+.panel { min-width: 0; padding: 24px; border: 1px solid var(--color-border); background: var(--color-bg); }
+.panelHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.panelTitle { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.5px; text-transform: uppercase; }
+.panelDescription { margin: 6px 0 0; color: var(--color-text-secondary); font-size: 13px; }
+.panelTotal { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.textLink { color: var(--color-text); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; text-decoration: none; border-bottom: 1px solid var(--color-text); padding-bottom: 2px; }
+.textLink:hover { color: var(--color-text-secondary); border-color: var(--color-text-secondary); }
+
+.chart { display: flex; height: 200px; align-items: stretch; gap: 8px; padding-top: 20px; }
 .chartColumn { display: flex; min-width: 0; flex: 1; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; }
-.barTrack { display: flex; width: min(100%, 28px); height: 142px; align-items: flex-end; }
-.bar { width: 100%; min-height: 2px; background: #405b50; transition: height 200ms ease; }
-.chartLabel { height: 15px; color: var(--color-text-secondary); font-size: 10px; white-space: nowrap; }
-.emptyNote { margin: 14px 0 0; color: var(--color-text-secondary); font-size: 12px; line-height: 1.5; }
-.pipeline { margin-top: 12px; }
-.pipelineRow { display: flex; justify-content: space-between; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--color-border-light); color: var(--color-text-secondary); font-size: 13px; }
+.barTrack { display: flex; width: min(100%, 32px); height: 160px; align-items: flex-end; background: rgba(0,0,0,0.03); border: 1px solid var(--color-border); }
+.bar { width: 100%; min-height: 2px; background: var(--color-text); transition: height 200ms ease; }
+.chartLabel { height: 16px; color: var(--color-text-secondary); font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+.emptyNote { margin: 16px 0 0; color: var(--color-text-secondary); font-size: 13px; line-height: 1.5; }
+
+.pipeline { margin-top: 16px; }
+.pipelineRow { display: flex; justify-content: space-between; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: 14px; }
 .pipelineRow:last-child { border-bottom: 0; }
 .pipelineRow strong { color: var(--color-text); font-weight: 600; }
-.productList, .activityList { margin-top: 10px; }
-.productRow { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; min-height: 49px; border-bottom: 1px solid var(--color-border-light); font-size: 12px; }
+
+.productList, .activityList { margin-top: 16px; }
+.productRow { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; align-items: center; gap: 16px; min-height: 56px; border-bottom: 1px solid var(--color-border); font-size: 13px; }
 .productRow:last-child, .activityRow:last-child { border-bottom: 0; }
-.productRank { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
-.productName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.productRank { color: var(--color-text-secondary); font-weight: 600; }
+.productName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
 .productQty { color: var(--color-text-secondary); white-space: nowrap; }
-.productRow strong { font-weight: 600; white-space: nowrap; }
-.activityRow { display: flex; align-items: center; gap: 10px; min-height: 49px; border-bottom: 1px solid var(--color-border-light); }
-.activityDot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #94723c; }
-.orderDot { background: #405b50; }
-.activityText { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 3px; }
-.activityText strong { overflow: hidden; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.activityText small { overflow: hidden; color: var(--color-text-secondary); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.activityRow time { color: var(--color-text-secondary); font-size: 10px; white-space: nowrap; }
-.dataNote { max-width: 82ch; color: var(--color-text-secondary); font-size: 11px; line-height: 1.5; }
+.productRow strong { font-weight: 600; white-space: nowrap; color: var(--color-text); }
+
+.activityRow { display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--color-border); }
+.activityDot { width: 8px; height: 8px; flex: 0 0 8px; border-radius: 0; background: var(--color-text); margin-top: 6px; }
+.orderDot { background: var(--color-text-secondary); }
+.activityText { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 4px; }
+.activityText strong { overflow: hidden; font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text); }
+.activityText small { overflow: hidden; color: var(--color-text-secondary); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.activityRow time { color: var(--color-text-secondary); font-size: 11px; font-weight: 600; white-space: nowrap; text-transform: uppercase; }
+
+.dataNote { max-width: 82ch; color: var(--color-text-secondary); font-size: 12px; line-height: 1.5; margin-top: 16px; }
+
 @media (max-width: 1100px) { .metricGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mainGrid, .lowerGrid { grid-template-columns: 1fr; } }
-@media (max-width: 600px) { .dashboard { gap: 18px; } .pageHeader { align-items: flex-start; flex-direction: column; } .title { font-size: 27px; } .primaryAction { min-height: 40px; } .toolbar { align-items: flex-start; flex-direction: column; } .rangeControls { width: 100%; } .rangeButton { flex: 1; } .metricGrid { gap: 12px 18px; } .metric { padding: 12px 0; } .metricValue { font-size: 22px; } .panel { padding: 16px; } .productRow { grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; } .productRow strong { display: none; } .chart { gap: 3px; } }
+@media (max-width: 600px) { .dashboard { gap: 24px; } .pageHeader { align-items: flex-start; flex-direction: column; } .title { font-size: 32px; letter-spacing: -1px; } .toolbar { align-items: flex-start; flex-direction: column; } .rangeControls { width: 100%; } .rangeButton { flex: 1; } .metricGrid { gap: 16px 24px; } .metric { padding: 16px 0; } .metricValue { font-size: 28px; } .panel { padding: 20px; } .productRow { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; } .productRow strong { display: none; } .chart { gap: 4px; } }
 @media (prefers-reduced-motion: reduce) { .primaryAction, .bar { transition: none; } }

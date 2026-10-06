@@ -1,4 +1,4 @@
-.adminLayout {
+﻿.adminLayout {
   display: flex;
   min-height: 100vh;
   background-color: var(--color-bg);
@@ -6,8 +6,9 @@
 
 .sidebar {
   width: 260px;
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-light);
+  background-color: var(--color-bg);
+  border-right: 1px solid var(--color-border);
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
   transition: transform var(--transition-normal);
@@ -16,14 +17,16 @@
 
 .logoArea {
   padding: var(--space-xl);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .logoText {
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: var(--color-text-light);
+  color: var(--color-text);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
 }
 
 .nav {
@@ -39,29 +42,32 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-md) var(--space-xl);
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-secondary);
   text-decoration: none;
   font-weight: 500;
-  transition: background-color var(--transition-fast), color var(--transition-fast);
+  transition: color var(--transition-fast);
+  border-left: 2px solid transparent;
 }
 
 .navLink:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: white;
+  color: var(--color-text);
 }
 
 .navLinkActive {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
+  color: var(--color-text);
+  font-weight: 600;
+  border-left: 2px solid var(--color-text);
 }
 
 .icon {
   font-size: var(--font-size-lg);
+  display: flex;
+  align-items: center;
 }
 
 .userInfo {
   padding: var(--space-lg) var(--space-xl);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -77,50 +83,56 @@
   font-weight: 600;
   font-size: var(--font-size-md);
   margin: 0;
+  color: var(--color-text);
 }
 
 .userRole {
   font-size: var(--font-size-xs);
-  color: #f0d891;
-  background-color: rgba(212, 175, 55, 0.15); /* Gold with opacity */
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
+  color: var(--color-bg);
+  background-color: var(--color-text);
+  padding: 4px 10px;
+  border-radius: 0px;
   display: inline-block;
   width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .logoutBtn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
   padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
   text-align: left;
   font-family: inherit;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.5px;
 }
 
 .logoutBtn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--color-text);
+  color: var(--color-bg);
 }
 
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* for flex children overflow */
+  min-width: 0;
 }
 
 .topBar {
-  height: 70px;
-  background-color: var(--color-bg-white);
+  height: 80px;
+  background-color: var(--color-bg);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-xl);
-  box-shadow: var(--shadow-sm);
 }
 
 .menuToggle {
@@ -134,19 +146,23 @@
 }
 
 .breadcrumb {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  font-size: var(--font-size-lg);
 }
 
 .topBarUser {
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 500;
+  color: var(--color-text-secondary);
 }
 
 .contentArea {
   padding: var(--space-2xl);
   flex: 1;
   overflow-y: auto;
+  background-color: var(--color-bg);
 }
 
 .overlay {

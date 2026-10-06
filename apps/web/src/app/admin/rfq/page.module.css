@@ -1,4 +1,4 @@
-.container {
+﻿.container {
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
@@ -12,12 +12,7 @@
   gap: var(--space-lg);
 }
 
-.title {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  color: var(--color-primary);
-  margin: 0;
-}
+.title { font-size: 32px; font-weight: 600; color: var(--color-text); text-transform: uppercase; letter-spacing: -1px; margin: 0; }
 
 .tabs {
   display: flex;
@@ -35,7 +30,7 @@
   font-weight: 500;
   color: var(--color-text-light);
   cursor: pointer;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   transition: all var(--transition-fast);
 }
 
@@ -44,14 +39,14 @@
 }
 
 .tabActive {
-  background-color: var(--color-primary);
-  color: var(--color-surface);
+  background-color: var(--color-text);
+  color: var(--color-bg);
 }
 
 .tableContainer {
-  background-color: var(--color-surface);
+  background-color: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   box-shadow: var(--shadow-sm);
   overflow-x: auto;
 }
@@ -84,17 +79,17 @@
 .statusBadge {
   display: inline-block;
   padding: 4px 10px;
-  border-radius: var(--radius-full);
+  border-radius: 0;
   font-size: 12px;
   font-weight: 600;
 }
 
 .detailBtn {
   background: none;
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
+  border: 1px solid var(--color-text);
+  color: var(--color-text);
   padding: 4px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -102,7 +97,7 @@
 }
 
 .detailBtn:hover {
-  background-color: var(--color-primary);
+  background-color: var(--color-text);
   color: white;
 }
 
@@ -122,8 +117,8 @@
 }
 
 .modal {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-lg);
+  background-color: var(--color-bg);
+  border-radius: 0;
   width: 100%;
   max-width: 800px;
   max-height: 90vh;
@@ -143,7 +138,7 @@
 
 .modalTitle {
   font-size: var(--font-size-xl);
-  color: var(--color-primary);
+  color: var(--color-text);
   margin: 0;
   font-weight: 600;
 }
@@ -173,7 +168,7 @@
 .sectionTitle {
   font-size: var(--font-size-md);
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-text);
   margin: 0;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--space-2xs);
@@ -206,7 +201,7 @@
 .statusUpdateArea {
   background-color: var(--color-bg);
   padding: var(--space-lg);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -216,18 +211,18 @@
 .statusSelect {
   padding: var(--space-sm) var(--space-md);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-family: inherit;
   font-size: var(--font-size-sm);
   min-width: 200px;
 }
 
 .updateBtn {
-  background-color: var(--color-primary);
+  background-color: var(--color-text);
   color: white;
   border: none;
   padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-weight: 500;
   cursor: pointer;
 }
