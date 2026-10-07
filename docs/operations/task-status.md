@@ -2,7 +2,7 @@
 
 Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-STAGING-PRODUCTION.md](../../PRD-LANJUTAN-STAGING-PRODUCTION.md).
 
-**Diperbarui:** 7 Oktober 2026. Validasi teknis STAGING selesai. Fondasi database PRODUCTION menggunakan project Supabase `winajaya` yang dipisahkan dari STAGING dan dibangun ulang tanpa data DEV.
+**Diperbarui:** 7 Oktober 2026. Validasi teknis STAGING selesai. Fondasi database PRODUCTION menggunakan project Supabase `winajaya` yang dipisahkan dari STAGING dan dibangun ulang tanpa data DEV. Integrasi pembayaran dan ongkir pada deployment publik tetap menggunakan mode Sandbox atas keputusan owner.
 
 ## Status akses platform
 
@@ -41,7 +41,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Vercel project `wj` memakai URL dan key project Supabase PRODUCTION. Domain deployment yang dipilih adalah `https://wj-wine.vercel.app`.
 - [x] Supabase Auth PRODUCTION memakai Site URL serta redirect URL `https://wj-wine.vercel.app`. Email confirmation dan enrollment/verifikasi TOTP yang telah aktif pada project dipertahankan.
 - [x] Smoke test deployment PRODUCTION lulus: `GET /api/health` memberi HTTP 200 dengan status `ok`, sedangkan katalog publik memberi HTTP 200 dan total produk 0. Route health hanya memeriksa ketersediaan Supabase tanpa mengeluarkan data atau secret.
-- [ ] Pada domain publik: custom SMTP production, scheduler `CRON_SECRET` production, URL webhook Midtrans production, backup/PITR, error tracking production, monitoring, dan transaksi produksi terkontrol.
+- [ ] Pada domain publik: custom SMTP production, scheduler `CRON_SECRET` production, URL webhook Midtrans Sandbox, backup/PITR, error tracking production, monitoring, dan transaksi Sandbox terkontrol.
 
 ## Phase 1 — Catalog, Auth, dan RFQ
 
@@ -110,16 +110,17 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 5. Tetapkan `RAJAONGKIR_ORIGIN_ID`, courier, bobot SKU, dan berat kemasan di environment deployment.
 6. Buat proyek Supabase PRODUCTION yang kosong dan terpisah; terapkan migration, bucket/policy, Auth redirect, serta bootstrap Super Admin hanya pada proyek itu.
 7. Uji Sandbox di STAGING sampai checkout, webhook, fulfillment, email worker, dan reservation expiry terbukti berjalan. Checkout, webhook, fulfillment, RLS, private storage, B2B, load ringan, scheduler reservation/operasi, pengiriman email uji, alert GitHub Actions, restore test, serta Sentry alert terkontrol sudah lulus.
-8. Isi key Midtrans production, RajaOngkir origin/courier/berat sebenarnya, custom SMTP beserta SPF/DKIM/DMARC, scheduler, backup/PITR, monitoring, dan error tracking production.
-9. Deploy domain HTTPS dengan secret production, webhook Midtrans production, dan scheduler. Jalankan `npm run preflight:production -- .env.production` sampai lulus sebelum DNS cutover.
+8. Untuk mode Sandbox publik yang disetujui saat ini, pertahankan `MIDTRANS_IS_PRODUCTION=false`, pakai key Midtrans Sandbox, dan arahkan notification URL Sandbox ke `https://wj-wine.vercel.app/api/payments/midtrans/webhook`. Gunakan konfigurasi RajaOngkir uji yang telah disetujui. Sebelum menerima uang atau memenuhi pesanan nyata, ganti keduanya ke kredensial dan konfigurasi live yang sesuai.
+9. Deploy domain HTTPS dengan secret production, webhook Midtrans Sandbox, dan scheduler. Jalankan `npm run preflight:production -- .env.production` sampai lulus sebelum DNS cutover.
 
-## Task Completed — checkpoint Production P0
+## Task Completed — checkpoint Production Sandbox P0
 
 - [x] Mengosongkan project `winajaya` dari data DEV berdasarkan persetujuan owner.
 - [x] Menerapkan seluruh migration tanpa seed DEV, membuat ulang bucket dan policy, lalu memverifikasi data aplikasi, Auth, dan Storage object kosong.
 - [x] Mengarahkan Vercel `wj` ke Supabase PRODUCTION dan mengaktifkan deployment `b299a1b`.
 - [x] Menetapkan domain deployment `https://wj-wine.vercel.app`, Supabase Auth URL, redirect URL, serta health check database.
-- [ ] Menyelesaikan P1–P3: key Midtrans production dan notification URL, SMTP/DNS production, scheduler/secret production, Sentry/alert production, backup/PITR, bootstrap Super Admin, katalog bisnis, transaksi produksi terkontrol, dan hypercare 24 jam.
+- [x] Menetapkan mode integrasi Sandbox eksplisit untuk deployment publik: `PRODUCTION_INTEGRATION_MODE=sandbox` bersama `MIDTRANS_IS_PRODUCTION=false`. Preflight menolak kombinasi mode/key yang keliru.
+- [ ] Menyelesaikan P1–P3: notification URL Midtrans Sandbox, konfigurasi RajaOngkir uji, SMTP/DNS production, scheduler/secret production, Sentry/alert production, backup/PITR, bootstrap Super Admin, katalog bisnis, transaksi Sandbox terkontrol, dan hypercare 24 jam.
 
 ## Cara mengubah data operasional
 
@@ -128,4 +129,4 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - **Produk:** **Admin → Produk** untuk SKU, harga, stok, bobot, variasi, dan gambar.
 - **Lookbook:** **Admin → Lookbook** untuk mengunggah atau menghapus gambar.
 - **Shipping:** ubah environment `RAJAONGKIR_ORIGIN_ID`, `RAJAONGKIR_ORIGIN_SEARCH`, `RAJAONGKIR_COURIERS`, `SHIPPING_DEFAULT_WEIGHT_GRAMS_PER_METER`, dan `SHIPPING_PACKAGING_WEIGHT_GRAMS`, lalu restart aplikasi.
-- **Midtrans:** gunakan `MIDTRANS_IS_PRODUCTION=false` beserta key Sandbox hanya di DEV/STAGING. Gunakan `true` bersama key production yang cocok di secret store PRODUCTION.
+- **Mode integrasi:** set `PRODUCTION_INTEGRATION_MODE=sandbox` dan `MIDTRANS_IS_PRODUCTION=false` untuk deployment publik yang hanya dipakai pengujian Sandbox. Untuk pembayaran nyata, ubah keduanya menjadi `live` dan `true`, masukkan key production yang cocok, lalu ulangi seluruh gate pembayaran dan webhook.

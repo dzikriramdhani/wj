@@ -1,6 +1,6 @@
 # Production release runbook
 
-This runbook releases the public site only after the PRD production gate is complete. It uses a **dedicated production Supabase project** and **Midtrans production credentials**. DEV and STAGING keep their own databases and sandbox credentials.
+This runbook releases the public site only after the PRD production gate is complete. It uses a **dedicated production Supabase project**. Current public deployment runs with approved Sandbox integrations; follow [production-sandbox-mode.md](production-sandbox-mode.md) for its boundaries. DEV and STAGING keep their own databases and sandbox credentials.
 
 ## 1. Hosting and Auth
 

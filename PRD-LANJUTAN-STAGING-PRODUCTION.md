@@ -4,7 +4,7 @@
 
 **Versi:** 1.0  
 **Tanggal:** 3 Oktober 2026  
-**Status:** Rencana eksekusi setelah konfigurasi Vercel STAGING terisi  
+**Status:** STAGING tervalidasi; deployment publik berjalan dalam mode integrasi Sandbox sampai owner menyetujui layanan live
 **Dokumen induk:** [PRD.md](PRD.md)
 
 ---
@@ -13,7 +13,7 @@
 
 Menyelesaikan validasi WINAJAYA pada STAGING, lalu melakukan peluncuran PRODUCTION yang terukur dan dapat dipulihkan. Dokumen ini adalah kelanjutan PRD utama. Semua aturan arsitektur, keamanan, RBAC, RLS, checkout, payment, B2B, dan Definition of Done dalam PRD utama tetap berlaku.
 
-Target akhir adalah domain produksi yang melayani transaksi nyata dengan proyek Supabase PRODUCTION terpisah, Midtrans production, konfigurasi RajaOngkir nyata, SMTP terverifikasi, monitoring, backup, dan bukti pengujian yang disetujui.
+Target akhir adalah domain produksi yang melayani transaksi nyata dengan proyek Supabase PRODUCTION terpisah, Midtrans production, konfigurasi RajaOngkir nyata, SMTP terverifikasi, monitoring, backup, dan bukti pengujian yang disetujui. Saat ini owner memilih mode integrasi Sandbox pada domain publik; fase ini hanya melayani validasi teknis dan tidak boleh dinyatakan sebagai penerimaan pembayaran atau pemenuhan pesanan nyata.
 
 ## 2. Kondisi awal yang telah tervalidasi
 
@@ -32,7 +32,7 @@ Target akhir adalah domain produksi yang melayani transaksi nyata dengan proyek 
 
 ## 3. Prinsip pelaksanaan
 
-1. STAGING memakai Supabase STAGING dan Midtrans Sandbox. PRODUCTION memakai Supabase PRODUCTION dan Midtrans production.
+1. STAGING memakai Supabase STAGING dan Midtrans Sandbox. PRODUCTION memakai Supabase PRODUCTION. Pembayaran dan ongkir di domain publik dapat memakai Sandbox sementara hanya bila `PRODUCTION_INTEGRATION_MODE=sandbox` dan bukti/komunikasi rilis menyatakannya secara eksplisit; transaksi nyata mewajibkan mode `live`.
 2. Tidak ada secret dalam repository, source code, data seed, screenshot, atau dokumen bukti.
 3. Tidak ada data akun, order, pembayaran, atau RFQ DEV/STAGING yang disalin ke PRODUCTION.
 4. Tidak ada perubahan UI atau desain lama kecuali dibutuhkan untuk memperbaiki flow yang gagal dalam acceptance test.
@@ -44,8 +44,8 @@ Target akhir adalah domain produksi yang melayani transaksi nyata dengan proyek 
 | Area | DEV | STAGING | PRODUCTION |
 | --- | --- | --- | --- |
 | Supabase | Proyek DEV | `winajaya_staging` | Proyek PRODUCTION baru dan kosong |
-| Midtrans | Sandbox | Sandbox | Production |
-| RajaOngkir | Data uji | Konfigurasi uji terukur | Origin, kurir, dan bobot bisnis nyata |
+| Midtrans | Sandbox | Sandbox | Sandbox sementara; production saat pembayaran nyata |
+| RajaOngkir | Data uji | Konfigurasi uji terukur | Konfigurasi uji sementara; origin, kurir, dan bobot bisnis nyata saat fulfillment nyata |
 | Domain | Lokal/DEV | Domain STAGING | Domain publik utama |
 | Vercel | Development | Project/environment STAGING | Project/environment PRODUCTION |
 | Data | Sintetis | Akun dan transaksi uji | Data bisnis yang telah disetujui |
@@ -173,7 +173,7 @@ Semua syarat berikut wajib lulus:
 
 - Buat proyek Supabase PRODUCTION baru, kosong, dan terpisah dari DEV/STAGING.
 - Buat project/environment Vercel PRODUCTION dengan domain publik utama.
-- Masukkan hanya secret PRODUCTION ke Vercel: key Supabase production, Midtrans production, RajaOngkir production, SMTP production, `CRON_SECRET` baru, dan konfigurasi operasi yang relevan.
+- Masukkan hanya secret untuk deployment PRODUCTION ke Vercel: key Supabase production, credential Midtrans dan RajaOngkir sesuai mode integrasi yang disetujui, SMTP production, `CRON_SECRET` baru, dan konfigurasi operasi yang relevan.
 - Jalankan `supabase link --project-ref <production-ref>` lalu `supabase db push` setelah memastikan ref tujuan adalah PRODUCTION.
 - Jangan menjalankan seed DEV. Masukkan katalog awal yang sudah disetujui melalui Admin atau import terkontrol.
 - Bootstrap tepat satu Super Admin, aktifkan TOTP, kemudian beri role `admin` kepada operator yang membutuhkan.
@@ -192,7 +192,7 @@ Semua syarat berikut wajib lulus:
 - Set domain publik, HTTPS, Cloudflare TLS Full (strict), WAF, cache policy, dan rate limit sesuai `production-cutover.md`.
 - Pada Supabase PRODUCTION, set Site URL/redirect URL production, custom SMTP Auth, email confirmation, CAPTCHA, rate limit, network restriction, dan MFA.
 - Publikasikan SPF, DKIM, dan DMARC untuk domain email produksi.
-- Set Midtrans production notification URL ke `https://<domain-produksi>/api/payments/midtrans/webhook`.
+- Set notification URL Midtrans yang cocok dengan mode integrasi ke `https://<domain-produksi>/api/payments/midtrans/webhook`. Pada mode Sandbox, gunakan Dashboard Sandbox dan pertahankan `MIDTRANS_IS_PRODUCTION=false`.
 - Set scheduler production untuk endpoint worker dengan `CRON_SECRET` production.
 - Set monitoring, error tracking, backup/PITR, kebijakan retensi log, dan penerima alert produksi.
 

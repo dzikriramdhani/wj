@@ -38,8 +38,18 @@ try {
   failures.push('NEXT_PUBLIC_APP_URL must be a valid public HTTPS URL');
 }
 
+const integrationMode = env.PRODUCTION_INTEGRATION_MODE ?? 'live';
+if (!['live', 'sandbox'].includes(integrationMode)) {
+  failures.push('PRODUCTION_INTEGRATION_MODE must be either live or sandbox');
+}
+
 const midtransLive = env.MIDTRANS_IS_PRODUCTION === 'true';
-if (!midtransLive) failures.push('MIDTRANS_IS_PRODUCTION must be true for a production release');
+if (integrationMode === 'live' && !midtransLive) {
+  failures.push('MIDTRANS_IS_PRODUCTION must be true when PRODUCTION_INTEGRATION_MODE=live');
+}
+if (integrationMode === 'sandbox' && midtransLive) {
+  failures.push('MIDTRANS_IS_PRODUCTION must be false when PRODUCTION_INTEGRATION_MODE=sandbox');
+}
 
 if (env.ADMIN_MFA_REQUIRED !== 'true') {
   failures.push('ADMIN_MFA_REQUIRED must be true for a production release');
@@ -78,8 +88,12 @@ if (env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SECRET_KEY) {
   }
 }
 if (!env.RAJAONGKIR_COURIERS?.includes(':')) warnings.push('RAJAONGKIR_COURIERS should be a colon-separated approved courier list');
+if (integrationMode === 'sandbox') {
+  warnings.push('Sandbox integration mode is enabled: this deployment must not be presented as live payment or live shipping service.');
+}
 
 for (const failure of failures) console.error(`FAIL  ${failure}`);
 for (const warning of warnings) console.warn(`WARN  ${warning}`);
+
 if (failures.length) process.exitCode = 1;
-else console.log('PASS  Production environment preflight succeeded.');
+else console.log(`PASS  Production environment preflight succeeded (${integrationMode} integration mode).`);
