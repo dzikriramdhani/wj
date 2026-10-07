@@ -27,7 +27,7 @@ https://wj-wine.vercel.app/api/payments/midtrans/webhook
 - Jangan mengiklankan checkout ini sebagai pembayaran nyata.
 - Jangan melakukan pengiriman atau invoice bisnis nyata dari transaksi Sandbox.
 - Produk bisnis boleh disiapkan, tetapi transaksi validasi harus diberi penanda uji dan dapat dibersihkan menurut prosedur operasi.
-- Sentry, scheduler, backup/PITR, SMTP, bootstrap Super Admin, dan katalog tetap harus diselesaikan sebelum status rilis operasional dinyatakan selesai.
+- Sentry sudah dikonfigurasi pada deployment, tetapi controlled event dan alert penerima operasi belum dibuktikan. Scheduler, backup/PITR, SMTP, bootstrap Super Admin, dan katalog juga tetap harus diselesaikan sebelum status rilis operasional dinyatakan selesai.
 
 ## Beralih ke layanan live
 

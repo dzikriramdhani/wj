@@ -41,6 +41,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Vercel project `wj` memakai URL dan key project Supabase PRODUCTION. Domain deployment yang dipilih adalah `https://wj-wine.vercel.app`.
 - [x] Supabase Auth PRODUCTION memakai Site URL serta redirect URL `https://wj-wine.vercel.app`. Email confirmation dan enrollment/verifikasi TOTP yang telah aktif pada project dipertahankan.
 - [x] Smoke test deployment PRODUCTION lulus: `GET /api/health` memberi HTTP 200 dengan status `ok`, sedangkan katalog publik memberi HTTP 200 dan total produk 0. Route health hanya memeriksa ketersediaan Supabase tanpa mengeluarkan data atau secret.
+- [x] Project Sentry `winajaya-production` dibuat. DSN tersimpan hanya di Vercel `wj` Production sebagai `SENTRY_DSN` dan konfigurasi browser `NEXT_PUBLIC_SENTRY_DSN`; deployment `dpl_9E8q1cheRFN7ghTHR6LffUTTFDAt` berstatus Ready dan memakai alias `https://wj-wine.vercel.app`.
 - [ ] Pada domain publik: custom SMTP production, scheduler `CRON_SECRET` production, URL webhook Midtrans Sandbox, backup/PITR, error tracking production, monitoring, dan transaksi Sandbox terkontrol.
 
 ## Phase 1 — Catalog, Auth, dan RFQ
@@ -120,7 +121,7 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Mengarahkan Vercel `wj` ke Supabase PRODUCTION dan mengaktifkan deployment `b299a1b`.
 - [x] Menetapkan domain deployment `https://wj-wine.vercel.app`, Supabase Auth URL, redirect URL, serta health check database.
 - [x] Menetapkan mode integrasi Sandbox eksplisit untuk deployment publik: `PRODUCTION_INTEGRATION_MODE=sandbox` bersama `MIDTRANS_IS_PRODUCTION=false`. Preflight menolak kombinasi mode/key yang keliru.
-- [ ] Menyelesaikan P1–P3: notification URL Midtrans Sandbox, konfigurasi RajaOngkir uji, SMTP/DNS production, scheduler/secret production, Sentry/alert production, backup/PITR, bootstrap Super Admin, katalog bisnis, transaksi Sandbox terkontrol, dan hypercare 24 jam.
+- [ ] Menyelesaikan P1–P3: notification URL Midtrans Sandbox, konfigurasi RajaOngkir uji, SMTP/DNS production, scheduler/secret production, controlled event dan alert Sentry production, backup/PITR, bootstrap Super Admin, katalog bisnis, transaksi Sandbox terkontrol, dan hypercare 24 jam.
 
 ## Cara mengubah data operasional
 
