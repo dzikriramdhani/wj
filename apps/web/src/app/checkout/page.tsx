@@ -5,6 +5,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import { useCart } from '@/lib/cart-context';
 import { usePaymentsSandbox } from '@/app/SiteShell';
+import { Trash2 } from 'lucide-react';
 
 const formatRupiah = (amount: number) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
@@ -227,7 +228,7 @@ export default function CheckoutPage() {
     return (
       <div className={styles.main}>
         <section className={styles.contentSection}>
-          <div className={styles.emptyState}><p className={styles.emptyDesc}>Memuat keranjang Anda…</p></div>
+          <div className={styles.emptyState}><p className={styles.emptyDesc}>Memuat keranjang Andaâ€¦</p></div>
         </section>
       </div>
     );
@@ -242,13 +243,13 @@ export default function CheckoutPage() {
           </div>
         </section>
         <section className={styles.successSection}>
-          <div className={styles.successIcon}>✓</div>
+          <div className={styles.successIcon}>âœ“</div>
           <h2 className={styles.successHeading}>{orderNumber}</h2>
           <p className={styles.successDesc}>
             Pesanan Anda sudah tersimpan. Selesaikan pembayaran{paymentsSandbox ? ' Midtrans Sandbox' : ' melalui Midtrans'} agar pesanan dapat diteruskan ke warehouse{paymentsSandbox ? '. Ini bukan settlement produksi.' : '.'}
           </p>
           <div className={styles.successActions}>
-            {paymentLoading && <span className={styles.paymentStatus}>Menyiapkan halaman pembayaran aman…</span>}
+            {paymentLoading && <span className={styles.paymentStatus}>Menyiapkan halaman pembayaran amanâ€¦</span>}
             {paymentUrl && <a href={paymentUrl} className={styles.btnPrimary}>Lanjut ke Pembayaran</a>}
             {!paymentLoading && !paymentUrl && <button type="button" className={styles.btnPrimary} onClick={() => void createPaymentSession(orderId)}>Coba Siapkan Pembayaran Lagi</button>}
             <Link href={`/orders/${encodeURIComponent(orderId)}`} className={styles.btnOutline}>Lacak Pesanan</Link>
@@ -284,66 +285,52 @@ export default function CheckoutPage() {
               <div className={styles.cartList}>
                 {items.map((item) => (
                   <div key={`${item.productId}-${item.variantId}`} className={styles.cartItem}>
+                    <div className={styles.cartItemImage}>
+                      {item.category}
+                    </div>
+                    
                     <div className={styles.cartItemInfo}>
                       <h3 className={styles.cartItemName}>{item.productName}</h3>
                       <p className={styles.cartItemMeta}>
-                        {item.category}
-                        {item.variantName ? ` · ${item.variantName}` : ''}
+                        {item.variantName ? `Varian: ${item.variantName}` : item.category}
                       </p>
-                      <p className={styles.cartItemPrice}>{formatRupiah(item.pricePerMeter)}/m</p>
                     </div>
+                    
                     <div className={styles.cartItemActions}>
                       <div className={styles.qtyControl}>
-                        <button
-                          type="button"
-                          onClick={() => updateQty(item.productId, Math.max(item.minQtyMeters ?? 1, item.qtyMeters - 10), item.variantId)}
-                          className={styles.qtyBtn}
-                        >−</button>
-                        <span className={styles.qtyValue}>{item.qtyMeters}m{item.minQtyMeters ? <small>min. {item.minQtyMeters}m</small> : null}</span>
-                        <button
-                          type="button"
-                          onClick={() => updateQty(item.productId, item.qtyMeters + 10, item.variantId)}
-                          className={styles.qtyBtn}
-                        >+</button>
+                        <select
+                          className={styles.qtySelect}
+                          value={item.qtyMeters}
+                          onChange={(e) => updateQty(item.productId, parseInt(e.target.value), item.variantId)}
+                        >
+                          {Array.from({ length: 10 }, (_, i) => {
+                            const val = Math.max(item.minQtyMeters ?? 1, 10) + (i * 10);
+                            return <option key={val} value={val}>{val} m</option>;
+                          })}
+                        </select>
                       </div>
+                      
                       <span className={styles.lineTotal}>{formatRupiah(item.pricePerMeter * item.qtyMeters)}</span>
+                      
                       <button
                         type="button"
                         onClick={() => removeItem(item.productId, item.variantId)}
                         className={styles.removeBtn}
-                      >Hapus</button>
+                        aria-label="Hapus item"
+                      >
+                        <Trash2 size={18} strokeWidth={1.5} />
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+              
+              {/* Checkout Forms (Medusa style puts this on the left) */}
+              <div className={styles.formSection}>
+                <h2 className={styles.sectionTitle}>Detail Pengiriman</h2>
+                
+                <div className={styles.customerBlock}>
 
-            {/* Summary */}
-            <div className={styles.summaryCol}>
-              <h2 className={styles.sectionTitle}>Ringkasan</h2>
-
-              <ol className={styles.checkoutSteps} aria-label="Tahapan checkout">
-                <li><strong>1</strong> Isi data pemesan</li>
-                <li><strong>2</strong> Pilih ongkir</li>
-                <li><strong>3</strong> Buat pesanan dan bayar</li>
-              </ol>
-
-              <div className={styles.summaryBlock}>
-                <div className={styles.summaryRow}>
-                  <span>Subtotal</span>
-                  <span>{formatRupiah(totalAmount)}</span>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Pengiriman</span>
-                  <span className={selectedShippingQuote ? '' : styles.tbd}>{selectedShippingQuote ? formatRupiah(selectedShippingQuote.cost) : 'Pilih layanan'}</span>
-                </div>
-                <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                  <span>Total</span>
-                  <span>{formatRupiah(totalAmount + (selectedShippingQuote?.cost ?? 0))}</span>
-                </div>
-              </div>
-
-              <div className={styles.customerBlock}>
                 <h3 className={styles.addressTitle}>Informasi Pemesan *</h3>
                 <label className={styles.fieldLabel} htmlFor="customerName">Nama lengkap</label>
                 <input id="customerName" className={styles.input} autoComplete="name" required minLength={2} maxLength={100} value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
@@ -351,9 +338,11 @@ export default function CheckoutPage() {
                 <input id="customerEmail" className={styles.input} type="email" autoComplete="email" required value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
                 <label className={styles.fieldLabel} htmlFor="customerPhone">Nomor telepon</label>
                 <input id="customerPhone" className={styles.input} type="tel" autoComplete="tel" required minLength={6} maxLength={32} value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
-              </div>
+              
+                </div>
 
-              <div className={styles.addressBlock}>
+                <div className={styles.addressBlock}>
+
                 <h3 className={styles.addressTitle}>Alamat Pengiriman *</h3>
                 <label className={styles.fieldLabel} htmlFor="recipientName">Nama penerima</label>
                 <input id="recipientName" className={styles.input} autoComplete="shipping name" required minLength={2} maxLength={120} value={recipientName} onChange={(e) => setRecipientName(e.target.value)} />
@@ -389,17 +378,37 @@ export default function CheckoutPage() {
                 {shippingQuotes.length > 0 && <div className={styles.shippingOptions}>
                   {shippingQuotes.map((quote) => <label className={styles.shippingOption} key={quote.id}>
                     <input type="radio" name="shippingQuote" value={quote.id} checked={shippingQuoteId === quote.id} onChange={() => { setShippingQuoteId(quote.id); setCheckoutKey(createCheckoutKey()); }} />
-                    <span><strong>{quote.courierName} · {quote.serviceName}</strong><small>{quote.detail ?? 'Tarif terverifikasi RajaOngkir'}</small></span>
+                    <span><strong>{quote.courierName} Â· {quote.serviceName}</strong><small>{quote.detail ?? 'Tarif terverifikasi RajaOngkir'}</small></span>
                     <strong>{formatRupiah(quote.cost)}</strong>
                   </label>)}
                 </div>}
+              
+                </div>
               </div>
+            </div>
 
-              <button type="submit" className={styles.checkoutBtn} disabled={isSubmitting}>
+            {/* Summary */}
+            <div className={styles.summaryCol}>
+              <div className={styles.summaryBlock}>
+                <h3 className={styles.summaryTitle}>Ringkasan</h3>
+<div className={styles.summaryRow}>
+                  <span>Subtotal</span>
+                  <span>{formatRupiah(totalAmount)}</span>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Pengiriman</span>
+                  <span className={selectedShippingQuote ? '' : styles.tbd}>{selectedShippingQuote ? formatRupiah(selectedShippingQuote.cost) : 'Pilih layanan'}</span>
+                </div>
+                <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
+                  <span>Total</span>
+                  <span>{formatRupiah(totalAmount + (selectedShippingQuote?.cost ?? 0))}</span>
+                </div>
+                <button type="submit" className={styles.checkoutBtn} disabled={isSubmitting}>
                 {isSubmitting ? 'Menyimpan pesanan...' : 'Buat Pesanan & Lanjut Bayar'}
               </button>
-              {checkoutError && <p className={styles.shippingError} role="alert">{checkoutError}</p>}
+{checkoutError && <p className={styles.shippingError} role="alert">{checkoutError}</p>}
               <p className={styles.paymentNote}>Pesanan disimpan terlebih dahulu. Setelah itu, pembayaran dilakukan melalui halaman aman Midtrans.</p>
+              </div>
             </div>
           </form>
         )}
@@ -407,3 +416,5 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+
