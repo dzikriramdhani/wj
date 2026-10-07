@@ -32,7 +32,8 @@ export async function POST(request: Request) {
   let input: z.infer<typeof notificationSchema>;
   try {
     input = notificationSchema.parse(JSON.parse(rawBody));
-  } catch {
+  } catch (error) {
+    await reportServerError(error, 'payments.midtrans.webhook');
     return NextResponse.json({ error: 'Format notification tidak valid.' }, { status: 400 });
   }
 
