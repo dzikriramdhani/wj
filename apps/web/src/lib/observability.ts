@@ -1,5 +1,6 @@
 import 'server-only';
 import * as Sentry from '@sentry/nextjs';
+import '../sentry.server.config';
 
 type Operation =
   | 'commerce.expire_reservations'
