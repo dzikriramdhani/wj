@@ -32,7 +32,7 @@ Status saat ini adalah **fondasi deployment PRODUCTION dengan integrasi Sandbox*
 | Rate limiting | Perlu konfigurasi | Aplikasi mempunyai fallback in-memory; Cloudflare wajib menjadi pembatas yang durable untuk endpoint publik. |
 | Private storage | Lulus STAGING | Owner organisasi dapat unggah/baca dokumen private; pengguna lain dan anon ditolak. |
 | Image optimization | Partial blocker | Next Image optimisation dan remote source allowlist sudah aktif, tetapi upload belum menyimpan derivative image beserta metadata pipeline yang diminta PRD. |
-| Monitoring dan error tracking | Konfigurasi publik berjalan | Health domain publik lulus. Project Sentry `winajaya-production` telah dibuat dan DSN dipasang hanya pada Vercel Production; deployment `dpl_9E8q1cheRFN7ghTHR6LffUTTFDAt` Ready. Controlled event dan alert penerima operasi masih perlu diselesaikan. |
+| Monitoring dan error tracking | Sentry Production teruji | Health domain publik lulus. Project Sentry `winajaya-production` memakai DSN pada Vercel Production; alert issue baru mencatat dua trigger dari error uji tanpa data pelanggan. Parsing webhook malformed kini dilaporkan ke Sentry dan `reportServerError` menginisialisasi config Sentry server secara langsung. |
 | Backup dan recovery | Lulus STAGING | Restore ke proyek Supabase sementara menghasilkan migration/data inti yang identik; RPO 0 menit dan RTO kurang dari 2 menit. |
 | Lint | Lulus | `npm run lint` lulus tanpa error maupun warning setelah audit. |
 | Security, E2E, load test | Lulus STAGING | Security/RLS, checkout-webhook, B2B, dan load ringan 20 request paralel telah dicatat pada evidence STAGING. |
