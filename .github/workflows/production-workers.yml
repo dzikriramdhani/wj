@@ -1,0 +1,52 @@
+name: PRODUCTION workers
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-workers
+  cancel-in-progress: false
+
+jobs:
+  health-check:
+    name: Check production health
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Verify public health endpoint
+        run: |
+          response="$(curl --fail-with-body --silent --show-error --retry 2 --max-time 30 "https://wj-wine.vercel.app/api/health")"
+          test "${response}" = '{"status":"ok"}'
+
+  expire-reservations:
+    name: Expire checkout reservations
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Call reservation expiry worker
+        env:
+          CRON_SECRET: ${{ secrets.PRODUCTION_CRON_SECRET }}
+        run: |
+          test -n "${CRON_SECRET}"
+          curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "https://wj-wine.vercel.app/api/internal/commerce/expire-reservations"
+
+  process-operations:
+    name: Process production operations
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Call operations worker
+        env:
+          CRON_SECRET: ${{ secrets.PRODUCTION_CRON_SECRET }}
+        run: |
+          test -n "${CRON_SECRET}"
+          curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "https://wj-wine.vercel.app/api/internal/operations/process"
