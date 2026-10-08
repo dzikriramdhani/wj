@@ -33,7 +33,7 @@ https://wj-wine.vercel.app/api/payments/midtrans/webhook
 
 Project Vercel saat ini ada pada paket Hobby, yang hanya mendukung cron harian. Repository sudah menyiapkan GitHub Actions workflow `.github/workflows/production-workers.yml` untuk health check, reservation expiry, dan operations worker setiap lima menit.
 
-Aktifkan workflow setelah membuat GitHub Actions Environment bernama `production` dan menambahkan secret `PRODUCTION_CRON_SECRET` dengan nilai yang sama seperti `CRON_SECRET` pada Vercel `wj` Production. Secret harus tetap rahasia; setelah disimpan jalankan workflow `PRODUCTION workers` secara manual satu kali dan pastikan semua tiga job lulus sebelum mengandalkan jadwal otomatis. Email worker tetap belum dijadwalkan karena penerima queued email belum disetujui.
+Workflow memakai credential khusus `SCHEDULER_CRON_SECRET`, yang diterima hanya oleh reservation expiry dan operations worker. Email dan ERP tetap memakai `CRON_SECRET` yang tidak diberikan kepada GitHub Actions. Aktifkan workflow setelah membuat GitHub Actions Environment bernama `production`, membatasi deployment branch ke `main`, dan menambahkan secret `SCHEDULER_CRON_SECRET` yang sama dengan variable server-only Production Vercel. Jalankan workflow `PRODUCTION workers` secara manual satu kali dan pastikan semua tiga job lulus sebelum mengandalkan jadwal otomatis. Email worker tetap belum dijadwalkan karena penerima queued email belum disetujui.
 
 ## Beralih ke layanan live
 

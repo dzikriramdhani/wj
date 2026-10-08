@@ -19,6 +19,7 @@ const required = [
   'RAJAONGKIR_ORIGIN_ID',
   'RAJAONGKIR_COURIERS',
   'CRON_SECRET',
+  'SCHEDULER_CRON_SECRET',
   'SMTP_HOST',
   'SMTP_USER',
   'SMTP_PASSWORD',
@@ -55,6 +56,10 @@ if (env.ADMIN_MFA_REQUIRED !== 'true') {
   failures.push('ADMIN_MFA_REQUIRED must be true for a production release');
 }
 if ((env.CRON_SECRET?.length ?? 0) < 32) failures.push('CRON_SECRET must be at least 32 characters');
+if ((env.SCHEDULER_CRON_SECRET?.length ?? 0) < 32) failures.push('SCHEDULER_CRON_SECRET must be at least 32 characters');
+if (env.SCHEDULER_CRON_SECRET && env.CRON_SECRET && env.SCHEDULER_CRON_SECRET === env.CRON_SECRET) {
+  failures.push('SCHEDULER_CRON_SECRET must be separate from CRON_SECRET');
+}
 if (!/^\d+$/.test(env.SHIPPING_DEFAULT_WEIGHT_GRAMS_PER_METER ?? '') || Number(env.SHIPPING_DEFAULT_WEIGHT_GRAMS_PER_METER) <= 0) {
   failures.push('SHIPPING_DEFAULT_WEIGHT_GRAMS_PER_METER must be a positive measured value');
 }

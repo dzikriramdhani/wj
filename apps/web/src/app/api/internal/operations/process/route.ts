@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isSchedulerAuthorized } from '@/lib/cron-auth';
 import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
 
 const erpEvents = new Set(['payment.settled', 'order.paid', 'rfq.status_changed', 'quotation.responded']);
 
 export async function POST(request: NextRequest) {
-  if (!isCronAuthorized(request)) return NextResponse.json({ error: 'Tidak diizinkan.' }, { status: 401 });
+  if (!isSchedulerAuthorized(request)) return NextResponse.json({ error: 'Tidak diizinkan.' }, { status: 401 });
   try {
     const service = createServiceClient();
     await Promise.all([
