@@ -5,7 +5,7 @@
 
 ## Kesimpulan
 
-Status saat ini adalah **fondasi deployment PRODUCTION dengan integrasi Sandbox**. Project Supabase `winajaya` telah dibersihkan dan menerima seluruh migration tanpa seed DEV; Vercel `wj` memakai project tersebut dan health check lulus. Aplikasi, deployment STAGING, checkout Sandbox, webhook, RLS, B2B, MFA, scheduler, email uji, load ringan, restore test, Sentry, dan alert error terkontrol sudah dibuktikan. Gate yang tersisa untuk operasi publik adalah konfigurasi Sentry, SMTP, scheduler, backup/PITR, akun Super Admin, katalog, serta bukti transaksi Sandbox. Pembayaran atau fulfillment nyata tetap menunggu mode layanan live.
+Status saat ini adalah **fondasi deployment PRODUCTION dengan integrasi Sandbox**. Project Supabase `winajaya` telah dibersihkan dan menerima seluruh migration tanpa seed DEV; Vercel `wj` memakai project tersebut dan health check lulus. Aplikasi, deployment STAGING, checkout Sandbox, webhook STAGING, RLS, B2B, MFA, scheduler STAGING dan PRODUCTION, email uji, load ringan, restore test, Sentry, dan alert error terkontrol sudah dibuktikan. Gate yang tersisa untuk operasi publik adalah webhook Midtrans Sandbox pada domain publik, SMTP/DNS, backup/PITR, akun Super Admin, katalog, konfigurasi ongkir uji, dan bukti transaksi Sandbox. Pembayaran atau fulfillment nyata tetap menunggu mode layanan live.
 
 ## Perbaikan yang diterapkan dalam audit ini
 
@@ -27,7 +27,7 @@ Status saat ini adalah **fondasi deployment PRODUCTION dengan integrasi Sandbox*
 | Payment | Sandbox publik | Owner menyetujui `PRODUCTION_INTEGRATION_MODE=sandbox` dengan `MIDTRANS_IS_PRODUCTION=false`. Notification URL Midtrans Sandbox dan uji webhook domain publik masih perlu dibuktikan. Layanan live diperlukan sebelum pembayaran nyata. |
 | Shipping | Siap konfigurasi STAGING | Origin RajaOngkir telah diverifikasi sebagai ID `5190` (Cijagra, Paseh, Kabupaten Bandung, Jawa Barat 40383); courier dan bobot tersedia. Tetap buktikan quote dan checkout Sandbox di domain STAGING. |
 | Email | Blocker | Custom SMTP aplikasi tersedia, tetapi konfigurasi Supabase Auth SMTP, SPF, DKIM, dan DMARC belum dapat dibuktikan. |
-| Scheduler / queue | Lulus sebagian | GitHub Actions menjalankan health, reservation expiry, dan operations tiap lima menit dengan bearer secret. Email worker belum diaktifkan karena terdapat penerima pending yang belum menyetujui pengiriman. |
+| Scheduler / queue | Scheduler lulus; email tertunda | Production workflow run [37736188644](https://github.com/dzikriramdhani/wj/actions/runs/37736188644) lulus untuk health, reservation expiry, dan operations. Environment GitHub `production` dibatasi ke `main`; dedicated `SCHEDULER_CRON_SECRET` hanya mengotorisasi dua worker terjadwal tersebut. Email worker tetap tidak dijadwalkan karena penerima queued email belum menyetujui pengiriman. |
 | Cloudflare | Blocker | TLS Full (strict), WAF, bot mitigation, cache policy, dan rate limit per endpoint belum dapat diverifikasi dari repository. |
 | Rate limiting | Perlu konfigurasi | Aplikasi mempunyai fallback in-memory; Cloudflare wajib menjadi pembatas yang durable untuk endpoint publik. |
 | Private storage | Lulus STAGING | Owner organisasi dapat unggah/baca dokumen private; pengguna lain dan anon ditolak. |
@@ -42,7 +42,7 @@ Status saat ini adalah **fondasi deployment PRODUCTION dengan integrasi Sandbox*
 1. Buat dan amankan proyek Supabase STAGING serta PRODUCTION yang terpisah.
 2. Terapkan migration pada STAGING, isi data nonproduksi, lalu uji RLS, checkout Sandbox, webhook, worker, fulfillment, email, dan restore.
 3. Selesaikan testing, monitoring/error tracking, Cloudflare, SMTP/DNS, dan backup/PITR.
-4. Lengkapi environment deployment publik dengan domain HTTPS, credential sesuai `PRODUCTION_INTEGRATION_MODE`, SMTP, scheduler, Sentry, backup/PITR, serta `ADMIN_MFA_REQUIRED=true`.
+4. Lengkapi environment deployment publik dengan domain HTTPS, credential sesuai `PRODUCTION_INTEGRATION_MODE`, SMTP, scheduler, Sentry, backup/PITR, serta `ADMIN_MFA_REQUIRED=true`. Scheduler production telah aktif dan lulus run manual; gate lainnya tetap perlu bukti.
 5. Jalankan `npm run preflight:production -- .env.production`, build, review evidence STAGING, lalu deploy. Jalankan satu transaksi Sandbox terkontrol dan pantau alert; sebelum transaksi nyata, ulangi gate ini dalam mode `live`.
 
 ## Dokumen terkait

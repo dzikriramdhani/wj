@@ -27,13 +27,13 @@ https://wj-wine.vercel.app/api/payments/midtrans/webhook
 - Jangan mengiklankan checkout ini sebagai pembayaran nyata.
 - Jangan melakukan pengiriman atau invoice bisnis nyata dari transaksi Sandbox.
 - Produk bisnis boleh disiapkan, tetapi transaksi validasi harus diberi penanda uji dan dapat dibersihkan menurut prosedur operasi.
-- Sentry sudah dikonfigurasi pada deployment; alert issue baru mencatat dua event uji tanpa data pelanggan. Scheduler, backup/PITR, SMTP, bootstrap Super Admin, dan katalog juga tetap harus diselesaikan sebelum status rilis operasional dinyatakan selesai.
+- Sentry sudah dikonfigurasi pada deployment; alert issue baru mencatat dua event uji tanpa data pelanggan. Scheduler production juga sudah lulus verifikasi. Backup/PITR, SMTP, bootstrap Super Admin, katalog, webhook Sandbox, dan transaksi uji tetap harus diselesaikan sebelum status rilis operasional dinyatakan selesai.
 
 ## Scheduler Production
 
 Project Vercel saat ini ada pada paket Hobby, yang hanya mendukung cron harian. Repository sudah menyiapkan GitHub Actions workflow `.github/workflows/production-workers.yml` untuk health check, reservation expiry, dan operations worker setiap lima menit.
 
-Workflow memakai credential khusus `SCHEDULER_CRON_SECRET`, yang diterima hanya oleh reservation expiry dan operations worker. Email dan ERP tetap memakai `CRON_SECRET` yang tidak diberikan kepada GitHub Actions. Aktifkan workflow setelah membuat GitHub Actions Environment bernama `production`, membatasi deployment branch ke `main`, dan menambahkan secret `SCHEDULER_CRON_SECRET` yang sama dengan variable server-only Production Vercel. Jalankan workflow `PRODUCTION workers` secara manual satu kali dan pastikan semua tiga job lulus sebelum mengandalkan jadwal otomatis. Email worker tetap belum dijadwalkan karena penerima queued email belum disetujui.
+Workflow memakai credential khusus `SCHEDULER_CRON_SECRET`, yang diterima hanya oleh reservation expiry dan operations worker. Email dan ERP tetap memakai `CRON_SECRET` yang tidak diberikan kepada GitHub Actions. GitHub Environment `production` dibatasi ke branch `main`, dan credential khusus disimpan sebagai GitHub Environment secret serta Vercel Production secret. Run manual [37736188644](https://github.com/dzikriramdhani/wj/actions/runs/37736188644) pada 8 Oktober 2026 lulus untuk ketiga job: health check, expire reservations, dan process operations. Jadwal otomatis berjalan tiap lima menit. Email worker tetap belum dijadwalkan karena penerima queued email belum disetujui.
 
 ## Beralih ke layanan live
 

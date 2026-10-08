@@ -28,7 +28,7 @@ Target akhir adalah domain produksi yang melayani transaksi nyata dengan proyek 
 | Checkout STAGING | Lulus inti | Quote ongkir, order atomik, replay idempotent, sesi Midtrans Sandbox, dan webhook signed untuk pending, expire, settlement, serta duplicate telah lolos. Settlement membuat invoice dan shipment. |
 | RLS STAGING | Lulus sebagian | Audit dua akun dan dua organisasi uji membuktikan isolasi order, profil, organisasi, membership, serta private business document lintas pemilik. Alur B2B sampai bulk order juga lulus. Faktor MFA permanen masih menunggu pemilik akun. |
 | Hosting STAGING | Siap | Project `wj-staging` aktif pada `https://wj-staging.vercel.app`, health check publik lulus, dan SSO Deployment Protection telah dinonaktifkan untuk project STAGING. |
-| PRODUCTION | Belum dimulai | Wajib menggunakan proyek Supabase, domain, key, dan data operasional terpisah. |
+| PRODUCTION | Fondasi aktif; gate publik berjalan | Project Supabase `winajaya` telah dibersihkan dan menerima migration tanpa seed DEV; Vercel `wj` melayani `https://wj-wine.vercel.app`, health check lulus, Sentry Production aktif, dan scheduler GitHub production run `37736188644` berhasil. Midtrans dan RajaOngkir tetap Sandbox/uji sesuai keputusan owner. Webhook Sandbox pada domain publik, SMTP/DNS, backup/PITR, bootstrap Super Admin, katalog, transaksi uji, dan hypercare masih memerlukan bukti. |
 
 ## 3. Prinsip pelaksanaan
 
@@ -193,14 +193,14 @@ Semua syarat berikut wajib lulus:
 - Pada Supabase PRODUCTION, set Site URL/redirect URL production, custom SMTP Auth, email confirmation, CAPTCHA, rate limit, network restriction, dan MFA.
 - Publikasikan SPF, DKIM, dan DMARC untuk domain email produksi.
 - Set notification URL Midtrans yang cocok dengan mode integrasi ke `https://<domain-produksi>/api/payments/midtrans/webhook`. Pada mode Sandbox, gunakan Dashboard Sandbox dan pertahankan `MIDTRANS_IS_PRODUCTION=false`.
-- Set scheduler production untuk endpoint worker dengan `CRON_SECRET` production.
+- Jadwalkan health check, reservation expiry, dan operations worker setiap lima menit melalui GitHub Actions. Batasi GitHub Environment `production` ke branch `main`, simpan dedicated `SCHEDULER_CRON_SECRET` di GitHub Environment dan Vercel Production, dan izinkan credential tersebut hanya pada dua worker terjadwal. Jangan berikan `CRON_SECRET` umum ke GitHub Actions; email dan ERP worker memerlukan persetujuan serta jadwal terpisah.
 - Set monitoring, error tracking, backup/PITR, kebijakan retensi log, dan penerima alert produksi.
 
 **Acceptance criteria:**
 
 - Semua domain dan webhook memakai HTTPS tanpa redirect.
 - Email Auth dan transactional production berhasil untuk penerima uji yang sah.
-- Scheduler, alert, dan backup dapat dibuktikan tanpa transaksi customer nyata.
+- Scheduler dan alert dapat dibuktikan tanpa transaksi customer nyata; scheduler production telah dibuktikan pada run `37736188644`. Backup/PITR masih harus diuji.
 
 ### P2 — Go-live readiness review
 
