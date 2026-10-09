@@ -64,6 +64,12 @@ export async function POST(request: Request) {
       p_request_hash: requestHash,
     });
     if (error) {
+      console.error('Checkout order RPC failed', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       const clientError = /required|unavailable|inventory|minimum|quote|address|quantity|price/i.test(error.message);
       return NextResponse.json({ error: clientError ? error.message : 'Pesanan gagal disimpan.' }, { status: clientError ? 422 : 500 });
     }
@@ -72,6 +78,7 @@ export async function POST(request: Request) {
       owner,
     );
   } catch (error) {
+    console.error('Checkout order creation failed', error);
     await reportServerError(error, 'orders.create');
     return NextResponse.json({ error: 'Checkout gagal diproses. Silakan coba kembali.' }, { status: 500 });
   }
