@@ -1,0 +1,28 @@
+name: PRODUCTION email outbox
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-email-outbox
+  cancel-in-progress: false
+
+jobs:
+  process-email-outbox:
+    name: Send approved transactional emails
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Process email outbox
+        env:
+          SCHEDULER_CRON_SECRET: ${{ secrets.SCHEDULER_CRON_SECRET }}
+        run: |
+          test -n "${SCHEDULER_CRON_SECRET}"
+          curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --header "Authorization: Bearer ${SCHEDULER_CRON_SECRET}" \
+            "https://wj-wine.vercel.app/api/internal/email/process"

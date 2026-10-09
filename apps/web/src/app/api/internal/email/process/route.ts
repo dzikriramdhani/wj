@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isSchedulerAuthorized } from '@/lib/cron-auth';
 import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
 
@@ -39,7 +39,7 @@ function renderEmail(job: EmailJob) {
 }
 
 export async function POST(request: Request) {
-  if (!isCronAuthorized(request)) return NextResponse.json({ error: 'Tidak diizinkan.' }, { status: 401 });
+  if (!isSchedulerAuthorized(request)) return NextResponse.json({ error: 'Tidak diizinkan.' }, { status: 401 });
   const host = process.env.SMTP_HOST?.trim();
   const user = process.env.SMTP_USER?.trim();
   const password = process.env.SMTP_PASSWORD;
