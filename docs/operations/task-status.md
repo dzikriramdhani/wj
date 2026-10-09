@@ -43,9 +43,9 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 - [x] Smoke test deployment PRODUCTION lulus: `GET /api/health` memberi HTTP 200 dengan status `ok`, sedangkan katalog publik memberi HTTP 200 dan total produk 0. Route health hanya memeriksa ketersediaan Supabase tanpa mengeluarkan data atau secret.
 - [x] Project Sentry `winajaya-production` dibuat. DSN tersimpan hanya di Vercel `wj` Production sebagai `SENTRY_DSN` dan konfigurasi browser `NEXT_PUBLIC_SENTRY_DSN`; deployment `dpl_9E8q1cheRFN7ghTHR6LffUTTFDAt` berstatus Ready dan memakai alias `https://wj-wine.vercel.app`.
 - [x] Alert email Sentry Production diperbarui untuk issue baru. Dua error uji tanpa data pelanggan menghasilkan issue `WINAJAYA-PRODUCTION-1` dan `WINAJAYA-PRODUCTION-2`; halaman riwayat alert mencatat dua trigger. Perbaikan pelaporan parsing webhook dan inisialisasi Sentry server aktif melalui deployment dari commit `18b5ee5`.
-- [ ] Scheduler eksternal mulai mencapai Production dalam cadence sekitar lima menit. Log Vercel 10 Okt 2026 02:35–02:45 WIB: `/api/internal/commerce/expire-reservations` menerima request dan memberi HTTP 200 pada 02:35, 02:40, dan 02:45 WIB; `/api/internal/operations/process` dan `/api/internal/email/process` memberi HTTP 401 pada 02:40 dan 02:45 WIB. Ini membuktikan hanya autentikasi job expiry yang berhasil; samakan custom header `Authorization: Bearer <SCHEDULER_CRON_SECRET>` pada kedua job yang masih 401. Jangan mencatat nilainya di log atau task. Cadence dan seluruh worker belum lulus sampai operasi serta email juga memberi HTTP 200.
+- [ ] Scheduler eksternal mencapai Production sekitar setiap lima menit. Log Vercel 10 Okt 2026 02:35–02:45 WIB sempat menunjukkan Operations dan Email `401`; setelah owner memperbaiki ketiga job, batch 02:50:14 WIB untuk `/api/internal/commerce/expire-reservations`, `/api/internal/operations/process`, dan `/api/internal/email/process` seluruhnya memberi HTTP 200. Ini bukti autentikasi tiga worker sudah benar pada satu siklus penuh. Konfirmasi siklus sukses berikutnya dan lanjutkan hypercare 24 jam mulai 10 Okt 2026 02:50 WIB; jangan menandai selesai sebelum 11 Okt 2026 02:50 WIB dan tidak ada blocker Critical/High.
 - [x] Workflow GitHub Actions manual `37975276764` lulus untuk health, reservation expiry, dan operations. Cron workflow di-offset pada commit `4dadb19` (worker menit `2,7,...,57`, email outbox menit `4,9,...,59`); event schedule GitHub masih tidak membuktikan cadence rutin sesudah perubahan. Environment `production` dibatasi ke branch `main`.
-- [x] Vercel `wj` memakai paket Hobby dan halaman **Settings → Cron Jobs** kosong; batas Hobby hanya mengizinkan Cron sekali sehari ([batas Cron Vercel](https://vercel.com/docs/cron-jobs/manage-cron-jobs)). Owner mengonfirmasi tiga job scheduler eksternal sudah dibuat dan nilai secret sudah disamakan dengan GitHub Production. Log Vercel menunjukkan job Expire Reservations terautentikasi (`200`), tetapi Operations dan Email masih `401`; koreksi header keduanya sebelum scheduler dinyatakan siap.
+- [x] Vercel `wj` memakai paket Hobby dan halaman **Settings → Cron Jobs** kosong; batas Hobby hanya mengizinkan Cron sekali sehari ([batas Cron Vercel](https://vercel.com/docs/cron-jobs/manage-cron-jobs)). Owner mengonfirmasi tiga job scheduler eksternal sudah dibuat, secret disamakan dengan GitHub Production, dan ketiga endpoint mencatat satu batch HTTP 200 pada 10 Okt 2026 02:50 WIB.
 - [x] Environment GitHub `production` dibatasi ke branch `main`; secret khusus `SCHEDULER_CRON_SECRET` hanya diterima reservation expiry dan operations.
 - [x] Run production `37736188644` pada 8 Oktober 2026 lulus untuk ketiga job: health check, expire reservations, dan process operations. Bukti: https://github.com/dzikriramdhani/wj/actions/runs/37736188644.
 - [ ] Gate domain publik yang tersisa: lihat checklist rinci berikut. “Menunggu bukti” berarti checklist belum dicentang karena hasil pada Production belum direkam; itu tidak selalu berarti pengaturannya belum pernah diisi.
@@ -131,10 +131,9 @@ Status ini mengikuti [PRD.md](../../PRD.md) dan rencana eksekusi [PRD-LANJUTAN-S
 ## Yang perlu dilakukan sekarang
 
 1. Tidak ada tindakan email yang tersisa; owner telah mengonfirmasi menerima ketiga email.
-2. Perbaiki header job Operations dan Email pada scheduler eksternal: gunakan `Authorization` sebagai nama header dan `Bearer ` diikuti nilai secret yang sama persis dengan job Expire Reservations. Log saat ini menunjukkan expiry `200`, sedangkan dua lainnya `401`. Jangan tempel secret ke chat. Setelah diperbaiki, pastikan ketiga worker memberi HTTP 200 berkala.
-3. Jika memilih menunggu GitHub Actions, periksa **GitHub → dzikriramdhani/wj → Actions → PRODUCTION workers / PRODUCTION email outbox** dan pastikan event bertipe `schedule` benar-benar muncul; manual run tidak membuktikan cadence.
-4. Mulai pencatatan hypercare 24 jam setelah jalur scheduler berjalan otomatis dan Sentry/alert aktif. Midtrans dan RajaOngkir tetap Sandbox; transaksi tidak menerima atau memindahkan uang riil.
-5. Biarkan backup berbayar dan perubahan katalog ditunda sesuai keputusan owner. Ikuti langkah **Backup nanti** saat siap upgrade. Biarkan katalog seperti sekarang sampai sebelum go-live pembayaran riil.
+2. Scheduler eksternal kini berhasil memanggil ketiga endpoint dengan HTTP 200 pada siklus 10 Okt 2026 02:50 WIB. Pantau siklus berkala berikutnya dan error Sentry/Vercel.
+3. Hypercare Production Sandbox dimulai 10 Okt 2026 02:50 WIB; lanjutkan pencatatan selama 24 jam sampai 11 Okt 2026 02:50 WIB. Catat insiden dan responsnya; tutup hanya bila tidak ada blocker Critical/High.
+4. Midtrans dan RajaOngkir tetap Sandbox; transaksi tidak menerima atau memindahkan uang riil. Biarkan backup berbayar dan perubahan katalog ditunda sesuai keputusan owner. Ikuti langkah **Backup nanti** saat siap upgrade dan tinjau katalog sebelum go-live pembayaran riil.
 
 ## Backup nanti — langkah upgrade dan restore drill
 
@@ -158,10 +157,10 @@ Saat Anda siap upgrade:
 - [x] Menetapkan mode integrasi Sandbox eksplisit untuk deployment publik: `PRODUCTION_INTEGRATION_MODE=sandbox` bersama `MIDTRANS_IS_PRODUCTION=false`. Preflight menolak kombinasi mode/key yang keliru.
 - [x] P1 — webhook signed Midtrans Sandbox Production dan tiga transaksi Sandbox berhasil direkonsiliasi.
 - [x] P1 — RajaOngkir Sandbox, pengiriman SMTP Production, Super Admin Production dengan MFA, dan katalog awal telah diverifikasi.
-- [ ] P1 — scheduler Production: scheduler eksternal mencapai endpoint berkala; Expire Reservations lulus (`200`), tetapi Operations dan Email masih `401`. Perbaiki header autentikasinya sebelum cadence dinyatakan lulus.
+- [ ] P1 — scheduler Production: ketiga endpoint scheduler eksternal memberi HTTP 200 dalam satu siklus pada 10 Okt 2026 02:50 WIB; siklus berkala berikutnya masih perlu dicatat.
 - [ ] P2 (ditunda atas keputusan owner) — upgrade paket/backup dan restore drill belum dilakukan; lihat panduan **Backup nanti**.
 - [x] P2 Sandbox — katalog awal dipertahankan sesuai instruksi owner. Tinjau ulang hanya sebelum pembayaran live/order riil.
-- [ ] P3 — pantau hypercare 24 jam setelah cron baru terbukti berjalan; tutup setelah tidak ada blocker Critical/High.
+- [ ] P3 — hypercare 24 jam dimulai 10 Okt 2026 02:50 WIB; target selesai 11 Okt 2026 02:50 WIB bila tidak ada blocker Critical/High.
 
 ## Cara mengubah data operasional
 
