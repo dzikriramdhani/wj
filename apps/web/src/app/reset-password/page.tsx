@@ -45,30 +45,16 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
     setMessage('');
     try {
-      const { data: { session }, error: sessionError } = await recoveryClient.auth.getSession();
-      if (sessionError || !session) {
-        return setMessage('Sesi pemulihan tidak ditemukan atau telah berakhir. Minta tautan reset baru, lalu buka tautan terbaru di browser yang sama.');
-      }
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, confirmation }),
+      });
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) return setMessage(result.error ?? 'Password belum dapat diperbarui. Coba kembali.');
 
-      const { error } = await recoveryClient.auth.updateUser({ password });
-      if (error) {
-        const errorText = error.message.toLowerCase();
-        const errorCode = 'code' in error && typeof error.code === 'string' ? error.code : '';
-
-        if (errorCode === 'same_password' || errorText.includes('different from the old password')) {
-          return setMessage('Password baru harus berbeda dari password yang sedang digunakan.');
-        }
-        if (errorCode === 'weak_password' || errorText.includes('weak password') || errorText.includes('password should be')) {
-          return setMessage('Password belum memenuhi kebijakan keamanan. Gunakan password yang lebih kuat dan coba lagi.');
-        }
-        if (error.status === 401 || errorCode === 'bad_jwt' || errorCode === 'session_not_found') {
-          return setMessage('Sesi pemulihan tidak valid atau telah berakhir. Minta tautan reset baru.');
-        }
-
-        console.error('Password update failed', { status: error.status, code: errorCode });
-        return setMessage('Password belum dapat diperbarui. Periksa password baru dan coba lagi. Jika tetap gagal, kirimkan waktu percobaan agar log autentikasi dapat diperiksa.');
-      }
-      await recoveryClient.auth.signOut();
+      await recoveryClient.auth.signOut({ scope: 'local' });
       setMessage('Password berhasil diperbarui. Silakan masuk menggunakan password baru.');
       router.replace('/login?reset=success');
       router.refresh();
