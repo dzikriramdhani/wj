@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
       }
 
       const { error } = await recoveryClient.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: buildConfiguredAppUrl('/auth/callback?next=/reset-password'),
+        redirectTo: buildConfiguredAppUrl('/auth/callback'),
       });
       if (error) {
         console.error('Password reset request failed', {

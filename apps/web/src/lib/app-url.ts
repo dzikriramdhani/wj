@@ -3,6 +3,8 @@ type AppUrlEnvironment = {
   nodeEnv?: string;
 };
 
+const authCallbackPaths = new Set(['/account', '/reset-password']);
+
 function invalidAppUrl(): never {
   throw new Error('NEXT_PUBLIC_APP_URL harus berupa URL HTTPS tanpa path, query, atau fragment.');
 }
@@ -39,4 +41,10 @@ export function buildConfiguredAppUrl(path: string, environment: AppUrlEnvironme
     throw new Error('Path redirect internal tidak valid.');
   }
   return new URL(path, getConfiguredAppUrl(environment)).toString();
+}
+
+export function getAllowedAuthCallbackPath(requestedPath: string | null) {
+  return requestedPath && authCallbackPaths.has(requestedPath)
+    ? requestedPath
+    : '/reset-password';
 }

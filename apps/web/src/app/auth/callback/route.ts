@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import { hasSupabasePublicEnv } from '@/lib/supabase/env';
 import { getSupabasePublicEnv } from '@/lib/supabase/env';
 import { defaultPortalForRoles, roleNamesFromAssignments } from '@/lib/role-access';
-import { buildConfiguredAppUrl } from '@/lib/app-url';
+import { buildConfiguredAppUrl, getAllowedAuthCallbackPath } from '@/lib/app-url';
 
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code');
@@ -39,9 +39,7 @@ export async function GET(request: NextRequest) {
 
   // Recovery must land on the form with the exchanged auth cookies attached
   // to this exact redirect response. Avoid extra role/session lookups here.
-  let nextPath = requestedPath?.startsWith('/') && !requestedPath.startsWith('//')
-    ? requestedPath
-    : '/account';
+  let nextPath = getAllowedAuthCallbackPath(requestedPath);
 
   if (nextPath !== '/reset-password') {
     const { data: { user } } = await supabase.auth.getUser();
