@@ -1,3 +1,5 @@
+import type { Breadcrumb, ErrorEvent, TransactionEvent } from '@sentry/core';
+
 const sensitiveKey = /^(authorization|cookie|set-cookie|password|current_password|confirmation|code|token|token_hash|access_token|refresh_token)$/i;
 const sensitiveQueryKey = /^(code|token|token_hash|access_token|refresh_token)$/i;
 const resetPath = /^\/(?:forgot-password|reset-password|auth\/callback)(?:\/|$)/;
@@ -31,8 +33,22 @@ export function sanitizeSentryUrl(value: unknown) {
   }
 }
 
-export function sanitizeSentryBreadcrumb<T extends Record<string, unknown>>(breadcrumb: T): T {
-  return sanitizeValue(breadcrumb) as T;
+function sanitizeBreadcrumbRecord(breadcrumb: Record<string, unknown>) {
+  const sanitized = sanitizeValue(breadcrumb) as Record<string, unknown>;
+  if (typeof sanitized.message === 'string') sanitized.message = sanitizeSentryUrl(sanitized.message);
+
+  const data = sanitized.data as Record<string, unknown> | undefined;
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    if (typeof data.url === 'string') data.url = sanitizeSentryUrl(data.url);
+    if (typeof data.from === 'string') data.from = sanitizeSentryUrl(data.from);
+    if (typeof data.to === 'string') data.to = sanitizeSentryUrl(data.to);
+  }
+
+  return sanitized;
+}
+
+export function sanitizeSentryBreadcrumb(breadcrumb: Breadcrumb): Breadcrumb {
+  return sanitizeBreadcrumbRecord(breadcrumb as unknown as Record<string, unknown>) as Breadcrumb;
 }
 
 export function sanitizeSentryEvent<T extends Record<string, unknown>>(event: T): T {
@@ -45,16 +61,16 @@ export function sanitizeSentryEvent<T extends Record<string, unknown>>(event: T)
   if (Array.isArray(breadcrumbs)) {
     sanitized.breadcrumbs = breadcrumbs.map((breadcrumb) => {
       if (!breadcrumb || typeof breadcrumb !== 'object') return breadcrumb;
-      const item = breadcrumb as Record<string, unknown>;
-      return {
-        ...item,
-        ...(typeof item.message === 'string' ? { message: sanitizeSentryUrl(item.message) } : {}),
-        ...(item.data && typeof item.data === 'object'
-          ? { data: sanitizeValue(item.data) }
-          : {}),
-      };
+      return sanitizeBreadcrumbRecord(breadcrumb as Record<string, unknown>);
     });
   }
 
   return sanitized as T;
+}
+export function sanitizeSentryErrorEvent(event: ErrorEvent): ErrorEvent {
+  return sanitizeSentryEvent(event as unknown as Record<string, unknown>) as unknown as ErrorEvent;
+}
+
+export function sanitizeSentryTransactionEvent(event: TransactionEvent): TransactionEvent {
+  return sanitizeSentryEvent(event as unknown as Record<string, unknown>) as unknown as TransactionEvent;
 }

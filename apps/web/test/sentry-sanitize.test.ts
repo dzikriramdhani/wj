@@ -1,12 +1,24 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { sanitizeSentryEvent, sanitizeSentryUrl } from '../src/lib/sentry-sanitize';
+import { sanitizeSentryBreadcrumb, sanitizeSentryEvent, sanitizeSentryUrl } from '../src/lib/sentry-sanitize';
 
 test('removes every query parameter from reset and callback URLs', () => {
   assert.equal(
     sanitizeSentryUrl('https://wj-wine.vercel.app/auth/callback?code=secret&next=/reset-password'),
     'https://wj-wine.vercel.app/auth/callback',
   );
+});
+
+test('filters reset secrets from a standalone Sentry breadcrumb', () => {
+  const breadcrumb = sanitizeSentryBreadcrumb({
+    category: 'fetch',
+    data: { url: 'https://wj-wine.vercel.app/auth/callback?code=secret', token: 'secret' },
+  });
+
+  assert.deepEqual(breadcrumb.data, {
+    url: 'https://wj-wine.vercel.app/auth/callback',
+    token: '[Filtered]',
+  });
 });
 
 test('filters secrets from Sentry events and breadcrumbs', () => {
