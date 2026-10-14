@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": ".test-build"
+  },
+  "include": [
+    "src/lib/app-url.ts",
+    "src/lib/reset-password.ts",
+    "src/lib/reset-security.ts",
+    "src/lib/sentry-sanitize.ts",
+    "src/lib/passwords/common-passwords.ts",
+    "test/**/*.test.ts"
+  ]
+}
