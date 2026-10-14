@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   const { data: assurance, error: assuranceError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   if (assuranceError || (assurance?.nextLevel === 'aal2' && assurance.currentLevel !== 'aal2')) {
     return NextResponse.json(
-      { error: 'Verifikasi MFA diperlukan sebelum password dapat diubah.' },
+      { error: 'Verifikasi MFA diperlukan sebelum password dapat diubah.', code: 'mfa_required' },
       { status: 403 },
     );
   }
