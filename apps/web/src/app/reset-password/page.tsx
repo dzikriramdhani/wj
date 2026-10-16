@@ -9,7 +9,6 @@ import styles from '../login/page.module.css';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const [recoveryClient] = useState(createClient);
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [message, setMessage] = useState('');
@@ -23,6 +22,7 @@ export default function ResetPasswordPage() {
     let cancelled = false;
 
     const establishRecoverySession = async () => {
+      const recoveryClient = createClient();
       const { data: { session }, error } = await recoveryClient.auth.getSession();
       if (cancelled) return;
       if (error || !session) {
@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
     return () => {
       cancelled = true;
     };
-  }, [recoveryClient]);
+  }, []);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
       }
       if (!response.ok) return setMessage(result.error ?? 'Password belum dapat diperbarui. Coba kembali.');
 
-      await recoveryClient.auth.signOut({ scope: 'local' });
+      await createClient().auth.signOut({ scope: 'local' });
       setMessage('Password berhasil diperbarui. Silakan masuk menggunakan password baru.');
       router.replace('/login?reset=success');
       router.refresh();
@@ -79,6 +79,7 @@ export default function ResetPasswordPage() {
     setIsVerifyingMfa(true);
     setMessage('');
     try {
+      const recoveryClient = createClient();
       const { data: factors, error: factorsError } = await recoveryClient.auth.mfa.listFactors();
       const factor = factors?.totp.find((item: { status: string }) => item.status === 'verified');
       if (factorsError || !factor) {
