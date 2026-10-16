@@ -1,202 +1,158 @@
-/* ============================================================
-   REGISTER PAGE — Editorial Minimalist Theme
-   ============================================================ */
-
 .main {
-  background: var(--color-bg);
-  min-height: 100vh;
-  display: flex;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  background: #fff;
+  color: #18181b;
+  font-family: var(--font-sans);
+  font-size: 14px;
 }
 
 .layout {
   display: grid;
   grid-template-columns: 1fr;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
 }
 
-@media (min-width: 1024px) {
-  .layout {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+@media (min-width: 1024px) { .layout { grid-template-columns: 1fr 1fr; } }
 
-/* Left: Branding */
 .brandCol {
   display: none;
-  background: var(--color-text);
+  align-items: flex-end;
+  padding: clamp(2rem, 5vw, 5rem);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%), url('/login.jpg') center center / cover no-repeat;
   color: var(--color-bg);
-  padding: var(--space-4xl);
-  position: relative;
 }
-
-@media (min-width: 1024px) {
-  .brandCol {
-    display: flex;
-    align-items: flex-end;
-  }
-}
-
-.brandContent {
-  width: 100%;
-}
+@media (min-width: 1024px) { .brandCol { display: flex; } }
+.brandContent { width: 100%; }
 
 .logo {
   display: inline-block;
+  margin-bottom: 2.5rem;
+  color: var(--color-bg);
   font-size: 14px;
   font-weight: 600;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--color-bg);
-  text-decoration: none;
-  margin-bottom: var(--space-4xl);
 }
-
 .brandTitle {
-  font-size: 72px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -2px;
-  margin: 0 0 var(--space-xl) 0;
+  margin: 0 0 1rem;
   color: var(--color-bg);
+  font-size: clamp(3.5rem, 5.2vw, 4.5rem);
+  font-weight: 500;
+  line-height: .98;
+  letter-spacing: -.055em;
 }
+.brandDesc { max-width: 400px; margin: 0; color: rgba(255,255,255,.62); font-size: 14px; line-height: 1.6; }
 
-.brandDesc {
-  font-size: 18px;
-  line-height: 1.5;
-  color: rgba(255,255,255,0.6);
-  margin: 0;
-  max-width: 400px;
-}
-
-/* Right: Form */
 .formCol {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-4xl) var(--space-xl);
+  min-width: 0;
+  padding: 1.25rem clamp(1.125rem, 4vw, 3rem);
 }
-
-.formWrapper {
-  width: 100%;
-  max-width: 460px;
-}
-
+.formWrapper { width: 100%; max-width: 500px; }
 .formTitle {
-  font-size: 32px;
+  margin: 0 0 1.25rem;
+  font-size: 1.75rem;
   font-weight: 500;
-  letter-spacing: -1px;
-  margin: 0 0 var(--space-3xl) 0;
+  line-height: 1.2;
+  letter-spacing: -.035em;
 }
 
 .form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xl);
-}
-
-.formGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    'name email'
+    'phone phone'
+    'passwords passwords'
+    'terms terms'
+    'submit submit';
+  align-items: start;
+  column-gap: 1rem;
+  row-gap: .85rem;
 }
+.form > .formGroup:nth-child(1) { grid-area: name; }
+.form > .formGroup:nth-child(2) { grid-area: email; }
+.form > .formGroup:nth-child(3) { grid-area: phone; }
+.form > .formGrid { grid-area: passwords; }
+.form > .checkboxRow { grid-area: terms; }
+.form > .submitBtn { grid-area: submit; }
 
-@media (max-width: 640px) {
-  .formGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-}
-
+.formGroup { display: flex; min-width: 0; flex-direction: column; }
 .formGroup label {
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: var(--space-sm);
+  margin-bottom: .35rem;
   color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
 }
-
+.formGrid { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
 .input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--space-sm) 0;
-  font-size: 18px;
-  font-family: inherit;
-  color: var(--color-text);
-  border-radius: 0;
-  transition: border-color var(--transition-fast);
   width: 100%;
-}
-
-.input:focus {
-  outline: none;
-  border-bottom-color: var(--color-text);
-}
-
-.checkboxRow {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-md);
-  margin-top: var(--space-sm);
-}
-
-.checkboxRow input[type="checkbox"] {
-  margin-top: 4px;
-}
-
-.checkboxLabel {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
-
-.termsLink {
+  min-width: 0;
+  min-height: 40px;
+  padding: .55rem .7rem;
+  border: 1px solid rgba(0, 0, 0, .3);
+  border-radius: .5rem;
+  background: #fff;
   color: var(--color-text);
-  text-decoration: underline;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
 }
+.input:focus { outline: none; border-color: #202020; box-shadow: 0 0 0 1px #202020; }
+
+.checkboxRow { display: flex; align-items: flex-start; gap: .6rem; margin-top: .1rem; }
+.checkboxRow input[type='checkbox'] { width: 15px; height: 15px; flex: 0 0 auto; margin-top: 2px; accent-color: #202020; }
+.checkboxLabel { color: var(--color-text-secondary); font-size: 12px; line-height: 1.5; }
+.termsLink { color: var(--color-text); text-decoration: underline; text-underline-offset: 2px; }
 
 .submitBtn {
-  background: var(--color-text);
-  color: var(--color-text-light);
-  font-size: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: var(--space-md);
-  border: none;
-  cursor: pointer;
-  transition: opacity var(--transition-fast);
-  margin-top: var(--space-md);
-}
-
-.submitBtn:hover {
-  opacity: 0.8;
-}
-
-.submitBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.switchText {
-  font-size: 16px;
-  color: var(--color-text-secondary);
+  display: inline-flex;
+  min-height: 2.5rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin-top: .1rem;
+  padding: .7rem 1rem;
+  border: 1px solid rgba(0, 0, 0, .3);
+  border-radius: .5rem;
+  background: #fff;
+  color: #18181b;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
   text-align: center;
-  margin: var(--space-2xl) 0 0 0;
+  transition: opacity 180ms ease;
+  cursor: pointer;
+}
+.submitBtn:hover { opacity: .8; }
+.submitBtn:disabled { opacity: .6; cursor: wait; }
+.submitBtn:focus-visible, .termsLink:focus-visible, .switchLink:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
+
+.switchText { margin: .9rem 0 0; color: var(--color-text-secondary); font-size: 12px; line-height: 1.5; text-align: center; }
+.switchLink { color: var(--color-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 480px) {
+  .formCol { padding: .75rem 1rem; }
+  .formTitle { margin-bottom: .9rem; font-size: 1.5rem; }
+  .form { column-gap: .65rem; row-gap: .65rem; }
+  .formGrid { gap: .5rem; }
+  .formGroup label { font-size: 11px; }
+  .input { min-height: 38px; padding: .5rem .55rem; font-size: 13px; }
+  .checkboxLabel, .switchText { font-size: 11px; }
+  .switchText { margin-top: .65rem; }
 }
 
-.switchLink {
-  color: var(--color-text);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.switchLink:hover {
-  text-decoration: underline;
+@media (max-height: 700px) {
+  .formCol { padding-top: .5rem; padding-bottom: .5rem; }
+  .formTitle { margin-bottom: .7rem; }
+  .form { row-gap: .55rem; }
+  .switchText { margin-top: .5rem; }
 }

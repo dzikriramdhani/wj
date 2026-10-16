@@ -404,7 +404,7 @@ export default function HomePage() {
 
             <div className={styles.footerBottom}>
               <p className={styles.footerCopyright}>
-                © 2026 PT WINA JAYA. SELURUH HAK CIPTA DILINDUNGI HUKUM.
+                © 2026 PT Wina Jaya. Seluruh hak cipta dilindungi hukum.
               </p>
             </div>
           </div>

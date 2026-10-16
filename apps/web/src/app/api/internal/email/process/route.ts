@@ -32,6 +32,12 @@ function renderEmail(job: EmailJob) {
       text: `Pembayaran untuk pesanan ${String(payload.order_number ?? '')} telah diterima.`,
     };
   }
+  if (job.template_key === 'account.password_changed') {
+    return {
+      subject: 'Password akun WINAJAYA telah diubah',
+      text: 'Password akun Anda telah diubah. Jika Anda tidak melakukan perubahan ini, segera hubungi administrator.',
+    };
+  }
   return {
     subject: 'Pembaruan dari WINAJAYA',
     text: 'Ada pembaruan pada akun atau pesanan Anda.',

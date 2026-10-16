@@ -12,6 +12,7 @@ export interface CartItem {
   productName: string;
   variantId?: string;
   variantName?: string;
+  imageUrl?: string;
   category: string;
   qtyMeters: number;
   minQtyMeters?: number;
@@ -46,7 +47,8 @@ function isCartItem(value: unknown): value is CartItem {
     && Number.isFinite(item.pricePerMeter)
     && item.pricePerMeter >= 0
     && (item.variantId === undefined || typeof item.variantId === 'string')
-    && (item.variantName === undefined || typeof item.variantName === 'string');
+    && (item.variantName === undefined || typeof item.variantName === 'string')
+    && (item.imageUrl === undefined || typeof item.imageUrl === 'string');
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {

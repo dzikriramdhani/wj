@@ -12,8 +12,13 @@
 
 /* 1. Hero Section */
 .heroSection {
-  padding: var(--space-3xl) var(--space-xl) var(--space-3xl);
+  padding: var(--space-3xl) 1.5rem;
   border-bottom: 1px solid var(--color-border-light);
+}
+
+.heroInner {
+  width: min(100%, 1440px);
+  margin-inline: auto;
 }
 
 .breadcrumb {
@@ -37,18 +42,18 @@
 }
 
 .heroTitle {
-  font-size: 100px;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -3px;
+  font-size: clamp(2rem, 3.2vw, 2.5rem);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
   margin: 0;
   color: var(--color-text);
+  text-wrap: balance;
 }
 
-@media (max-width: 768px) {
-  .heroTitle {
-    font-size: 60px;
-    letter-spacing: -1.5px;
+@media (max-width: 767px) {
+  .heroSection {
+    padding-inline: 1rem;
   }
 }
 
@@ -88,18 +93,21 @@
 }
 
 .infoHeading {
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -1px;
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.15;
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0 0 var(--space-md) 0;
+  text-wrap: balance;
 }
 
 .infoDesc {
-  font-size: 18px;
+  max-width: 65ch;
+  font-size: 0.9375rem;
   color: var(--color-text-secondary);
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed);
   margin: 0;
+  text-wrap: pretty;
 }
 
 .infoBlock {
@@ -107,8 +115,9 @@
 }
 
 .infoTitle {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
   margin-bottom: var(--space-xl);
   border-bottom: 1px solid var(--color-text);
   padding-bottom: var(--space-sm);
@@ -121,7 +130,7 @@
 }
 
 .infoList li {
-  font-size: 18px;
+  font-size: 0.875rem;
   color: var(--color-text);
   margin-bottom: var(--space-md);
   display: flex;
@@ -130,7 +139,7 @@
 }
 
 .infoIcon {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
   width: 24px;
   height: 24px;
@@ -143,10 +152,12 @@
 }
 
 .addressText {
-  font-size: 18px;
-  line-height: 1.6;
+  max-width: 65ch;
+  font-size: 0.875rem;
+  line-height: var(--line-height-relaxed);
   color: var(--color-text);
   margin: 0;
+  text-wrap: pretty;
 }
 
 .timeList {
@@ -160,7 +171,7 @@
   justify-content: space-between;
   padding: var(--space-sm) 0;
   border-bottom: 1px solid var(--color-border-light);
-  font-size: 16px;
+  font-size: 0.8125rem;
 }
 
 .timeList li:last-child {
@@ -188,11 +199,12 @@
 }
 
 .formSectionTitle {
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: -1px;
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-medium);
+  line-height: 1.15;
+  letter-spacing: var(--letter-spacing-tight);
   margin: 0 0 var(--space-3xl) 0;
+  text-wrap: balance;
 }
 
 .formGrid {
@@ -217,10 +229,10 @@
 }
 
 .formGroup label {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--letter-spacing-wide);
   margin-bottom: var(--space-sm);
   color: var(--color-text-secondary);
 }
@@ -231,7 +243,7 @@
   border: none;
   border-bottom: 1px solid var(--color-border);
   padding: var(--space-sm) 0;
-  font-size: 18px;
+  font-size: 0.875rem;
   font-family: inherit;
   color: var(--color-text);
   border-radius: 0;
@@ -255,20 +267,28 @@
 .formStatus {
   margin: var(--space-md) 0 0;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: 0.8125rem;
+  line-height: var(--line-height-normal);
 }
 
 .submitBtn {
-  background: var(--color-text);
-  color: var(--color-text-light);
-  font-size: 16px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: var(--space-md) var(--space-2xl);
-  border: none;
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: 1px solid rgb(0 0 0 / 30%);
+  border-radius: 6px;
+  background: #fff;
+  color: #18181b;
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  text-decoration: none;
+  transition: opacity 180ms ease;
   width: 100%;
 }
 
@@ -287,6 +307,11 @@
   cursor: not-allowed;
 }
 
+.submitBtn:focus-visible {
+  outline: 2px solid #18181b;
+  outline-offset: 3px;
+}
+
 /* 3. Map Section */
 .mapSection {
   padding: 0 var(--space-xl) var(--space-4xl);
@@ -303,9 +328,9 @@
 }
 
 .mapText {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
   color: var(--color-text-secondary);
   margin: 0;
 }

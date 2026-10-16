@@ -168,9 +168,7 @@ export default function BusinessClient({
   return (
     <main className={styles.main}>
       <div className={styles.wrap}>
-        <Link href="/account" className={styles.back}>← Akun Saya</Link>
         <header>
-          <p className={styles.eyebrow}>B2B PORTAL</p>
           <h1>Perusahaan &amp; penawaran</h1>
           <p>Kelola status perusahaan, anggota B2B, persetujuan quotation, dan bulk order.</p>
         </header>

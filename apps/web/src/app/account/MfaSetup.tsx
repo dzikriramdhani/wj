@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Factor } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import styles from './MfaSetup.module.css';
 
@@ -34,7 +35,7 @@ export default function MfaSetup({ continueTo, requirement }: MfaSetupProps) {
       return;
     }
     const verifiedFactor = factorData?.totp[0] ?? null;
-    const unfinishedFactor = factorData?.all.find((factor) => factor.factor_type === 'totp' && factor.status === 'unverified') ?? null;
+    const unfinishedFactor = factorData?.all.find((factor: Factor) => factor.factor_type === 'totp' && factor.status === 'unverified') ?? null;
     setFactorId(verifiedFactor?.id ?? unfinishedFactor?.id ?? null);
     setHasVerifiedFactor(Boolean(verifiedFactor));
     setSessionIsAal2(assurance?.currentLevel === 'aal2');
@@ -55,8 +56,8 @@ export default function MfaSetup({ continueTo, requirement }: MfaSetupProps) {
     try {
       const { data: factors, error: factorsError } = await supabase.auth.mfa.listFactors();
       if (factorsError) throw factorsError;
-      const unfinishedFactors = factors?.all.filter((factor) => factor.factor_type === 'totp' && factor.status === 'unverified') ?? [];
-      await Promise.all(unfinishedFactors.map(async (factor) => {
+      const unfinishedFactors = factors?.all.filter((factor: Factor) => factor.factor_type === 'totp' && factor.status === 'unverified') ?? [];
+      await Promise.all(unfinishedFactors.map(async (factor: Factor) => {
         const { error: removeError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
         if (removeError) throw removeError;
       }));

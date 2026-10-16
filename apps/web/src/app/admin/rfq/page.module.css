@@ -23,12 +23,12 @@
 }
 
 .tab {
-  background: none;
-  border: none;
+  background: #fff;
+  border: 1px solid rgb(0 0 0 / 30%);
   padding: var(--space-sm) var(--space-md);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  color: var(--color-text-light);
+  color: #18181b;
   cursor: pointer;
   border-radius: 0;
   transition: all var(--transition-fast);
@@ -39,8 +39,9 @@
 }
 
 .tabActive {
-  background-color: var(--color-text);
-  color: var(--color-bg);
+  background-color: #fff;
+  border-color: rgb(0 0 0 / 55%);
+  color: #18181b;
 }
 
 .tableContainer {
@@ -60,7 +61,7 @@
 .table th {
   padding: var(--space-md) var(--space-lg);
   border-bottom: 2px solid var(--color-border);
-  color: var(--color-text-light);
+  color: var(--color-text-secondary);
   font-weight: 600;
   font-size: var(--font-size-sm);
   white-space: nowrap;
@@ -85,8 +86,8 @@
 }
 
 .detailBtn {
-  background: none;
-  border: 1px solid var(--color-text);
+  background: #fff;
+  border: 1px solid rgb(0 0 0 / 30%);
   color: var(--color-text);
   padding: 4px 12px;
   border-radius: 0;
@@ -97,8 +98,8 @@
 }
 
 .detailBtn:hover {
-  background-color: var(--color-text);
-  color: white;
+  background-color: #f4f4f5;
+  color: #18181b;
 }
 
 /* Modal styles */
@@ -144,11 +145,11 @@
 }
 
 .closeBtn {
-  background: none;
-  border: none;
+  background: #fff;
+  border: 1px solid rgb(0 0 0 / 30%);
   font-size: var(--font-size-xl);
   cursor: pointer;
-  color: var(--color-text-light);
+  color: var(--color-text);
 }
 
 .modalContent {
@@ -188,7 +189,7 @@
 
 .detailLabel {
   font-size: 12px;
-  color: var(--color-text-light);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
@@ -218,9 +219,9 @@
 }
 
 .updateBtn {
-  background-color: var(--color-text);
-  color: white;
-  border: none;
+  background-color: #fff;
+  color: #18181b;
+  border: 1px solid rgb(0 0 0 / 30%);
   padding: var(--space-sm) var(--space-lg);
   border-radius: 0;
   font-weight: 500;

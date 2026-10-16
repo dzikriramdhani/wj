@@ -8,7 +8,7 @@
 .message { margin-bottom: var(--space-lg); padding: var(--space-md); background: #edf5ef; border: 1px solid #b7d6be; color: #184e24; font-size: var(--font-size-sm); }
 .filters { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-bottom: var(--space-lg); }
 .filters button { padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
-.filters .activeFilter { background: var(--color-text); border-color: var(--color-text); color: var(--color-text-light); }
+.filters .activeFilter { background: #fff; border-color: rgb(0 0 0 / 45%); color: #18181b; }
 .list { border-top: 1px solid var(--color-border-light); }
 .payment { padding: var(--space-lg) 0; border-bottom: 1px solid var(--color-border-light); }
 .paymentHead { display: flex; justify-content: space-between; gap: var(--space-lg); }
@@ -19,7 +19,7 @@
 .meta b { color: var(--color-text); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-md); }
 .actions button, .actions a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 0.75rem; border: 1px solid var(--color-text); font-size: var(--font-size-sm); }
-.actions button { background: var(--color-text); color: var(--color-text-light); }
+.actions button { background: #fff; border-color: rgb(0 0 0 / 30%); color: #18181b; }
 .actions a { color: var(--color-text); }
 .actions button:disabled { cursor: wait; opacity: .6; }
 .empty { padding: var(--space-2xl); border: 1px solid var(--color-border-light); background: var(--color-bg-white); color: var(--color-text-secondary); }

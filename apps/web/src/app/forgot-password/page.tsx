@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
+import { buildConfiguredAppUrl } from '@/lib/app-url';
 import styles from '../login/page.module.css';
 
 export default function ForgotPasswordPage() {
@@ -14,13 +16,29 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     setMessage('');
     try {
-      const response = await fetch('/api/auth/password-reset', {
+      const recoveryClient = createClient();
+      const guardResponse = await fetch('/api/auth/password-reset', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const result = await response.json().catch(() => ({})) as { error?: string; message?: string };
-      setMessage(result.message ?? result.error ?? 'Permintaan belum dapat diproses.');
+      const guardResult = await guardResponse.json().catch(() => ({})) as { error?: string };
+      if (!guardResponse.ok) {
+        setMessage(guardResult.error ?? 'Permintaan belum dapat diproses.');
+        return;
+      }
+
+      const { error } = await recoveryClient.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: buildConfiguredAppUrl('/auth/callback'),
+      });
+      if (error) {
+        console.error('Password reset request failed', {
+          status: error.status,
+          code: 'code' in error && typeof error.code === 'string' ? error.code : '',
+        });
+      }
+      setMessage('Jika alamat email terdaftar, tautan pemulihan telah dikirim.');
     } catch {
       setMessage('Koneksi ke layanan akun terputus. Coba kembali.');
     } finally {

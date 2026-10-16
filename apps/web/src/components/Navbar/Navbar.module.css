@@ -25,20 +25,26 @@
   max-width: 100%;
 }
 
+/* Keep the cart's content edges aligned with the existing site logo and menu. */
+.cartRoute .navbarInner {
+  padding-inline: var(--space-2xl);
+}
+
 /* Logo */
 .logo {
   display: flex;
   align-items: center;
   text-decoration: none;
-  width: 100px;
+  width: 160px;
 }
 
 .logoMark {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-text-light);
-  letter-spacing: var(--letter-spacing-wide);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
   transition: color var(--transition-fast);
 }
 
@@ -232,6 +238,8 @@
     padding: 0 var(--space-lg);
     height: 64px;
   }
+  .logo { width: auto; }
+  .cartRoute .navbarInner { padding-inline: var(--space-lg); }
   .sideMenuContent {
     max-width: 100%;
   }

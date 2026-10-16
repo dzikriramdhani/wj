@@ -13,7 +13,7 @@ const navItems = [
   { label: 'Contact', href: '/contact' },
 ];
 
-export default function Navbar({ offsetTop = 0 }: { offsetTop?: number }) {
+export default function Navbar() {
   const { items } = useCart();
   const pathname = usePathname();
   const isHome = pathname === '/';
@@ -85,12 +85,11 @@ export default function Navbar({ offsetTop = 0 }: { offsetTop?: number }) {
   return (
     <>
       <nav
-        className={`${styles.navbar} ${isHome && scrolled ? styles.scrolled : ''} ${!isHome ? styles.notHome : ''} ${isHidden ? styles.hidden : ''}`}
-        style={offsetTop ? { top: offsetTop } : undefined}
+        className={`${styles.navbar} ${pathname === '/cart' ? styles.cartRoute : ''} ${isHome && scrolled ? styles.scrolled : ''} ${!isHome ? styles.notHome : ''} ${isHidden ? styles.hidden : ''}`}
       >
         <div className={styles.navbarInner}>
           <Link href="/" className={styles.logo}>
-            <span className={styles.logoMark}>WJ</span>
+            <span className={styles.logoMark}>WINA JAYA</span>
           </Link>
 
           <div className={styles.centerBadge}>
@@ -136,7 +135,7 @@ export default function Navbar({ offsetTop = 0 }: { offsetTop?: number }) {
 
           <div className={styles.sideMenuFooter}>
             <Link 
-              href="/checkout" 
+              href="/cart"
               className={styles.sideMenuFooterLink} 
               onClick={() => setMenuOpen(false)}
               style={{ '--stagger-idx': navItems.length } as React.CSSProperties}

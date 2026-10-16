@@ -1,0 +1,9 @@
+# Local-only operator bootstrap script; never include credentials in deploy artifacts.
+create-admin.mjs
+
+# Developer-local configuration and generated files.
+.env
+.env.*
+.vercel
+.next
+node_modules

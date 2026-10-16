@@ -27,9 +27,7 @@ export default function RootLayout({
     <html lang="id">
       <body>
         <SmoothScroll>
-          <SiteShell paymentsSandbox={process.env.MIDTRANS_IS_PRODUCTION !== 'true'}>
-            {children}
-          </SiteShell>
+          <SiteShell>{children}</SiteShell>
         </SmoothScroll>
       </body>
     </html>
