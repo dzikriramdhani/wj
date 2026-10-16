@@ -10,6 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsc -p tsconfig.test.json && node --test .test-build/test/*.test.js .test-build/test/integration/*.test.js",
     "preflight:production": "node scripts/production-preflight.mjs",
     "preflight:staging": "node scripts/staging-preflight.mjs"
   },
