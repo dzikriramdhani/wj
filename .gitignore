@@ -1,5 +1,7 @@
 
 supabase/.temp/
+apps/web/create-admin.mjs
+medusa-store/
 *.stackdump
 /.vercel/
 .env*
