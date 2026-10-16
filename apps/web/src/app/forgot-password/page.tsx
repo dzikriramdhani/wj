@@ -7,7 +7,6 @@ import { buildConfiguredAppUrl } from '@/lib/app-url';
 import styles from '../login/page.module.css';
 
 export default function ForgotPasswordPage() {
-  const [recoveryClient] = useState(createClient);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,6 +16,7 @@ export default function ForgotPasswordPage() {
     setIsSubmitting(true);
     setMessage('');
     try {
+      const recoveryClient = createClient();
       const guardResponse = await fetch('/api/auth/password-reset', {
         method: 'POST',
         credentials: 'same-origin',
