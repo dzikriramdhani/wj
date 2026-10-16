@@ -43,6 +43,9 @@ export async function POST(request: Request) {
     }
 
     const owner = await getCommerceOwner();
+    if (!owner.userId) {
+      return NextResponse.json({ error: 'Masuk ke akun sebelum checkout agar pesanan tersimpan di riwayat profil.' }, { status: 401 });
+    }
 
     const input = parsed.data;
     const requestHash = createHash('sha256').update(JSON.stringify(input)).digest('hex');

@@ -1,7 +1,7 @@
 .card { border-top: 1px solid var(--color-text); margin-top: var(--space-2xl); padding-top: var(--space-lg); }
 .heading { align-items: flex-start; display: flex; gap: var(--space-sm); justify-content: space-between; }
 .eyebrow { color: var(--color-text-secondary); font-size: 10px; font-weight: 600; letter-spacing: .8px; margin: 0 0 var(--space-2xs); }
-.heading h3 { font-size: 16px; margin: 0; }
+.heading h3 { font-size: 16px; font-weight: 500; letter-spacing: -.015em; margin: 0; }
 .active, .pending { font-size: 11px; font-weight: 600; letter-spacing: .5px; padding: 3px 6px; text-transform: uppercase; }
 .active { background: #e7f3e8; color: #205f2b; }
 .pending { background: #f7eee0; color: #77521e; }
@@ -9,11 +9,29 @@
 .notice, .error { font-size: 13px; line-height: 1.45; margin: var(--space-sm) 0; }
 .notice { color: #205f2b; }
 .error { color: #8a1f11; }
-.primaryButton, .secondaryButton { cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: .4px; padding: var(--space-xs) var(--space-md); text-transform: uppercase; }
-.primaryButton { background: var(--color-text); border: 1px solid var(--color-text); color: var(--color-bg); }
-.secondaryButton { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
+.primaryButton, .secondaryButton {
+  min-height: 40px;
+  width: fit-content;
+  border: 1px solid #202020;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #202020;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.7rem 1rem;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.primaryButton:hover, .secondaryButton:hover { border-color: #454545; background: #f6f6f6; }
+.primaryButton:focus-visible, .secondaryButton:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
 .primaryButton:disabled, .secondaryButton:disabled { cursor: wait; opacity: .6; }
 .verifyForm { display: flex; flex-direction: column; gap: var(--space-sm); margin-top: var(--space-md); }
-.verifyForm label { color: var(--color-text-secondary); font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+.verifyForm label { color: var(--color-text-secondary); font-size: 13px; font-weight: 500; }
 .verifyForm input { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); font: inherit; letter-spacing: .18em; max-width: 180px; padding: var(--space-xs); }
 .qrCode { background: #fff; border: 1px solid var(--color-border-light); height: 176px; padding: 8px; width: 176px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .primaryButton, .secondaryButton { transition-duration: 0.01ms; }
+}

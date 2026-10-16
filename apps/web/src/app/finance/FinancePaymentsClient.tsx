@@ -58,7 +58,7 @@ export default function FinancePaymentsClient({ payments: initialPayments }: { p
       });
       const result = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) throw new Error(result.error ?? 'Status pembayaran belum dapat diperiksa.');
-      setMessage(`${payment.orderNumber} berhasil diperiksa ke Midtrans. Muat ulang halaman untuk melihat status terbaru.`);
+      setMessage(`${payment.orderNumber} berhasil diperiksa. Muat ulang halaman untuk melihat status terbaru.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Status pembayaran belum dapat diperiksa.');
     } finally {
@@ -77,7 +77,7 @@ export default function FinancePaymentsClient({ payments: initialPayments }: { p
         <div>
           <p className={styles.eyebrow}>FINANCE WORKSPACE</p>
           <h1>Pembayaran</h1>
-          <p>Periksa status Midtrans, nilai transaksi, dan invoice tanpa akses katalog atau pengiriman.</p>
+          <p>Periksa status pembayaran, nilai transaksi, dan invoice tanpa akses katalog atau pengiriman.</p>
         </div>
         <div className={styles.summary}>
           <span><strong>{pendingCount}</strong> menunggu</span>
@@ -114,7 +114,7 @@ export default function FinancePaymentsClient({ payments: initialPayments }: { p
               </div>
               <div className={styles.actions}>
                 <button type="button" disabled={busyId === payment.id} onClick={() => void reconcile(payment)}>
-                  {busyId === payment.id ? 'Memeriksa…' : 'Cek Midtrans'}
+                  {busyId === payment.id ? 'Memeriksa…' : 'Cek status pembayaran'}
                 </button>
                 {payment.paymentStatus === 'pending' && payment.paymentUrl && <a href={payment.paymentUrl} target="_blank" rel="noreferrer">Buka halaman pembayaran</a>}
               </div>

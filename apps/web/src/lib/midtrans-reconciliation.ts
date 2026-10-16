@@ -16,7 +16,7 @@ export type ReconciliationResult =
 
 export async function reconcileMidtransPayment(orderId: string): Promise<ReconciliationResult> {
   const serverKey = process.env.MIDTRANS_SERVER_KEY?.trim();
-  if (!serverKey) return { ok: false, status: 503, error: 'Midtrans belum dikonfigurasi.' };
+  if (!serverKey) return { ok: false, status: 503, error: 'Penyedia pembayaran belum dikonfigurasi.' };
 
   try {
     const service = createServiceClient();
@@ -27,7 +27,7 @@ export async function reconcileMidtransPayment(orderId: string): Promise<Reconci
       .eq('provider', 'midtrans')
       .maybeSingle();
     if (paymentError) throw paymentError;
-    if (!payment) return { ok: false, status: 404, error: 'Pembayaran Midtrans belum dibuat untuk pesanan ini.' };
+    if (!payment) return { ok: false, status: 404, error: 'Sesi pembayaran belum dibuat untuk pesanan ini.' };
 
     const response = await fetch(`${providerBaseUrl()}/${encodeURIComponent(payment.provider_order_id)}/status`, {
       headers: { Authorization: `Basic ${Buffer.from(`${serverKey}:`).toString('base64')}`, Accept: 'application/json' },
@@ -35,13 +35,13 @@ export async function reconcileMidtransPayment(orderId: string): Promise<Reconci
       signal: AbortSignal.timeout(12_000),
     });
     const notification = await response.json().catch(() => ({})) as Record<string, unknown>;
-    if (!response.ok) return { ok: false, status: 503, error: 'Status pembayaran belum dapat diambil dari Midtrans.' };
+    if (!response.ok) return { ok: false, status: 503, error: 'Status pembayaran belum dapat diperiksa.' };
 
     const transactionStatus = String(notification.transaction_status ?? '');
     const grossAmount = Number(notification.gross_amount);
     const statusCode = String(notification.status_code ?? '');
     if (!transactionStatus || !Number.isFinite(grossAmount) || !statusCode) {
-      return { ok: false, status: 502, error: 'Respons Midtrans tidak lengkap.' };
+      return { ok: false, status: 502, error: 'Respons status pembayaran tidak lengkap.' };
     }
 
     const fingerprint = createHash('sha256').update(JSON.stringify({

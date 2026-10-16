@@ -5,6 +5,15 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
 
+const fabricCategoryLabels: Record<string, string> = {
+  katun: 'Katun (Combed, Carded, dll)',
+  polyester: 'Polyester',
+  rayon: 'Rayon',
+  denim: 'Denim',
+  spandex: 'Spandex / Jersey',
+  lainnya: 'Lainnya / Custom',
+};
+
 function RFQFormContent() {
   const searchParams = useSearchParams();
   const productIdParam = searchParams?.get('productId');
@@ -29,6 +38,18 @@ function RFQFormContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const requestRef = useRef<{ body: string; key: string } | null>(null);
+  const previewRows = [
+    ['Nama lengkap', formData.nama],
+    ['Perusahaan / brand', formData.perusahaan],
+    ['Email', formData.email],
+    ['Nomor WhatsApp', formData.telepon],
+    ['Kategori kain', fabricCategoryLabels[formData.jenisKain] ?? ''],
+    ['Estimasi volume', formData.jumlah],
+    ['Warna / Pantone', formData.warna],
+    ['Gramasi', formData.gramasi ? `${formData.gramasi} GSM` : ''],
+    ['Catatan tambahan', formData.catatan],
+    ['Lampiran', attachments.map((file) => file.name).join(', ')],
+  ] as const;
 
   useEffect(() => {
     if (productIdParam) {
@@ -133,9 +154,8 @@ function RFQFormContent() {
       <section className={styles.heroSection}>
         <div className={styles.heroInner}>
           <h1 className={styles.heroTitle}>
-            Custom<br/>
-            Dyeing &amp;<br/>
-            Sourcing
+            Custom Dyeing<br/>
+            &amp; Sourcing
           </h1>
         </div>
       </section>
@@ -220,48 +240,18 @@ function RFQFormContent() {
 
           {/* Sidebar */}
           <div className={styles.sidebarCol}>
-            <div className={styles.sidebarBlock}>
-              <h3 className={styles.sidebarTitle}>Kontak Langsung</h3>
-              <ul className={styles.sidebarList}>
-                <li><span className={styles.sidebarIcon}>E</span> sales@winajaya.co.id</li>
-                <li><span className={styles.sidebarIcon}>W</span> +62 812 3456 7890</li>
-                <li><span className={styles.sidebarIcon}>T</span> (022) 1234567</li>
-              </ul>
-            </div>
-
-            <div className={styles.sidebarBlock}>
-              <h3 className={styles.sidebarTitle}>Prosedur Produksi</h3>
-              <div className={styles.processList}>
-                <div className={styles.processItem}>
-                  <div className={styles.processStep}>01</div>
-                  <div className={styles.processInfo}>
-                    <h4 className={styles.processTitle}>Konsultasi Spec</h4>
-                    <p className={styles.processDesc}>Penentuan greige, gramasi, &amp; teknik dyeing.</p>
+            <section className={styles.previewCard} aria-live="polite" aria-label="Pratinjau permintaan RFQ">
+              <h3 className={styles.previewTitle}>Pratinjau Permintaan</h3>
+              <p className={styles.previewDescription}>Ringkasan ini diperbarui mengikuti isian formulir Anda.</p>
+              <dl className={styles.previewList}>
+                {previewRows.map(([label, value]) => (
+                  <div className={styles.previewRow} key={label}>
+                    <dt className={styles.previewLabel}>{label}</dt>
+                    <dd className={styles.previewValue}>{value.trim() || 'Belum diisi'}</dd>
                   </div>
-                </div>
-                <div className={styles.processItem}>
-                  <div className={styles.processStep}>02</div>
-                  <div className={styles.processInfo}>
-                    <h4 className={styles.processTitle}>Lab-dip &amp; Sample</h4>
-                    <p className={styles.processDesc}>Pembuatan sampel warna dalam 72 jam.</p>
-                  </div>
-                </div>
-                <div className={styles.processItem}>
-                  <div className={styles.processStep}>03</div>
-                  <div className={styles.processInfo}>
-                    <h4 className={styles.processTitle}>Produksi Massal</h4>
-                    <p className={styles.processDesc}>Proses tenun &amp; celup sesuai antrean mesin.</p>
-                  </div>
-                </div>
-                <div className={styles.processItem}>
-                  <div className={styles.processStep}>04</div>
-                  <div className={styles.processInfo}>
-                    <h4 className={styles.processTitle}>QC &amp; Pengiriman</h4>
-                    <p className={styles.processDesc}>Inspeksi 4-point system sebelum dispatch.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                ))}
+              </dl>
+            </section>
           </div>
         </div>
       </section>

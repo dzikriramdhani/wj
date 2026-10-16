@@ -8,29 +8,44 @@ import { formatDate, getRFQStatusInfo } from '@/lib/routing-logic';
 import type { RFQStatus } from '@/types';
 import MfaSetup from './MfaSetup';
 
+type AccountTab = 'overview' | 'profil' | 'orders' | 'rfq' | 'notifikasi';
+
 export default function AccountPage({
   user,
   rfqs,
+  orders,
   notifications,
   workspaceLinks,
   mfaRequired,
   mfaContinueTo,
   mfaRequirement,
+  initialTab,
 }: {
   user: { name: string; email: string; phone: string; company: string; memberSince: string };
   rfqs: Array<{ id: string; status: RFQStatus; createdAt: string; qtyRequested: number; productName: string }>;
+  orders: Array<{ id: string; orderNumber: string; orderStatus: string; paymentStatus: string; totalAmount: number; createdAt: string }>;
   notifications: Array<{ id: string; title: string; body: string; linkPath: string | null; readAt: string | null; createdAt: string }>;
   workspaceLinks: Array<{ href: string; label: string }>;
   mfaRequired: boolean;
   mfaContinueTo: string;
   mfaRequirement: 'Admin' | 'Super Admin';
+  initialTab: AccountTab;
 }) {
   const router = useRouter();
   const [profile, setProfile] = useState(user);
-  const [activeTab, setActiveTab] = useState<'profil' | 'rfq' | 'notifikasi'>('profil');
+  const [activeTab, setActiveTab] = useState<AccountTab>(initialTab);
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileDraft, setProfileDraft] = useState({ fullName: user.name, phone: user.phone === '-' ? '' : user.phone });
   const [profileStatus, setProfileStatus] = useState('');
+  const firstName = profile.name.trim().split(/\s+/)[0] || 'Pelanggan';
+  const profileCompletion = Math.round(
+    [profile.name, profile.email, profile.phone, profile.company].filter((value) => value && value !== '-').length / 4 * 100,
+  );
+
+  const changeTab = (tab: AccountTab) => {
+    setActiveTab(tab);
+    router.replace(tab === 'overview' ? '/account' : `/account?tab=${tab}`, { scroll: false });
+  };
 
   const handleLogout = async () => {
     const response = await fetch('/api/auth/logout', { method: 'POST' });
@@ -46,7 +61,11 @@ export default function AccountPage({
     event.preventDefault();
     setProfileStatus('');
     try {
-      const response = await fetch('/api/account/profile', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(profileDraft) });
+      const response = await fetch('/api/account/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileDraft),
+      });
       const result = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) return setProfileStatus(result.error ?? 'Profil belum dapat diperbarui.');
       setProfile((current) => ({ ...current, name: profileDraft.fullName, phone: profileDraft.phone || '-' }));
@@ -56,178 +75,206 @@ export default function AccountPage({
     }
   };
 
+  const navigation: Array<{ id: AccountTab; label: string }> = [
+    { id: 'overview', label: 'Ringkasan' },
+    { id: 'profil', label: 'Profil' },
+    { id: 'orders', label: 'Pesanan' },
+    { id: 'rfq', label: 'Riwayat RFQ' },
+    { id: 'notifikasi', label: 'Notifikasi' },
+  ];
+
+  const renderOrder = (order: (typeof orders)[number], compact = false) => {
+    const status = order.paymentStatus.toLowerCase();
+    const paymentLabel = ['paid', 'capture', 'settlement', 'pending', 'expire', 'expired'].includes(status)
+      ? null
+      : status === 'cancel' || status === 'cancelled'
+        ? 'Dibatalkan'
+        : status === 'deny' || status === 'failure'
+          ? 'Gagal'
+          : status === 'refund' || status === 'partial_refund'
+            ? 'Dikembalikan'
+            : null;
+
+    return (
+      <Link className={styles.orderCard} href={`/payments/${encodeURIComponent(order.id)}`} key={order.id}>
+        <div className={styles.orderInfoGrid}>
+          <span className={styles.orderFieldLabel}>Tanggal pesanan</span>
+          <span className={styles.orderFieldLabel}>Nomor pesanan</span>
+          <span className={styles.orderFieldLabel}>Total pembayaran</span>
+          <span>{formatDate(order.createdAt)}</span>
+          <span>{order.orderNumber}</span>
+          <span>{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(order.totalAmount)}</span>
+        </div>
+        <span className={styles.orderCardEnd}>
+          {paymentLabel && <span className={styles.rfqStatus}>{paymentLabel}</span>}
+          <span className={styles.chevron} aria-hidden="true">›</span>
+          {compact && <span className={styles.srOnly}>Buka pesanan {order.orderNumber}</span>}
+        </span>
+      </Link>
+    );
+  };
+
   return (
     <div className={styles.main}>
-      {/* Hero */}
-      <section className={styles.heroSection}>
-        <div className={styles.heroInner}>
-          <div className={styles.breadcrumb}>
-            <Link href="/">Beranda</Link>
-            <span className={styles.breadcrumbSep}>/</span>
-            <span>Akun</span>
-          </div>
-          <div className={styles.heroRow}>
-            <h1 className={styles.heroTitle}>Akun Saya</h1>
-            <button className={styles.logoutBtn} onClick={handleLogout}>Keluar</button>
-          </div>
-        </div>
-      </section>
-
-      {/* Content */}
-      <section className={styles.contentSection}>
-        <div className={styles.layout}>
-          {/* Sidebar: Profile */}
-          <div className={styles.profileCol}>
-            <div className={styles.avatar}>{profile.name.charAt(0)}</div>
-            <h2 className={styles.userName}>{profile.name}</h2>
-            <p className={styles.userEmail}>{profile.email}</p>
-
-            <div className={styles.profileDetails}>
-              <div className={styles.profileRow}>
-                <span className={styles.profileLabel}>Telepon</span>
-                <span className={styles.profileValue}>{profile.phone}</span>
-              </div>
-              <div className={styles.profileRow}>
-                <span className={styles.profileLabel}>Perusahaan</span>
-                <span className={styles.profileValue}>{profile.company}</span>
-              </div>
-              <div className={styles.profileRow}>
-                <span className={styles.profileLabel}>Bergabung</span>
-                <span className={styles.profileValue}>{formatDate(profile.memberSince)}</span>
-              </div>
-            </div>
-
-            <button className={styles.editBtn} onClick={() => { setProfileDraft({ fullName: profile.name, phone: profile.phone === '-' ? '' : profile.phone }); setProfileStatus(''); setEditingProfile((value) => !value); }}>Edit Profil</button>
-            {editingProfile && <form className={styles.profileForm} onSubmit={saveProfile}>
-              <label>Nama<input value={profileDraft.fullName} onChange={(event) => setProfileDraft((current) => ({ ...current, fullName: event.target.value }))} required /></label>
-              <label>Telepon<input value={profileDraft.phone} onChange={(event) => setProfileDraft((current) => ({ ...current, phone: event.target.value }))} /></label>
-              {profileStatus && <p role="status">{profileStatus}</p>}
-              <button type="submit" className={styles.editBtn}>Simpan</button>
-            </form>}
-            {mfaRequired && <MfaSetup continueTo={mfaContinueTo} requirement={mfaRequirement} />}
-          </div>
-
-          {/* Main Content */}
-          <div className={styles.mainCol}>
-            {/* Tabs */}
-            <div className={styles.tabs}>
-              <button className={`${styles.tab} ${activeTab === 'profil' ? styles.activeTab : ''}`} onClick={() => setActiveTab('profil')}>
-                Overview
-              </button>
-              <button className={`${styles.tab} ${activeTab === 'rfq' ? styles.activeTab : ''}`} onClick={() => setActiveTab('rfq')}>
-                Riwayat RFQ
-              </button>
-              <button className={`${styles.tab} ${activeTab === 'notifikasi' ? styles.activeTab : ''}`} onClick={() => setActiveTab('notifikasi')}>
-                Notifikasi{notifications.some((notification) => !notification.readAt) ? ` (${notifications.filter((notification) => !notification.readAt).length})` : ''}
-              </button>
-            </div>
-
-            {/* Tab: Overview */}
-            {activeTab === 'profil' && (
-              <div className={styles.tabContent}>
-                <div className={styles.statsRow}>
-                  <div className={styles.statCard}>
-                    <span className={styles.statValue}>{rfqs.length}</span>
-                    <span className={styles.statLabel}>Total RFQ</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statValue}>{rfqs.filter(r => r.status === 'SUBMITTED').length}</span>
-                    <span className={styles.statLabel}>Pending</span>
-                  </div>
-                  <div className={styles.statCard}>
-                    <span className={styles.statValue}>{rfqs.filter(r => r.status === 'QUOTED').length}</span>
-                    <span className={styles.statLabel}>Quoted</span>
-                  </div>
-                </div>
-
-                <div className={styles.quickActions}>
-                  <h3 className={styles.sectionTitle}>Aksi Cepat</h3>
-                  <div className={styles.actionGrid}>
-                    {workspaceLinks.map((workspace) => (
-                      <Link href={workspace.href} className={styles.actionCard} key={workspace.href}>
-                        <span className={styles.actionLabel}>{workspace.label}</span>
-                        <span className={styles.actionArrow}>&rarr;</span>
-                      </Link>
-                    ))}
-                    <Link href="/rfq/new" className={styles.actionCard}>
-                      <span className={styles.actionLabel}>Buat RFQ Baru</span>
-                      <span className={styles.actionArrow}>&rarr;</span>
-                    </Link>
-                    <Link href="/products" className={styles.actionCard}>
-                      <span className={styles.actionLabel}>Lihat Katalog</span>
-                      <span className={styles.actionArrow}>&rarr;</span>
-                    </Link>
-                    <Link href="/business" className={styles.actionCard}>
-                      <span className={styles.actionLabel}>Portal Perusahaan</span>
-                      <span className={styles.actionArrow}>&rarr;</span>
-                    </Link>
-                    <Link href="/privacy" className={styles.actionCard}>
-                      <span className={styles.actionLabel}>Privasi Data</span>
-                      <span className={styles.actionArrow}>&rarr;</span>
-                    </Link>
-                    <Link href="/contact" className={styles.actionCard}>
-                      <span className={styles.actionLabel}>Hubungi Tim</span>
-                      <span className={styles.actionArrow}>&rarr;</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab: RFQ History */}
-            {activeTab === 'rfq' && (
-              <div className={styles.tabContent}>
-                <div className={styles.rfqHeader}>
-                  <h3 className={styles.sectionTitle}>Riwayat Penawaran</h3>
-                  <Link href="/rfq/new" className={styles.newRfqBtn}>+ RFQ Baru</Link>
-                </div>
-                
-                {rfqs.length > 0 ? (
-                  <div className={styles.rfqList}>
-                    {rfqs.map(rfq => {
-                      const statusInfo = getRFQStatusInfo(rfq.status);
-                      return (
-                        <div key={rfq.id} className={styles.rfqItem}>
-                          <div className={styles.rfqMain}>
-                            <div className={styles.rfqId}>{rfq.id.toUpperCase()}</div>
-                            <div className={styles.rfqProduct}>{rfq.productName}</div>
-                            <div className={styles.rfqMeta}>
-                              <span>{rfq.qtyRequested.toLocaleString('id-ID')} meter</span>
-                              <span className={styles.rfqDot}>·</span>
-                              <span>{formatDate(rfq.createdAt)}</span>
-                            </div>
-                          </div>
-                          <div className={styles.rfqRight}>
-                            <span className={styles.rfqStatus}>{statusInfo.label}</span>
-                            <button className={styles.rfqDetailBtn}>Detail &rarr;</button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className={styles.emptyState}>
-                    <p>Belum ada riwayat penawaran.</p>
-                    <Link href="/rfq/new" className={styles.newRfqBtn}>Ajukan Sekarang</Link>
-                  </div>
+      <div className={styles.accountShell}>
+        <aside className={styles.sidebar} aria-label="Navigasi akun">
+          <h1 className={styles.sidebarTitle}>Akun</h1>
+          <nav className={styles.navList}>
+            {navigation.map((item) => (
+              <button
+                className={`${styles.navItem} ${activeTab === item.id ? styles.navItemActive : ''}`}
+                key={item.id}
+                type="button"
+                aria-current={activeTab === item.id ? 'page' : undefined}
+                onClick={() => changeTab(item.id)}
+              >
+                <span>{item.label}</span>
+                {item.id === 'notifikasi' && notifications.some((notification) => !notification.readAt) && (
+                  <span className={styles.notificationCount}>{notifications.filter((notification) => !notification.readAt).length}</span>
                 )}
-              </div>
-            )}
+              </button>
+            ))}
+            <button className={`${styles.navItem} ${styles.logoutNav}`} type="button" onClick={handleLogout}>
+              Keluar
+            </button>
+          </nav>
+        </aside>
 
-            {activeTab === 'notifikasi' && (
-              <div className={styles.tabContent}>
-                <h3 className={styles.sectionTitle}>Notifikasi</h3>
-                {notifications.length ? <div className={styles.rfqList}>{notifications.map((notification) => (
-                  <Link key={notification.id} href={notification.linkPath ?? '/account'} className={styles.actionCard}>
-                    <span><strong>{notification.title}</strong><small className={styles.notificationBody}>{notification.body}</small></span>
-                    <span className={styles.notificationTime}>{formatDate(notification.createdAt)}</span>
-                  </Link>
-                ))}</div> : <div className={styles.emptyState}><p>Belum ada notifikasi.</p></div>}
+        <section className={styles.content}>
+          {activeTab === 'overview' && (
+            <div className={styles.tabContent}>
+              <header className={styles.overviewHeader}>
+                <h2>Halo, {firstName}</h2>
+                <p>Masuk sebagai: <strong>{profile.email}</strong></p>
+              </header>
+
+              <div className={styles.overviewBody}>
+                <div className={styles.overviewStats}>
+                  <div className={styles.overviewStat}>
+                    <h3>Profil</h3>
+                    <div className={styles.statLine}>
+                      <strong>{profileCompletion}%</strong>
+                      <span>Lengkap</span>
+                    </div>
+                  </div>
+                  <div className={styles.overviewStat}>
+                    <h3>Pesanan</h3>
+                    <div className={styles.statLine}>
+                      <strong>{orders.length}</strong>
+                      <span>Tersimpan</span>
+                    </div>
+                  </div>
+                </div>
+
+                <section className={styles.recentOrders} aria-labelledby="recent-orders-title">
+                  <h3 id="recent-orders-title">Pesanan terbaru</h3>
+                  {orders.length ? (
+                    <ul className={styles.orderList}>
+                      {orders.slice(0, 5).map((order) => <li key={order.id}>{renderOrder(order, true)}</li>)}
+                    </ul>
+                  ) : (
+                    <div className={styles.emptyState}>
+                      <p>Belum ada pesanan.</p>
+                      <Link href="/products" className={styles.outlineButton}>Lihat katalog</Link>
+                    </div>
+                  )}
+                </section>
+
+                <section className={styles.quickLinks} aria-labelledby="quick-links-title">
+                  <h3 id="quick-links-title">Tautan akun</h3>
+                  <div className={styles.quickLinkList}>
+                    {workspaceLinks.map((workspace) => <Link href={workspace.href} key={workspace.href}>{workspace.label}<span aria-hidden="true">›</span></Link>)}
+                    <Link href="/rfq/new">Buat RFQ baru<span aria-hidden="true">›</span></Link>
+                    <Link href="/products">Lihat katalog<span aria-hidden="true">›</span></Link>
+                    <Link href="/business">Portal perusahaan<span aria-hidden="true">›</span></Link>
+                  </div>
+                </section>
+                {mfaRequired && <MfaSetup continueTo={mfaContinueTo} requirement={mfaRequirement} />}
               </div>
-            )}
-          </div>
-        </div>
-      </section>
+            </div>
+          )}
+
+          {activeTab === 'profil' && (
+            <div className={styles.tabContent}>
+              <header className={styles.pageHeader}>
+                <h2>Profil</h2>
+                <p>Lihat dan perbarui informasi akun Anda.</p>
+              </header>
+              <div className={styles.profileSections}>
+                <section className={styles.profileSection}>
+                  <div className={styles.profileSectionHead}><div><h3>Informasi akun</h3><p>Nama dan alamat email akun Anda.</p></div>
+                    <button className={styles.outlineButton} type="button" onClick={() => { setProfileDraft({ fullName: profile.name, phone: profile.phone === '-' ? '' : profile.phone }); setProfileStatus(''); setEditingProfile((value) => !value); }}>{editingProfile ? 'Batal' : 'Edit'}</button>
+                  </div>
+                  {editingProfile ? (
+                    <form className={styles.profileForm} onSubmit={saveProfile}>
+                      <label>Nama lengkap<input value={profileDraft.fullName} onChange={(event) => setProfileDraft((current) => ({ ...current, fullName: event.target.value }))} required /></label>
+                      <label>Email<input value={profile.email} readOnly /></label>
+                      <label>No. WhatsApp<input value={profileDraft.phone} onChange={(event) => setProfileDraft((current) => ({ ...current, phone: event.target.value }))} /></label>
+                      {profileStatus && <p role="status" className={styles.formStatus}>{profileStatus}</p>}
+                      <button type="submit" className={styles.outlineButton}>Simpan perubahan</button>
+                    </form>
+                  ) : (
+                    <dl className={styles.profileDetails}>
+                      <div><dt>Nama lengkap</dt><dd>{profile.name}</dd></div>
+                      <div><dt>Email</dt><dd>{profile.email}</dd></div>
+                      <div><dt>No. WhatsApp</dt><dd>{profile.phone}</dd></div>
+                      <div><dt>Perusahaan</dt><dd>{profile.company}</dd></div>
+                      <div><dt>Bergabung sejak</dt><dd>{formatDate(profile.memberSince)}</dd></div>
+                    </dl>
+                  )}
+                </section>
+                {mfaRequired && <MfaSetup continueTo={mfaContinueTo} requirement={mfaRequirement} />}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'orders' && (
+            <div className={styles.tabContent}>
+              <header className={styles.pageHeader}>
+                <h2>Pesanan</h2>
+                <p>Lihat riwayat pesanan dan status pembayarannya.</p>
+              </header>
+              {orders.length ? <ul className={`${styles.orderList} ${styles.fullOrderList}`}>{orders.map((order) => <li key={order.id}>{renderOrder(order)}</li>)}</ul> : (
+                <div className={styles.emptyState}><h3>Belum ada pesanan</h3><p>Pesanan Anda akan muncul di sini setelah checkout.</p><Link href="/products" className={styles.outlineButton}>Lanjut belanja</Link></div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'rfq' && (
+            <div className={styles.tabContent}>
+              <header className={styles.pageHeader}>
+                <h2>Riwayat RFQ</h2>
+                <p>Lihat status permintaan produk khusus Anda.</p>
+                <Link href="/rfq/new" className={styles.outlineButton}>Buat RFQ baru</Link>
+              </header>
+              {rfqs.length ? <ul className={styles.recordList}>{rfqs.map((rfq) => {
+                const statusInfo = getRFQStatusInfo(rfq.status);
+                return <li className={styles.rfqRecord} key={rfq.id}>
+                  <div><span className={styles.recordEyebrow}>{rfq.id.toUpperCase()}</span><h3>{rfq.productName}</h3><p>{rfq.qtyRequested.toLocaleString('id-ID')} meter · {formatDate(rfq.createdAt)}</p></div>
+                  <div className={styles.recordActions}><span className={styles.rfqStatus}>{statusInfo.label}</span><button className={styles.outlineButton} type="button">Detail</button></div>
+                </li>;
+              })}</ul> : <div className={styles.emptyState}><h3>Belum ada permintaan RFQ</h3><p>Ajukan permintaan untuk kebutuhan kain khusus Anda.</p><Link href="/rfq/new" className={styles.outlineButton}>Ajukan RFQ</Link></div>}
+            </div>
+          )}
+
+          {activeTab === 'notifikasi' && (
+            <div className={styles.tabContent}>
+              <header className={styles.pageHeader}><h2>Notifikasi</h2><p>Pembaruan terbaru mengenai akun Anda.</p></header>
+              {notifications.length ? <ul className={styles.recordList}>{notifications.map((notification) => (
+                <li key={notification.id}><Link href={notification.linkPath ?? '/account'} className={styles.notificationItem}>
+                  <span><strong>{notification.title}</strong><small>{notification.body}</small></span>
+                  <time dateTime={notification.createdAt}>{formatDate(notification.createdAt)}</time>
+                </Link></li>
+              ))}</ul> : <div className={styles.emptyState}><h3>Belum ada notifikasi</h3><p>Notifikasi akun Anda akan ditampilkan di sini.</p></div>}
+            </div>
+          )}
+        </section>
+      </div>
+
+      <footer className={styles.supportFooter}>
+        <div><h2>Butuh bantuan?</h2><p>Tim Wina Jaya siap membantu pertanyaan tentang akun dan pesanan Anda.</p></div>
+        <Link href="/contact">Hubungi kami<span aria-hidden="true">↗</span></Link>
+      </footer>
     </div>
   );
 }

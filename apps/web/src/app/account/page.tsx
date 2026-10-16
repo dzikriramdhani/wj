@@ -13,7 +13,7 @@ function safeMfaContinuePath(value: string | undefined, fallback: string) {
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; tab?: string }>;
 }) {
   if (!hasSupabasePublicEnv()) redirect('/login?setup=supabase');
 
@@ -46,6 +46,13 @@ export default async function AccountPage({
     .select('id,status,created_at,deadline,rfq_items(requested_quantity,products(name))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+
+  const { data: orderRows } = await supabase
+    .from('orders')
+    .select('id,order_number,status,grand_total,created_at,payments(status)')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(50);
 
   const { data: notificationRows } = await supabase
     .from('notifications')
@@ -80,6 +87,17 @@ export default async function AccountPage({
           productName: product?.name ?? 'Permintaan kain custom',
         };
       })}
+      orders={(orderRows ?? []).map((order) => {
+        const payment = Array.isArray(order.payments) ? order.payments[0] : order.payments;
+        return {
+          id: order.id,
+          orderNumber: order.order_number,
+          orderStatus: order.status,
+          paymentStatus: payment?.status ?? 'pending',
+          totalAmount: Number(order.grand_total),
+          createdAt: order.created_at,
+        };
+      })}
       notifications={(notificationRows ?? []).map((notification) => ({
         id: notification.id,
         title: notification.title,
@@ -92,6 +110,7 @@ export default async function AccountPage({
       mfaRequired={mfaRequired}
       mfaContinueTo={mfaContinueTo}
       mfaRequirement={access.roles.includes('super_admin') ? 'Super Admin' : 'Admin'}
+      initialTab={params.tab === 'orders' || params.tab === 'profil' || params.tab === 'rfq' || params.tab === 'notifikasi' ? params.tab : 'overview'}
     />
   );
 }

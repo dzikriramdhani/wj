@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import styles from './page.module.css';
@@ -18,7 +19,7 @@ type DetailVariant = { id?: string; name: string; color: string; stock: number }
 type DetailProduct = {
   id: string; slug: string; name: string; category: string; sku: string; description: string;
   composition: string; gsm: number; width: number; moq: number; price: number; stock: number;
-  isCustomOnly?: boolean; variants: DetailVariant[];
+  isCustomOnly?: boolean; images?: string[]; certifications?: string[]; variants: DetailVariant[];
 };
 
 const formatRupiah = (amount: number) => {
@@ -45,15 +46,23 @@ export default function ProductDetailPage() {
   const [catalogProducts, setCatalogProducts] = useState<DetailProduct[]>(
     process.env.NEXT_PUBLIC_SUPABASE_URL ? [] : mockProducts,
   );
+  const [isLoading, setIsLoading] = useState(true);
   
   const [selectedVariant, setSelectedVariant] = useState(0);
-  const [qty, setQty] = useState(10);
-  const [addedToCart, setAddedToCart] = useState(false);
+  const [cartToast, setCartToast] = useState<{ productName: string; variantName?: string; qtyMeters: number } | null>(null);
+  const cartToastTimeout = useRef<number | null>(null);
+
+  useEffect(() => () => {
+    if (cartToastTimeout.current !== null) window.clearTimeout(cartToastTimeout.current);
+  }, []);
 
   useEffect(() => {
     if (!slug) return;
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      const timer = window.setTimeout(() => setProduct(mockProducts.find((item) => item.slug === slug) ?? null), 0);
+      const timer = window.setTimeout(() => {
+        setProduct(mockProducts.find((item) => item.slug === slug) ?? null);
+        setIsLoading(false);
+      }, 0);
       return () => window.clearTimeout(timer);
     }
 
@@ -73,7 +82,7 @@ export default function ProductDetailPage() {
         const mapProduct = (item: {
           id: string; slug: string; name: string; category: string; sku: string; description: string;
           composition: string; gsm: number; widthCm: number; moqRetail: number; pricePerMeter: number;
-          isCustomOnly: boolean; isAvailable: boolean;
+          isCustomOnly: boolean; isAvailable: boolean; images?: string[]; certifications?: string[];
           variants: Array<{ id: string; colorName: string; colorHex?: string }>;
         }): DetailProduct => ({
           id: item.id,
@@ -89,6 +98,8 @@ export default function ProductDetailPage() {
           price: item.pricePerMeter,
           stock: item.isAvailable ? 1 : 0,
           isCustomOnly: item.isCustomOnly,
+          images: item.images ?? [],
+          certifications: item.certifications ?? [],
           variants: item.variants.map((variant) => ({
             id: variant.id,
             name: variant.colorName,
@@ -104,16 +115,13 @@ export default function ProductDetailPage() {
           setProduct(null);
           setCatalogProducts([]);
         }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
       });
 
     return () => { active = false; };
   }, [slug]);
-
-  useEffect(() => {
-    if (!product) return;
-    const timer = window.setTimeout(() => setQty(product.moq), 0);
-    return () => window.clearTimeout(timer);
-  }, [product]);
 
   const handleAddToCart = () => {
     if (!product || product.price <= 0) return;
@@ -123,17 +131,27 @@ export default function ProductDetailPage() {
       productName: product.name,
       variantId: variant?.id,
       variantName: variant?.name,
+      imageUrl: product.images?.[0],
       category: product.category,
-      qtyMeters: qty,
+      qtyMeters: product.moq,
       minQtyMeters: product.moq,
       pricePerMeter: product.price,
     });
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    setCartToast({ productName: product.name, variantName: variant?.name, qtyMeters: product.moq });
+    if (cartToastTimeout.current !== null) window.clearTimeout(cartToastTimeout.current);
+    cartToastTimeout.current = window.setTimeout(() => setCartToast(null), 4200);
   };
 
   if (!product) {
-    return <div className={styles.main}>Produk tidak ditemukan</div>;
+    return (
+      <main className={styles.pageWrapper}>
+        <div className={styles.main}>
+          <p className={styles.pageMessage} role={isLoading ? 'status' : 'alert'}>
+            {isLoading ? 'Memuat detail produk…' : 'Produk tidak ditemukan.'}
+          </p>
+        </div>
+      </main>
+    );
   }
 
   const relatedProducts = catalogProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 3);
@@ -144,137 +162,155 @@ export default function ProductDetailPage() {
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={styles.main}>
-        <div className={styles.layout}>
-          {/* Left Column - Gallery */}
-        <div className={styles.gallery}>
-          <div className={styles.mainImageWrapper}>
-            <div 
-              className={styles.imagePlaceholder} 
-              style={{ background: getCategoryGradient(product.category) }}
-            >
-              Wina Jaya {product.category}
+      <main className={styles.main}>
+        <div className={styles.layout} data-testid="product-detail-layout">
+          <section className={styles.productInfo} aria-labelledby="product-title">
+            {product.category && <p className={styles.productCategory}>{product.category}</p>}
+            <h1 id="product-title" className={styles.productName}>{product.name}</h1>
+            <p className={styles.description}>{product.description}</p>
+
+            <div className={styles.detailsList}>
+              <details className={styles.detailDisclosure}>
+                <summary className={styles.detailSummary}>
+                  <span>Informasi Produk</span>
+                  <span className={styles.disclosureIcon} aria-hidden="true">+</span>
+                </summary>
+                <div className={styles.specsGrid}>
+                  <div className={styles.specsColumn}>
+                    <div className={styles.specItem}><strong>Komposisi</strong><p>{product.composition || '—'}</p></div>
+                    <div className={styles.specItem}><strong>Lebar kain</strong><p>{product.width ? `${product.width} inch` : '—'}</p></div>
+                  </div>
+                  <div className={styles.specsColumn}>
+                    <div className={styles.specItem}><strong>Gramasi</strong><p>{product.gsm ? `${product.gsm} gsm` : '—'}</p></div>
+                    {product.certifications?.length ? <div className={styles.specItem}><strong>Sertifikasi</strong><p>{product.certifications.join(', ')}</p></div> : null}
+                  </div>
+                </div>
+              </details>
+
+              <details className={styles.detailDisclosure}>
+                <summary className={styles.detailSummary}>
+                  <span>Pengiriman &amp; Retur</span>
+                  <span className={styles.disclosureIcon} aria-hidden="true">+</span>
+                </summary>
+                <p className={styles.shippingCopy}>
+                  Ongkir dihitung saat checkout berdasarkan tujuan dan layanan yang tersedia. Untuk bantuan retur atau pertanyaan pesanan, hubungi tim Wina Jaya.
+                </p>
+              </details>
             </div>
-          </div>
-          <div className={styles.thumbnails}>
-            {[1, 2, 3, 4].map((_, i) => (
-              <div key={i} className={`${styles.thumbnail} ${i === 0 ? styles.active : ''}`}>
-                <div 
-                  className={styles.imagePlaceholderThumb} 
-                  style={{ background: getCategoryGradient(product.category) }}
-                ></div>
+          </section>
+
+          <section className={styles.gallery} aria-label={'Galeri ' + product.name}>
+            <div className={styles.galleryImages}>
+              {(product.images?.length ? product.images : Array.from({ length: 4 }, () => ''))
+                .map((imageUrl, imageIndex) => (
+                  <figure className={styles.galleryImage} key={imageUrl || imageIndex}>
+                    {imageUrl ? (
+                      <Image
+                        className={styles.productImage}
+                        src={imageUrl}
+                        alt={`${product.name} — tampilan ${imageIndex + 1}`}
+                        fill
+                        sizes="(max-width: 720px) 100vw, (max-width: 1024px) 65vw, 56vw"
+                        priority={imageIndex === 0}
+                      />
+                    ) : (
+                      <div
+                        className={styles.imagePlaceholder}
+                        role="img"
+                        aria-label={'Contoh material ' + product.name}
+                        style={{ '--material-color': getCategoryGradient(product.category) } as React.CSSProperties}
+                      >
+                        <span className={styles.fabricSample} aria-hidden="true" />
+                        <span className={styles.imageCaption}>WINA JAYA <span aria-hidden="true">/</span> MATERIAL STUDY</span>
+                      </div>
+                    )}
+                  </figure>
+                ))}
+            </div>
+          </section>
+
+          <aside className={styles.purchasePanel} aria-label="Pilih varian dan pesan produk">
+            <div className={styles.variantsSection}>
+              <div className={styles.variantHeading}>
+                <h2 className={styles.sectionTitle}>Pilih warna</h2>
               </div>
+              <div className={styles.colorGrid}>
+                {product.variants.map((v, i) => (
+                  <button
+                    key={i}
+                    className={styles.colorOption + (selectedVariant === i ? ' ' + styles.activeColor : '')}
+                    onClick={() => setSelectedVariant(i)}
+                    type="button"
+                    aria-pressed={selectedVariant === i}
+                    aria-label={'Pilih warna ' + v.name}
+                  >
+                    <span className={styles.colorName}>{v.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.priceBlock}>
+              {product.price > 0 ? (
+                <p className={styles.price}>{formatRupiah(product.price)}<span className={styles.priceUnit}>/m</span></p>
+              ) : (
+                <p className={styles.contactForPrice}>Hubungi untuk harga</p>
+              )}
+            </div>
+
+            <div className={styles.actions}>
+              {product.price > 0 && product.stock > 0 ? (
+                <button className={styles.buyBtn} onClick={handleAddToCart} type="button">
+                  Tambah ke Keranjang
+                </button>
+              ) : null}
+            </div>
+          </aside>
+        </div>
+
+        <section className={styles.relatedSection} aria-labelledby="related-title">
+          <div className={styles.relatedHeading}>
+            <p className={styles.relatedEyebrow}>Pilihan material</p>
+            <h2 id="related-title" className={styles.relatedTitle}>Produk serupa</h2>
+            <p className={styles.relatedDescription}>Temukan material lain yang mungkin sesuai untuk kebutuhan produksi Anda.</p>
+          </div>
+          <div className={styles.relatedGrid}>
+            {relatedProducts.map((rp) => (
+              <Link href={'/products/' + rp.slug} key={rp.id} className={styles.relatedCard}>
+                <div className={styles.relatedImage}>
+                  {rp.images?.[0] ? <Image src={rp.images[0]} alt={rp.name} fill sizes="(max-width: 720px) 50vw, 25vw" /> : (
+                    <span className={styles.relatedSwatch} style={{ background: getCategoryGradient(rp.category) }} aria-hidden="true" />
+                  )}
+                </div>
+                <div className={styles.relatedInfo}>
+                  <h3 className={styles.relatedName}>{rp.name}</h3>
+                  <p className={styles.relatedPrice}>{rp.price > 0 ? `${formatRupiah(rp.price)} /m` : 'Hubungi Kami'}</p>
+                </div>
+              </Link>
             ))}
           </div>
+        </section>
+      </main>
+      {cartToast && (
+        <div className={styles.cartToast} role="status" aria-live="polite">
+          <span className={styles.toastCheck} aria-hidden="true">✓</span>
+          <div className={styles.toastMessage}>
+            <p className={styles.toastEyebrow}>Berhasil ditambahkan</p>
+            <strong>{cartToast.productName}</strong>
+            <span>{[cartToast.variantName, `${cartToast.qtyMeters} meter`].filter(Boolean).join(' · ')}</span>
+          </div>
+          <Link href="/cart" className={styles.toastLink}>Lihat keranjang</Link>
+          <button
+            type="button"
+            className={styles.toastClose}
+            aria-label="Tutup notifikasi"
+            onClick={() => {
+              if (cartToastTimeout.current !== null) window.clearTimeout(cartToastTimeout.current);
+              setCartToast(null);
+            }}
+          >×</button>
         </div>
-
-        {/* Right Column - Info */}
-        <div className={styles.info}>
-          <div className={styles.infoHeader}>
-            <span className={styles.categoryBadge}>{product.category}</span>
-            <span className={styles.sku}>SKU: {product.sku}</span>
-          </div>
-
-          <h1 className={styles.productName}>{product.name}</h1>
-
-          <div className={styles.priceContainer}>
-            {product.price > 0 ? (
-              <div className={styles.price}>
-                {formatRupiah(product.price)}
-                <span className={styles.priceUnit}>/m</span>
-              </div>
-            ) : (
-              <div className={styles.contactForPrice}>Hubungi untuk harga</div>
-            )}
-            <div className={styles.stockIndicator}>
-              {product.stock > 0 ? `Stok Tersedia` : 'Custom Order / PO'}
-            </div>
-          </div>
-
-          <p className={styles.description}>{product.description}</p>
-
-          <div className={styles.variantsSection}>
-            <h3 className={styles.sectionTitle}>Pilih Warna</h3>
-            <div className={styles.colorGrid}>
-              {product.variants.map((v, i) => (
-                <button 
-                  key={i} 
-                  className={`${styles.colorOption} ${selectedVariant === i ? styles.activeColor : ''}`}
-                  onClick={() => setSelectedVariant(i)}
-                  type="button"
-                >
-                  <div className={styles.colorCircle} style={{ backgroundColor: v.color }}></div>
-                  <span className={styles.colorName}>{v.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <table className={styles.specsTable}>
-            <tbody>
-              <tr>
-                <th>Komposisi</th>
-                <td>{product.composition}</td>
-              </tr>
-              <tr>
-                <th>Gramasi</th>
-                <td>{product.gsm} gsm</td>
-              </tr>
-              <tr>
-                <th>Lebar Kain</th>
-                <td>{product.width} inch</td>
-              </tr>
-              <tr>
-                <th>Sertifikasi</th>
-                <td>OEKO-TEX®</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div className={styles.actions}>
-            {product.price > 0 && product.stock > 0 ? (
-              <>
-                <div className={styles.qtyRow}>
-                  <button type="button" className={styles.qtyBtn} onClick={() => setQty(Math.max(product.moq, qty - 10))}>−</button>
-                  <span className={styles.qtyDisplay}>{qty} meter</span>
-                  <button type="button" className={styles.qtyBtn} onClick={() => setQty(qty + 10)}>+</button>
-                </div>
-                <p className={styles.minimumNote}>Minimum pemesanan {product.moq} meter.</p>
-                <button className={styles.buyBtn} onClick={handleAddToCart}>
-                  {addedToCart ? '✓ Ditambahkan!' : 'Tambah ke Keranjang'}
-                </button>
-                <Link href="/checkout" className={styles.checkoutLink}>
-                  Langsung Checkout &rarr;
-                </Link>
-              </>
-            ) : null}
-            <Link href={`/rfq/new?productId=${product.id}`} className={styles.rfqBtn}>
-              Ajukan Penawaran / RFQ
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.relatedSection}>
-        <h2 className={styles.relatedTitle}>Koleksi Serupa</h2>
-        <div className={styles.relatedGrid}>
-          {relatedProducts.map(rp => (
-            <Link href={`/products/${rp.slug}`} key={rp.id} className={styles.relatedCard}>
-              <div className={styles.relatedImage}>
-                <div 
-                  className={styles.imagePlaceholderThumb} 
-                  style={{ background: getCategoryGradient(rp.category) }}
-                ></div>
-              </div>
-              <div className={styles.relatedInfo}>
-                <h3 className={styles.relatedName}>{rp.name}</h3>
-                <p className={styles.relatedPrice}>{rp.price > 0 ? formatRupiah(rp.price) : 'Hubungi Kami'}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
+      )}
     </div>
   );
 }

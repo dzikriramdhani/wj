@@ -162,7 +162,7 @@ export default function AnalyticsDashboard({
           {recentActivity.length ? <div className={styles.activityList}>{recentActivity.map((activity) => <div className={styles.activityRow} key={`${activity.type}-${activity.id}`}><span className={`${styles.activityDot} ${activity.type === 'order' ? styles.orderDot : ''}`} /><span className={styles.activityText}><strong>{activity.title}</strong><small>{activity.detail}</small></span><time>{dateLabel(new Date(activity.date), { day: 'numeric', month: 'short', year: '2-digit' })}</time></div>)}</div> : <p className={styles.emptyNote}>Belum ada aktivitas untuk periode ini.</p>}
         </article>
       </section>
-      <p className={styles.dataNote}>Pendapatan hanya menghitung pembayaran Midtrans yang sudah terverifikasi. Data diperbarui dari database operasional.</p>
+      <p className={styles.dataNote}>Pendapatan hanya menghitung pembayaran yang sudah terverifikasi. Data diperbarui dari database operasional.</p>
     </div>
   );
 }

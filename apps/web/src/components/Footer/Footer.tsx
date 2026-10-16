@@ -11,8 +11,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className={styles.footerBrand}>
             <Link href="/" className={styles.footerLogo}>
-              <span className={styles.footerLogoIcon}>WJ</span>
-              <span className={styles.footerLogoText}>Wina Jaya</span>
+              <span className={styles.footerLogoText}>WINA JAYA</span>
             </Link>
             <p className={styles.footerDesc}>
               Produsen kain tekstil terpercaya sejak 1995. Melayani kebutuhan kain dari retail

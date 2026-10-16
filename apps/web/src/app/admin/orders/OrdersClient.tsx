@@ -31,7 +31,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
       const response = await fetch('/api/admin/payments/reconcile', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Rekonsiliasi gagal.');
-      setMessage('Status Midtrans berhasil diperiksa. Muat ulang halaman untuk melihat status terbaru.');
+      setMessage('Status pembayaran berhasil diperiksa. Muat ulang halaman untuk melihat status terbaru.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Rekonsiliasi gagal.');
     } finally {
@@ -68,7 +68,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
         <div className={styles.meta}><span>Order: {order.status.replaceAll('_', ' ')}</span><span>Pembayaran: {order.paymentStatus}</span><span>{order.courier ?? 'Pengiriman akan dibuat setelah pembayaran berhasil.'}</span></div>
         <div className={styles.actions}>
           <input aria-label={`Nomor resi ${order.orderNumber}`} placeholder="Nomor resi" value={order.trackingNumber} onChange={(event) => setRows((current) => current.map((row) => row.id === order.id ? { ...row, trackingNumber: event.target.value } : row))} />
-          <button type="button" disabled={busyId === order.id} onClick={() => reconcile(order.id)}>Cek Midtrans</button>
+          <button type="button" disabled={busyId === order.id} onClick={() => reconcile(order.id)}>Cek status pembayaran</button>
           {order.status === 'PAID' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'PROCESSING')}>Proses</button>}
           {order.status === 'PROCESSING' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'PACKED')}>Sudah dikemas</button>}
           {order.status === 'PACKED' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'SHIPPED')}>Kirim</button>}

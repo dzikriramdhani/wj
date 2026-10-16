@@ -18,7 +18,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   }
 
   const service = createServiceClient();
-  let query = service.from('orders').select('id, order_number, status, currency, subtotal, shipping_cost, grand_total, payment_expires_at, created_at, order_items(product_name, product_sku, variant_name, quantity_meters, unit_price, line_total), payments(status, payment_url, expires_at), shipments(courier_name, service_name, tracking_number, status), invoices(invoice_number,status,issued_at)').eq('id', id);
+  let query = service.from('orders').select('id, order_number, status, currency, subtotal, shipping_cost, grand_total, payment_expires_at, created_at, order_items(product_name, product_sku, variant_name, quantity_meters, unit_price, line_total), payments(status, payment_url, payment_type, provider_data, expires_at), shipments(courier_name, service_name, tracking_number, status), invoices(invoice_number,status,issued_at)').eq('id', id);
   if (user) query = query.eq('user_id', user.id);
   else if (z.uuid().safeParse(guestSessionId).success) query = query.eq('guest_session_id', guestSessionId!);
   const { data, error } = await query.maybeSingle();
@@ -44,6 +44,8 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       createdAt: data.created_at,
       paymentStatus: payment?.status ?? 'pending',
       paymentUrl: payment?.payment_url ?? null,
+      paymentType: payment?.payment_type ?? null,
+      paymentInstruction: payment?.provider_data ?? null,
       paymentExpiresAtProvider: payment?.expires_at ?? data.payment_expires_at,
       trackingNumber: shipment?.tracking_number ?? null,
       shipmentStatus: shipment?.status ?? null,

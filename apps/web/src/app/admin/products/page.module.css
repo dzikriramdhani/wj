@@ -36,9 +36,9 @@
 }
 
 .addBtn {
-  background-color: var(--color-text);
-  color: var(--color-text);
-  border: none;
+  background-color: #fff;
+  color: #18181b;
+  border: 1px solid rgb(0 0 0 / 30%);
   padding: var(--space-sm) var(--space-lg);
   border-radius: 0;
   font-weight: 600;
@@ -75,7 +75,7 @@
 .table th {
   padding: var(--space-md) var(--space-lg);
   border-bottom: 2px solid var(--color-border);
-  color: var(--color-text-light);
+  color: var(--color-text-secondary);
   font-weight: 600;
   font-size: var(--font-size-sm);
   white-space: nowrap;
@@ -200,7 +200,7 @@
 }
 
 .formGrid small {
-  color: var(--color-text-light);
+  color: var(--color-text-secondary);
   font-size: 12px;
   font-weight: 400;
 }
@@ -251,15 +251,15 @@
 
 .imageList figure { margin: 0; }
 .imageList img { aspect-ratio: 1; display: block; object-fit: cover; width: 100%; }
-.imageList button { background: none; border: 0; color: #b42318; cursor: pointer; font: inherit; font-size: 12px; margin-top: 4px; padding: 0; }
+.imageList button { background: #fff; border: 1px solid #b42318; border-radius: 6px; color: #b42318; cursor: pointer; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px 8px; }
 
 .variantSection { border-top: 1px solid var(--color-border); display: flex; flex-direction: column; gap: var(--space-sm); padding-top: var(--space-md); }
-.variantSection p, .variantSection ul { color: var(--color-text-light); font-size: var(--font-size-sm); margin: 0; padding: 0; }
+.variantSection p, .variantSection ul { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin: 0; padding: 0; }
 .variantSection li { align-items: center; display: flex; gap: 6px; list-style: none; padding: 3px 0; }
 .variantSection i { border: 1px solid var(--color-border); border-radius: 0; display: inline-block; height: 12px; width: 12px; }
 .variantForm { display: grid; gap: var(--space-sm); grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr) auto; }
 .variantForm input, .variantForm button { border: 1px solid var(--color-border); border-radius: 0; font: inherit; min-width: 0; padding: var(--space-xs); }
-.variantForm button { background: var(--color-text); color: white; cursor: pointer; }
+.variantForm button { background: #fff; border-color: rgb(0 0 0 / 30%); color: #18181b; cursor: pointer; }
 
 .modalActions {
   display: flex;
@@ -269,7 +269,7 @@
 }
 
 .cancelBtn {
-  background: none;
+  background: #fff;
   border: 1px solid var(--color-border);
   padding: var(--space-sm) var(--space-lg);
   border-radius: 0;
@@ -278,9 +278,9 @@
 }
 
 .saveBtn {
-  background-color: var(--color-text);
-  color: white;
-  border: none;
+  background-color: #fff;
+  color: #18181b;
+  border: 1px solid rgb(0 0 0 / 30%);
   padding: var(--space-sm) var(--space-lg);
   border-radius: 0;
   font-weight: 500;

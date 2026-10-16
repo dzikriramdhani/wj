@@ -25,7 +25,7 @@ export type ProviderShippingOption = {
 
 function getConfig() {
   const key = process.env.RAJAONGKIR_API_KEY?.trim();
-  if (!key) throw new Error('RajaOngkir belum dikonfigurasi.');
+  if (!key) throw new Error('Layanan pengiriman belum dikonfigurasi.');
   const originSearch = process.env.RAJAONGKIR_ORIGIN_SEARCH?.trim();
   const originId = process.env.RAJAONGKIR_ORIGIN_ID?.trim();
   const courier = process.env.RAJAONGKIR_COURIERS?.trim() || 'jne:pos:tiki';
@@ -47,7 +47,7 @@ async function providerFetch(path: string, init: RequestInit = {}) {
       signal: controller.signal,
     });
     const body = await response.json().catch(() => ({})) as RajaResponse;
-    if (!response.ok) throw new Error(body.meta?.message || 'RajaOngkir tidak dapat memproses permintaan.');
+    if (!response.ok) throw new Error(body.meta?.message || 'Layanan pengiriman tidak dapat memproses permintaan.');
     return body;
   } finally {
     clearTimeout(timeout);
@@ -88,7 +88,7 @@ async function resolveOriginId() {
   const config = getConfig();
   if (config.originId) return config.originId;
   const matches = await searchRajaDestinations(config.originSearch!, 10);
-  if (!matches[0]) throw new Error('Lokasi asal RajaOngkir tidak ditemukan.');
+  if (!matches[0]) throw new Error('Lokasi asal pengiriman tidak ditemukan.');
   return matches[0].id;
 }
 
