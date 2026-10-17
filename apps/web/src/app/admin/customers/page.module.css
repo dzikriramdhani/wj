@@ -9,3 +9,8 @@
 .tableWrap th { color: var(--color-text-secondary); font-size: 12px; letter-spacing: .5px; text-transform: uppercase; }
 .tableWrap td span { background: var(--color-bg); border-radius: 0; display: inline-block; font-size: 12px; padding: 4px 9px; }
 .tableWrap tbody tr:last-child td { border-bottom: 0; }
+
+.page { max-width: 1400px; }
+.header { margin-bottom: 20px; }
+.header h1 { font-size: clamp(25px, 2.4vw, 34px); font-weight: 650; letter-spacing: -.045em; }
+.tableWrap { border-color: #e7e9ef; border-radius: 19px; box-shadow: 0 3px 12px rgb(22 32 55 / 3%); }

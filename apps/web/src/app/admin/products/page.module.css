@@ -304,3 +304,17 @@
 
   .variantForm { grid-template-columns: 1fr 42px; }
 }
+
+.container { gap: 22px; }
+.title { font-size: clamp(25px, 2.4vw, 34px); font-weight: 650; letter-spacing: -.045em; text-transform: none; }
+.searchInput { min-height: 42px; border-radius: 12px; box-shadow: none; }
+.searchInput:focus { border-color: #8aa8fa; box-shadow: 0 0 0 3px rgb(59 111 245 / 12%); }
+.addBtn { min-height: 42px; border: 1px solid #315fd7; border-radius: 13px; background: #3b6ff5 !important; color: #fff; }
+.tableContainer { border-color: #e7e9ef; border-radius: 19px; background: #fff; box-shadow: 0 3px 12px rgb(22 32 55 / 3%); }
+.table th { border-bottom-width: 1px; background: #f6f7fa; }
+.table tbody tr:hover { background: #f8faff; }
+.modalOverlay { background: rgb(24 34 54 / 36%); backdrop-filter: blur(3px); }
+.modal { border: 1px solid #e7e9ef; border-radius: 24px; background: #fff; }
+.formGrid input, .formGrid select, .formGrid textarea, .variantForm input, .variantForm button { border-radius: 11px; }
+.modalActions button { min-height: 42px; border-radius: 12px; }
+.saveBtn { border-color: #315fd7; background: #3b6ff5 !important; color: #fff; }
