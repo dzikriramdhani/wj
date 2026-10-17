@@ -17,3 +17,12 @@
 .actions button:disabled { cursor: wait; opacity: .6; }
 .empty { border: 1px solid var(--color-border-light); color: var(--color-text-secondary); padding: 34px; }
 @media (max-width: 700px) { .heading, .orderHead { align-items: flex-start; flex-direction: column; } .orderHead div:last-child { text-align: left; } }
+
+.page { max-width: 1400px; }
+.heading { align-items: flex-start; border: 0; margin-bottom: 20px; padding: 0; }
+.heading h1 { font-size: clamp(25px, 2.4vw, 34px); font-weight: 650; letter-spacing: -.045em; text-transform: none; }
+.message { border-radius: 13px; }
+.list { display: grid; gap: 14px; border: 0; }
+.order { padding: 18px 20px; border: 1px solid #e7e9ef; border-radius: 19px; background: #fff; box-shadow: 0 3px 12px rgb(22 32 55 / 3%); }
+.actions input, .actions button { min-height: 40px; border-radius: 11px; }
+.empty { border: 1px solid #e7e9ef; border-radius: 18px; background: #fff; box-shadow: 0 3px 12px rgb(22 32 55 / 3%); }
