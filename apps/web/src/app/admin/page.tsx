@@ -13,7 +13,7 @@ export default async function AdminDashboardPage() {
   orderStart.setUTCHours(0, 0, 0, 0);
   orderStart.setUTCMonth(orderStart.getUTCMonth() - 12);
   const orderSince = orderStart.toISOString();
-  const [{ data: rfqRows }, { count: productCount }, { data: orderRows }] = await Promise.all([
+  const [{ data: rfqRows }, { count: productCount }, { data: orderRows }, { data: bulkOrderRows }] = await Promise.all([
     supabase
       .from('rfqs')
       .select('id,status,created_at,rfq_items(requested_quantity,products(name))')
@@ -27,6 +27,12 @@ export default async function AdminDashboardPage() {
     supabase
       .from('orders')
       .select('id,order_number,grand_total,created_at,payments(status),order_items(product_id,product_name,quantity_meters,line_total)')
+      .gte('created_at', orderSince)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('bulk_orders')
+      .select('id,bulk_order_number,total_amount,created_at,paid_at,payment_status,bulk_order_items(product_id,description,quantity,line_total)')
+      .in('payment_status', ['paid', 'unpaid', 'pending'])
       .gte('created_at', orderSince)
       .order('created_at', { ascending: false }),
   ]);
@@ -61,6 +67,23 @@ export default async function AdminDashboardPage() {
       })),
     };
   });
+  const bulkOrders = (bulkOrderRows ?? []).map((order) => {
+    const isPaid = order.payment_status === 'paid';
+    return {
+      id: order.bulk_order_number ?? order.id,
+      status: isPaid ? 'PAID' : 'PENDING_PAYMENT',
+      paymentStatus: isPaid ? 'paid' : 'pending',
+      totalAmount: Number(order.total_amount),
+      // Revenue belongs to the month when payment settled, not when the RFQ was created.
+      createdAt: isPaid ? order.paid_at ?? order.created_at : order.created_at,
+      items: (order.bulk_order_items ?? []).map((item) => ({
+        productId: item.product_id ?? item.description,
+        productName: item.description,
+        qtyMeters: Number(item.quantity),
+        lineTotal: Number(item.line_total),
+      })),
+    };
+  });
 
-  return <AnalyticsDashboard orders={orders} rfqs={rfqs} productCount={productCount ?? 0} />;
+  return <AnalyticsDashboard orders={[...orders, ...bulkOrders]} rfqs={rfqs} productCount={productCount ?? 0} />;
 }
