@@ -5,14 +5,13 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import styles from './page.module.css';
 
-const fabricCategoryLabels: Record<string, string> = {
-  katun: 'Katun (Combed, Carded, dll)',
-  polyester: 'Polyester',
-  rayon: 'Rayon',
-  denim: 'Denim',
-  spandex: 'Spandex / Jersey',
-  lainnya: 'Lainnya / Custom',
-};
+const fallbackFabricCategories = [
+  'Katun (Combed, Carded, dll)',
+  'Polyester',
+  'Rayon',
+  'Denim',
+  'Spandex / Jersey',
+];
 
 function RFQFormContent() {
   const searchParams = useSearchParams();
@@ -37,19 +36,38 @@ function RFQFormContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [fabricCategories, setFabricCategories] = useState<string[]>(fallbackFabricCategories);
   const requestRef = useRef<{ body: string; key: string } | null>(null);
+  const selectedFabricCategory = formData.jenisKain === 'lainnya'
+    ? 'Lainnya / Custom'
+    : formData.jenisKain;
   const previewRows = [
     ['Nama lengkap', formData.nama],
     ['Perusahaan / brand', formData.perusahaan],
     ['Email', formData.email],
     ['Nomor WhatsApp', formData.telepon],
-    ['Kategori kain', fabricCategoryLabels[formData.jenisKain] ?? ''],
+    ['Kategori kain', selectedFabricCategory],
     ['Estimasi volume', formData.jumlah],
     ['Warna / Pantone', formData.warna],
     ['Gramasi', formData.gramasi ? `${formData.gramasi} GSM` : ''],
     ['Catatan tambahan', formData.catatan],
     ['Lampiran', attachments.map((file) => file.name).join(', ')],
   ] as const;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/products?limit=1', { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Kategori katalog belum dapat dimuat.');
+        return response.json();
+      })
+      .then((result) => {
+        const categories = (result.categories ?? []).map((category: { name: string }) => category.name).filter(Boolean);
+        if (categories.length) setFabricCategories(categories);
+      })
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     if (productIdParam) {
@@ -199,11 +217,7 @@ function RFQFormContent() {
                     <label htmlFor="jenisKain">Kategori Kain *</label>
                     <select id="jenisKain" name="jenisKain" required value={formData.jenisKain} onChange={handleChange} className={styles.input}>
                       <option value="">Pilih Kategori...</option>
-                      <option value="katun">Katun (Combed, Carded, dll)</option>
-                      <option value="polyester">Polyester</option>
-                      <option value="rayon">Rayon</option>
-                      <option value="denim">Denim</option>
-                      <option value="spandex">Spandex / Jersey</option>
+                      {fabricCategories.map((category) => <option key={category} value={category}>{category}</option>)}
                       <option value="lainnya">Lainnya / Custom</option>
                     </select>
                   </div>

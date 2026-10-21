@@ -1,1 +1,41 @@
 .page{max-width:1180px;margin:auto}.page header{display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;margin-bottom:2rem}.page header p{font-size:.7rem;letter-spacing:.13em;color:var(--color-text-secondary)}.page h1{margin:.3rem 0;font-size:2.2rem;letter-spacing:-.05em}.page header span{color:var(--color-text-secondary)}.search{width:min(360px,100%);position:relative}.search input,.priceForm select,.priceForm input{width:100%;padding:.75rem;border:1px solid var(--color-border);background:#fff}.search>div{position:absolute;z-index:2;width:100%;background:#fff;border:1px solid var(--color-border);display:grid}.search a{padding:.7rem;border-bottom:1px solid var(--color-border);font-size:.8rem}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}.metrics article,.grid article{background:#fff;border:1px solid var(--color-border);padding:1.1rem}.metrics small,.metrics span{display:block;color:var(--color-text-secondary);font-size:.75rem}.metrics strong{display:block;font-size:1.55rem;letter-spacing:-.04em;margin:.45rem 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}.grid h2{font-size:.95rem;margin-bottom:.8rem}.row,.review{display:flex;justify-content:space-between;border-top:1px solid var(--color-border);padding:.65rem 0;text-transform:capitalize;font-size:.85rem}.review button,.priceForm button{background:#fff;color:#18181b;border:1px solid rgb(0 0 0 / 30%);border-radius:6px;padding:.45rem .65rem;font-size:.72rem;margin-left:.4rem}.review button+button{background:#fff;color:#111;border:1px solid rgb(0 0 0 / 30%)}.priceForm{display:grid;gap:.55rem}.priceForm button{margin:0;width:max-content}.wide{grid-column:1/-1}.tableWrap{overflow:auto}.tableWrap table{border-collapse:collapse;width:100%;font-size:.82rem}.tableWrap th,.tableWrap td{text-align:left;padding:.7rem;border-top:1px solid var(--color-border)}.notice{padding:.7rem;background:#fff;border:1px solid var(--color-border);margin-bottom:1rem}@media(max-width:800px){.page header{display:grid}.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:480px){.metrics{grid-template-columns:1fr}}
+
+/* Shared admin dashboard surfaces and controls */
+.page { display: grid; max-width: none; gap: 16px; color: var(--admin-ink); }
+.page header { align-items: flex-end; gap: 14px; margin-bottom: 0; }
+.page header p { margin: 0 0 6px; color: var(--admin-muted); font-size: 11px; font-weight: 550; letter-spacing: .04em; }
+.page h1 { margin: 0 0 5px; color: var(--admin-ink); font-size: 25px; font-weight: 550; letter-spacing: -.035em; }
+.page header span { color: var(--admin-muted); font-size: 12px; }
+.search { width: min(360px, 100%); }
+.search input, .priceForm select, .priceForm input { min-height: 40px; box-sizing: border-box; padding: 0 12px; border-color: var(--admin-line); border-radius: 10px; background: var(--admin-surface); color: var(--admin-ink); font: inherit; font-size: 12px; }
+.search input:focus, .priceForm select:focus, .priceForm input:focus { outline: none; border-color: var(--admin-accent-line); box-shadow: 0 0 0 3px var(--admin-accent-soft); }
+.search > div { overflow: hidden; border-color: var(--admin-line); border-radius: 10px; background: var(--admin-surface); box-shadow: 0 10px 28px rgb(15 23 42 / 10%); }
+.search a { color: var(--admin-ink-soft); text-decoration: none; }
+.search a:hover { background: var(--admin-hover-surface); }
+.metrics { gap: 13px; }
+.metrics article, .grid article { min-width: 0; padding: 16px; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-subcard); background: var(--admin-surface); box-shadow: var(--admin-shadow-soft); }
+.metrics small, .metrics span { color: var(--admin-muted); font-size: 12px; }
+.metrics strong { margin: 7px 0; color: var(--admin-ink); font-size: clamp(19px, 2vw, 25px); font-weight: 550; letter-spacing: -.035em; }
+.grid { gap: 14px; margin-top: 0; }
+.grid h2 { margin: 0 0 11px; color: var(--admin-ink); font-size: 14px; font-weight: 550; letter-spacing: -.01em; }
+.row, .review { gap: 12px; border-top-color: var(--admin-line-light); color: var(--admin-ink-soft); font-size: 12px; text-transform: none; }
+.row strong { color: var(--admin-ink); font-weight: 550; }
+.review { align-items: center; }
+.review button, .priceForm button { min-height: 34px; margin-left: 5px; padding: 0 11px; border-color: var(--admin-line); border-radius: var(--admin-radius-pill); background: var(--admin-surface); color: var(--admin-ink-soft); font-size: 11px; font-weight: 550; }
+.review button:hover, .priceForm button:hover { background: var(--admin-hover-surface); }
+.review button + button { border-color: #f0c7c5; background: #fff; color: #a23a3a; }
+.priceForm { gap: 9px; }
+.priceForm .priceSaveButton { display: inline-flex; width: max-content; min-height: 40px; align-items: center; justify-content: center; margin: 3px 0 0; padding: 0 15px; border: 1px solid var(--admin-accent-button); border-radius: 6px; background: var(--admin-accent-button); color: oklch(0.205 0 0); font-size: 14px; font-weight: 600; cursor: pointer; }
+.priceForm .priceSaveButton:hover:not(:disabled) { filter: brightness(.92); }
+.priceForm .priceSaveButton:disabled { cursor: not-allowed; opacity: .55; }
+.tableWrap { border: 1px solid var(--admin-border); border-radius: var(--admin-radius-subcard); background: var(--admin-surface); }
+.tableWrap table { border-collapse: separate; border-spacing: 0; color: var(--admin-ink-subtle); font-size: 12px; }
+.tableWrap th, .tableWrap td { padding: 10px 12px; border: 0; border-bottom: 1px solid var(--admin-line-light); }
+.tableWrap th { background: var(--admin-table-head); color: var(--admin-muted); font-size: 11px; font-weight: 550; }
+.tableWrap th:first-child { border-radius: 9px 0 0 9px; }
+.tableWrap th:last-child { border-radius: 0 9px 9px 0; }
+.tableWrap tbody tr:last-child td { border-bottom: 0; }
+.tableWrap tbody tr:hover { background: var(--admin-row-hover); }
+.notice { padding: 11px 14px; border-color: var(--admin-line); border-radius: 12px; background: var(--admin-surface); color: var(--admin-ink-soft); font-size: 12px; }
+.review button + button { border-color: var(--admin-line); background: var(--admin-inset); color: var(--admin-muted-strong); }
+@media (max-width: 800px) { .page header { gap: 12px; } .search { width: 100%; } }

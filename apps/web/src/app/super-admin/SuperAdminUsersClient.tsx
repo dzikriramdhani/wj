@@ -61,9 +61,7 @@ export default function SuperAdminUsersClient({
     <section className={styles.page}>
       <header className={styles.heading}>
         <div>
-          <p className={styles.eyebrow}>SECURITY WORKSPACE</p>
           <h1>Pengguna &amp; role</h1>
-          <p>Kelola tiga role platform: User bawaan, Admin, dan Super Admin. Role organisasi B2B dikelola di Portal Perusahaan.</p>
         </div>
         <span>MFA aktif</span>
       </header>

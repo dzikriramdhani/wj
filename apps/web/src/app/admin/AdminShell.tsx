@@ -6,16 +6,17 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   Activity,
   Box,
-  ChevronRight,
   ClipboardList,
-  Images,
+  FileText,
   LayoutDashboard,
   LockKeyhole,
   LogOut,
-  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings2,
   ShieldCheck,
   UsersRound,
+  UserRound,
 } from 'lucide-react';
 import styles from './layout.module.css';
 
@@ -24,18 +25,13 @@ type NavItem = { name: string; path: string; icon: React.ElementType };
 type NavGroup = { label: string; items: NavItem[] };
 
 const portalConfig: Record<PortalKind, {
-  title: string;
-  roleLabel: string;
   groups: NavGroup[];
 }> = {
   admin: {
-    title: 'Admin',
-    roleLabel: 'Administrator platform',
     groups: [
       { label: 'Workspace', items: [{ name: 'Dashboard', path: '/admin', icon: LayoutDashboard }] },
       { label: 'Commerce', items: [
         { name: 'Produk & katalog', path: '/admin/products', icon: Box },
-        { name: 'Lookbook', path: '/admin/lookbook', icon: Images },
         { name: 'Pesanan', path: '/admin/orders', icon: ClipboardList },
         { name: 'RFQ & B2B', path: '/admin/rfq', icon: UsersRound },
         { name: 'Customer', path: '/admin/customers', icon: UsersRound },
@@ -47,11 +43,10 @@ const portalConfig: Record<PortalKind, {
     ],
   },
   'super-admin': {
-    title: 'Super Admin',
-    roleLabel: 'Super Admin · MFA',
     groups: [
       { label: 'Platform', items: [{ name: 'Pengguna & role', path: '/super-admin', icon: LockKeyhole }] },
       { label: 'Workspace', items: [{ name: 'Operasi Admin', path: '/admin', icon: Settings2 }] },
+      { label: 'Konten', items: [{ name: 'Konten Beranda', path: '/super-admin/content/home', icon: FileText }] },
     ],
   },
 };
@@ -67,12 +62,20 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpenPath, setSidebarOpenPath] = useState<string | null>(null);
+  const sidebarOpen = sidebarOpenPath === pathname;
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const config = portalConfig[portal];
-  const navItems = config.groups.flatMap((group) => group.items);
-  const currentPage = navItems.find((item) => item.path === pathname)
-    ?? navItems.find((item) => item.path !== '/admin' && item.path !== '/super-admin' && pathname.startsWith(item.path));
-  const initials = userName.trim().slice(0, 2).toUpperCase() || 'WJ';
+  const normalizedName = userName.trim().toLowerCase();
+  const displayName = normalizedName ? `${normalizedName[0].toUpperCase()}${normalizedName.slice(1)}` : 'Pengguna';
+
+  const toggleSidebar = () => {
+    if (window.matchMedia('(max-width: 760px)').matches) {
+      setSidebarOpenPath((current) => current === pathname ? null : pathname);
+      return;
+    }
+    setSidebarCollapsed((current) => !current);
+  };
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -86,16 +89,16 @@ export default function AdminLayout({
         type="button"
         aria-label="Tutup menu"
         className={`${styles.overlay} ${sidebarOpen ? styles.overlayOpen : ''}`}
-        onClick={() => setSidebarOpen(false)}
+        onClick={() => setSidebarOpenPath(null)}
       />
 
-      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
+      <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.sidebarCollapsed : ''} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <Link href={portal === 'super-admin' ? '/super-admin' : '/admin'} className={styles.brand} aria-label="Wina Jaya admin">
           <span className={styles.brandMark}>WJ</span>
-          <span className={styles.brandText}><strong>WINA JAYA</strong><small>Admin workspace</small></span>
+          <span className={styles.brandText}>Wina Jaya</span>
         </Link>
 
-        <nav className={styles.nav} aria-label="Navigasi admin">
+        <nav className={styles.nav} aria-label="Navigasi admin" data-lenis-prevent>
           {config.groups.map((group) => (
             <div className={styles.navGroup} key={group.label}>
               <p className={styles.groupLabel}>{group.label}</p>
@@ -108,9 +111,10 @@ export default function AdminLayout({
                   <Link
                     key={item.path}
                     href={item.path}
+                    title={item.name}
                     className={`${styles.navLink} ${isActive ? styles.navLinkActive : ''}`}
                     aria-current={isActive ? 'page' : undefined}
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={() => setSidebarOpenPath(null)}
                   >
                     <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
                     <span>{item.name}</span>
@@ -124,8 +128,8 @@ export default function AdminLayout({
 
         <div className={styles.sidebarFooter}>
           <div className={styles.profile}>
-            <span className={styles.avatar}>{initials}</span>
-            <span className={styles.userDetails}><strong>{userName}</strong><small>{config.roleLabel}</small></span>
+            <span className={styles.avatar}><UserRound size={16} strokeWidth={1.8} aria-hidden="true" /></span>
+            <span className={styles.userDetails}><strong>{displayName}</strong></span>
           </div>
           <button type="button" className={styles.logoutBtn} onClick={handleLogout} aria-label="Keluar">
             <LogOut size={16} aria-hidden="true" /><span>Keluar</span>
@@ -133,19 +137,15 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <main className={styles.mainContent}>
+      <main className={`${styles.mainContent} ${sidebarCollapsed ? styles.mainContentCollapsed : ''}`}>
         <header className={styles.topBar}>
           <div className={styles.topBarLeft}>
-            <button className={styles.menuToggle} type="button" onClick={() => setSidebarOpen(true)} aria-label="Buka menu">
-              <Menu size={19} />
+            <button className={styles.menuToggle} type="button" onClick={toggleSidebar} aria-label={sidebarCollapsed ? 'Perluas menu' : 'Ciutkan menu'} title={sidebarCollapsed ? 'Perluas menu' : 'Ciutkan menu'}>
+              {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
             </button>
-            <div className={styles.breadcrumb}>
-              <span>{config.title}</span><ChevronRight size={13} aria-hidden="true" /><strong>{currentPage?.name ?? config.title}</strong>
-            </div>
           </div>
-          <div className={styles.topBarMeta}>WINA JAYA</div>
         </header>
-        <div className={styles.contentArea}>{children}</div>
+        <div className={styles.contentArea} data-lenis-prevent>{children}</div>
       </main>
     </div>
   );

@@ -8,6 +8,11 @@ export default async function AdminDashboardPage() {
   const detailStart = new Date();
   detailStart.setUTCDate(detailStart.getUTCDate() - 90);
   const detailSince = detailStart.toISOString();
+  const orderStart = new Date();
+  orderStart.setUTCDate(1);
+  orderStart.setUTCHours(0, 0, 0, 0);
+  orderStart.setUTCMonth(orderStart.getUTCMonth() - 12);
+  const orderSince = orderStart.toISOString();
   const [{ data: rfqRows }, { count: productCount }, { data: orderRows }] = await Promise.all([
     supabase
       .from('rfqs')
@@ -22,7 +27,7 @@ export default async function AdminDashboardPage() {
     supabase
       .from('orders')
       .select('id,order_number,grand_total,created_at,payments(status),order_items(product_id,product_name,quantity_meters,line_total)')
-      .gte('created_at', detailSince)
+      .gte('created_at', orderSince)
       .order('created_at', { ascending: false }),
   ]);
 

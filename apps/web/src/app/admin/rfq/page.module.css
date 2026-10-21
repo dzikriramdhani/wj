@@ -1,4 +1,4 @@
-﻿.container {
+.container {
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
@@ -227,3 +227,37 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+/* Shared admin dashboard surfaces and controls */
+.container { gap: 18px; color: var(--admin-ink); }
+.header { align-items: flex-end; }
+.title { color: var(--admin-ink); font-size: 25px; font-weight: 550; letter-spacing: -.035em; text-transform: none; }
+.tabs { gap: 5px; overflow-x: auto; padding: 4px; border: 1px solid var(--admin-line); border-radius: var(--admin-radius-pill); background: var(--admin-inset); }
+.tab { min-height: 34px; padding: 0 12px; border: 0; border-radius: var(--admin-radius-pill); background: transparent; color: var(--admin-muted); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.tab:hover { background: var(--admin-surface); color: var(--admin-ink); }
+.tabActive { background: var(--admin-surface); color: var(--admin-accent-strong); box-shadow: var(--admin-control-shadow); }
+.tableContainer { overflow: auto; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-card); background: var(--admin-surface); box-shadow: var(--admin-shadow-soft); }
+.table { border-collapse: separate; border-spacing: 0; color: var(--admin-ink-subtle); font-size: 12px; }
+.table th { padding: 10px 12px; border: 0; background: var(--admin-table-head); color: var(--admin-muted); font-size: 11px; font-weight: 550; }
+.table th:first-child { border-radius: 10px 0 0 10px; }
+.table th:last-child { border-radius: 0 10px 10px 0; }
+.table td { padding: 12px; border-bottom: 1px solid var(--admin-line-light); font-size: 12px; }
+.table tbody tr:last-child td { border-bottom: 0; }
+.table tbody tr:hover { background: var(--admin-row-hover); }
+.statusBadge { padding: 4px 9px; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-pill); font-size: 11px; font-weight: 550; }
+.detailBtn, .updateBtn { min-height: 36px; padding: 0 13px; border: 1px solid var(--admin-line); border-radius: var(--admin-radius-pill); background: var(--admin-surface); color: var(--admin-ink-soft); font-size: 12px; font-weight: 550; }
+.detailBtn:hover, .updateBtn:hover { background: var(--admin-hover-surface); color: var(--admin-ink); }
+.modalOverlay { background: rgb(15 23 42 / 34%); backdrop-filter: blur(3px); }
+.modal { border: 1px solid var(--admin-border); border-radius: var(--admin-radius-card); background: var(--admin-surface); box-shadow: 0 24px 80px rgb(15 23 42 / 18%); }
+.modalHeader { border-color: var(--admin-line); }
+.modalTitle { color: var(--admin-ink); font-size: 18px !important; font-weight: 550; }
+.closeBtn { width: 36px; height: 36px; border-color: var(--admin-line); border-radius: 10px; background: var(--admin-surface); }
+.sectionTitle { border-color: var(--admin-line); font-size: 13px; font-weight: 600; }
+.detailLabel { color: var(--admin-muted); }
+.detailValue { color: var(--admin-ink-soft); }
+.statusUpdateArea { border: 1px solid var(--admin-line); border-radius: var(--admin-radius-subcard); background: var(--admin-inset); }
+.statusSelect { min-height: 40px; border-color: var(--admin-line); border-radius: 10px; background: var(--admin-surface); color: var(--admin-ink); }
+.statusSelect:focus { outline: none; border-color: var(--admin-accent-line); box-shadow: 0 0 0 3px var(--admin-accent-soft); }
+.updateBtn { border-color: var(--admin-accent-line); background: var(--admin-accent-button); color: var(--admin-hero-button-text); }
+.updateBtn:hover { background: var(--admin-hero-hover); }
+@media (max-width: 700px) { .table { min-width: 760px; } .tabs { border-radius: 14px; } .statusUpdateArea { align-items: stretch; flex-direction: column; } .statusSelect { width: 100%; box-sizing: border-box; } }

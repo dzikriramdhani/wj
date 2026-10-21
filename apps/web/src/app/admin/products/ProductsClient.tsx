@@ -1,6 +1,6 @@
 'use client';
 
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
@@ -44,6 +44,13 @@ type ProductDraft = {
 };
 
 type Category = { id: string; name: string };
+
+type CategoryDraft = {
+  name: string;
+  description: string;
+  position: string;
+  isActive: boolean;
+};
 
 function createEmptyDraft(categories: Category[]): ProductDraft {
   return {
@@ -95,6 +102,12 @@ export default function AdminProducts({
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDrawerClosing, setIsDrawerClosing] = useState(false);
+  const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
+  const [isCategoryDrawerClosing, setIsCategoryDrawerClosing] = useState(false);
+  const [isCategorySaving, setIsCategorySaving] = useState(false);
+  const [categorySaveError, setCategorySaveError] = useState<string | null>(null);
+  const [categoryDraft, setCategoryDraft] = useState<CategoryDraft>({ name: '', description: '', position: String(categories.length), isActive: true });
   const [draft, setDraft] = useState<ProductDraft>(() => createEmptyDraft(categories));
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -112,6 +125,7 @@ export default function AdminProducts({
     setSaveError(null);
     setPendingImages([]);
     setVariantDraft({ colorName: '', colorHex: '#000000', stockMeters: '0' });
+    setIsDrawerClosing(false);
     setIsModalOpen(true);
   };
 
@@ -120,7 +134,66 @@ export default function AdminProducts({
     setSaveError(null);
     setPendingImages([]);
     setVariantDraft({ colorName: '', colorHex: '#000000', stockMeters: '0' });
+    setIsDrawerClosing(false);
     setIsModalOpen(true);
+  };
+
+  const openCategoryDrawer = () => {
+    setCategoryDraft({ name: '', description: '', position: String(categories.length), isActive: true });
+    setCategorySaveError(null);
+    setIsCategoryDrawerClosing(false);
+    setIsCategoryDrawerOpen(true);
+  };
+
+  const closeCategoryDrawer = useCallback(() => {
+    if (isCategorySaving || isCategoryDrawerClosing) return;
+    setIsCategoryDrawerClosing(true);
+    window.setTimeout(() => {
+      setIsCategoryDrawerOpen(false);
+      setIsCategoryDrawerClosing(false);
+    }, 300);
+  }, [isCategorySaving, isCategoryDrawerClosing]);
+
+  useEffect(() => {
+    if (!isCategoryDrawerOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeCategoryDrawer();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isCategoryDrawerOpen, closeCategoryDrawer]);
+
+  const saveCategory = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsCategorySaving(true);
+    setCategorySaveError(null);
+    try {
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: categoryDraft.name,
+          description: categoryDraft.description,
+          position: Number(categoryDraft.position),
+          isActive: categoryDraft.isActive,
+        }),
+      });
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) {
+        setCategorySaveError(result.error ?? 'Kategori belum dapat disimpan.');
+        return;
+      }
+      setIsCategoryDrawerClosing(true);
+      window.setTimeout(() => {
+        setIsCategoryDrawerOpen(false);
+        setIsCategoryDrawerClosing(false);
+      }, 300);
+      router.refresh();
+    } catch {
+      setCategorySaveError('Koneksi ke server terputus. Coba kembali.');
+    } finally {
+      setIsCategorySaving(false);
+    }
   };
 
   const addVariant = async () => {
@@ -143,9 +216,23 @@ export default function AdminProducts({
     }
   };
 
-  const closeModal = () => {
-    if (!isSaving) setIsModalOpen(false);
-  };
+  const closeModal = useCallback(() => {
+    if (isSaving || isDrawerClosing) return;
+    setIsDrawerClosing(true);
+    window.setTimeout(() => {
+      setIsModalOpen(false);
+      setIsDrawerClosing(false);
+    }, 300);
+  }, [isSaving, isDrawerClosing]);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeModal();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isModalOpen, closeModal]);
 
   const updateDraft = <Key extends keyof ProductDraft>(key: Key, value: ProductDraft[Key]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -221,6 +308,9 @@ export default function AdminProducts({
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
+          <button type="button" className={styles.addBtn} onClick={openCategoryDrawer}>
+            <span>+</span> Tambah kategori
+          </button>
           <button className={styles.addBtn} onClick={openCreate} disabled={categories.length === 0}>
             <span>+</span> Tambah Produk
           </button>
@@ -267,7 +357,7 @@ export default function AdminProducts({
                       title={`Edit ${product.name}`}
                       aria-label={`Edit ${product.name}`}
                     >
-                      ✏️
+                      Edit
                     </button>
                   </div>
                 </td>
@@ -285,11 +375,17 @@ export default function AdminProducts({
       </div>
 
       {isModalOpen && (
-        <div className={styles.modalOverlay} onMouseDown={closeModal}>
-          <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="product-form-title" onMouseDown={(event) => event.stopPropagation()}>
-            <h2 id="product-form-title" className={styles.modalTitle}>
-              {draft.productId ? 'Edit Produk' : 'Tambah Produk Baru'}
-            </h2>
+        <div className={`${styles.drawerOverlay} ${isDrawerClosing ? styles.drawerClosing : ''}`} onMouseDown={closeModal}>
+          <aside className={`${styles.drawer} ${isDrawerClosing ? styles.drawerPanelClosing : ''}`} role="dialog" aria-modal="true" aria-labelledby="product-form-title" onMouseDown={(event) => event.stopPropagation()}>
+            <header className={styles.drawerHeader}>
+              <div>
+                <h2 id="product-form-title" className={styles.modalTitle}>
+                  {draft.productId ? 'Edit Produk' : 'Tambah Produk Baru'}
+                </h2>
+                <p>Lengkapi informasi katalog produk Wina Jaya.</p>
+              </div>
+              <button type="button" className={styles.drawerClose} onClick={closeModal} disabled={isSaving} aria-label="Tutup panel">×</button>
+            </header>
             <form className={styles.productForm} onSubmit={saveProduct}>
               <div className={styles.formGrid}>
                 <label>
@@ -366,7 +462,45 @@ export default function AdminProducts({
                 <button type="submit" className={styles.saveBtn} disabled={isSaving}>{isSaving ? 'Menyimpan…' : 'Simpan'}</button>
               </div>
             </form>
-          </div>
+          </aside>
+        </div>
+      )}
+
+      {isCategoryDrawerOpen && (
+        <div className={`${styles.drawerOverlay} ${isCategoryDrawerClosing ? styles.drawerClosing : ''}`} onMouseDown={closeCategoryDrawer}>
+          <aside className={`${styles.drawer} ${isCategoryDrawerClosing ? styles.drawerPanelClosing : ''}`} role="dialog" aria-modal="true" aria-labelledby="category-form-title" onMouseDown={(event) => event.stopPropagation()}>
+            <header className={styles.drawerHeader}>
+              <div>
+                <h2 id="category-form-title" className={styles.modalTitle}>Tambah kategori</h2>
+                <p>Tambahkan kategori untuk katalog produk.</p>
+              </div>
+              <button type="button" className={styles.drawerClose} onClick={closeCategoryDrawer} disabled={isCategorySaving} aria-label="Tutup panel">×</button>
+            </header>
+            <form className={styles.productForm} onSubmit={saveCategory}>
+              <div className={styles.formGrid}>
+                <label className={styles.fullWidth}>
+                  Nama kategori
+                  <input autoComplete="off" maxLength={80} required value={categoryDraft.name} onChange={(event) => setCategoryDraft((current) => ({ ...current, name: event.target.value }))} />
+                </label>
+                <label className={styles.fullWidth}>
+                  Deskripsi <small>Opsional</small>
+                  <textarea maxLength={500} rows={4} value={categoryDraft.description} onChange={(event) => setCategoryDraft((current) => ({ ...current, description: event.target.value }))} />
+                </label>
+                <label>
+                  Urutan
+                  <input type="number" min="0" max="9999" step="1" required value={categoryDraft.position} onChange={(event) => setCategoryDraft((current) => ({ ...current, position: event.target.value }))} />
+                </label>
+              </div>
+              <div className={styles.checkboxRow}>
+                <label><input type="checkbox" checked={categoryDraft.isActive} onChange={(event) => setCategoryDraft((current) => ({ ...current, isActive: event.target.checked }))} /> Tampilkan pada belanja dan katalog</label>
+              </div>
+              {categorySaveError && <p className={styles.formError} role="alert">{categorySaveError}</p>}
+              <div className={styles.modalActions}>
+                <button type="button" className={styles.cancelBtn} onClick={closeCategoryDrawer} disabled={isCategorySaving}>Batal</button>
+                <button type="submit" className={styles.saveBtn} disabled={isCategorySaving}>{isCategorySaving ? 'Menyimpan…' : 'Tambah kategori'}</button>
+              </div>
+            </form>
+          </aside>
         </div>
       )}
     </div>

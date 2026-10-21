@@ -50,6 +50,9 @@ export default function ProductsPage() {
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>(
     process.env.NEXT_PUBLIC_SUPABASE_URL ? [] : mockProducts,
   );
+  const [catalogCategories, setCatalogCategories] = useState<string[]>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ? [] : [...new Set(mockProducts.map((product) => product.category))],
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('name');
@@ -68,6 +71,7 @@ export default function ProductsPage() {
         return response.json();
       })
       .then((result) => {
+        setCatalogCategories((result.categories ?? []).map((category: { name: string }) => category.name));
         setCatalogProducts((result.products ?? []).map((product: {
           id: string; slug: string; name: string; category: string; composition: string;
           gsm: number; widthCm: number; pricePerMeter: number; images?: string[];
@@ -96,10 +100,12 @@ export default function ProductsPage() {
     return () => controller.abort();
   }, []);
 
-  const categories = useMemo(() => [...new Set(catalogProducts.map((product) => product.category))]
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b, 'id')),
-  [catalogProducts]);
+  const categories = useMemo(() => {
+    const configured = [...new Set(catalogCategories.filter(Boolean))];
+    const productOnly = [...new Set(catalogProducts.map((product) => product.category).filter((category) => category && !configured.includes(category)))]
+      .sort((a, b) => a.localeCompare(b, 'id'));
+    return [...configured, ...productOnly];
+  }, [catalogCategories, catalogProducts]);
 
   const toggleCategory = (category: string) => {
     setPage(1);

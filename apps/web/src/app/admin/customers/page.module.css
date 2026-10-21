@@ -1,4 +1,4 @@
-﻿.page { display: flex; flex-direction: column; gap: 24px; }
+.page { display: flex; flex-direction: column; gap: 24px; }
 .header { align-items: end; display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
 .eyebrow { color: var(--color-text-secondary); font-size: 12px; font-weight: 600; letter-spacing: 1px; margin: 0 0 6px; }
 .header h1 { margin: 0; }
@@ -9,3 +9,21 @@
 .tableWrap th { color: var(--color-text-secondary); font-size: 12px; letter-spacing: .5px; text-transform: uppercase; }
 .tableWrap td span { background: var(--color-bg); border-radius: 0; display: inline-block; font-size: 12px; padding: 4px 9px; }
 .tableWrap tbody tr:last-child td { border-bottom: 0; }
+
+/* Shared admin dashboard surfaces and controls */
+.page { gap: 20px; color: var(--admin-ink); }
+.header { align-items: flex-end; gap: 14px; }
+.eyebrow { color: var(--admin-muted); font-size: 11px; font-weight: 550; letter-spacing: .04em; }
+.header h1 { color: var(--admin-ink); font-size: 25px; font-weight: 550; letter-spacing: -.035em; }
+.header input { min-height: 40px; padding: 0 13px; border-color: var(--admin-line); border-radius: 11px; background: var(--admin-surface); color: var(--admin-ink); font-size: 13px; }
+.header input:focus { outline: none; border-color: var(--admin-accent-line); box-shadow: 0 0 0 3px var(--admin-accent-soft); }
+.tableWrap { border: 1px solid var(--admin-border); border-radius: var(--admin-radius-card); background: var(--admin-surface); box-shadow: var(--admin-shadow-soft); }
+.tableWrap table { border-collapse: separate; border-spacing: 0; color: var(--admin-ink-subtle); font-size: 12px; }
+.tableWrap th, .tableWrap td { padding: 12px 14px; border-bottom: 1px solid var(--admin-line-light); }
+.tableWrap th { background: var(--admin-table-head); color: var(--admin-muted); font-size: 11px; font-weight: 550; letter-spacing: 0; text-transform: none; }
+.tableWrap th:first-child { border-radius: 10px 0 0 10px; }
+.tableWrap th:last-child { border-radius: 0 10px 10px 0; }
+.tableWrap tbody tr:last-child td { border-bottom: 0; }
+.tableWrap tbody tr:hover { background: var(--admin-row-hover); }
+.tableWrap td span { padding: 4px 9px; border-radius: var(--admin-radius-pill); background: var(--admin-accent-soft); color: var(--admin-accent-strong); font-size: 11px; }
+@media (max-width: 700px) { .header { align-items: stretch; flex-direction: column; } .header input { width: 100%; box-sizing: border-box; } }
