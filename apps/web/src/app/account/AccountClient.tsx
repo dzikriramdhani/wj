@@ -9,6 +9,32 @@ import type { RFQStatus } from '@/types';
 import MfaSetup from './MfaSetup';
 
 type AccountTab = 'overview' | 'profil' | 'orders' | 'rfq' | 'notifikasi';
+type AccountRFQ = {
+  id: string;
+  status: RFQStatus;
+  createdAt: string;
+  deadline?: string | null;
+  qtyRequested: number;
+  productName: string;
+  specifications: Record<string, unknown>;
+  quotations: Array<{
+    id: string;
+    revision: number;
+    status: string;
+    paymentTerms: string;
+    validUntil: string | null;
+    items: Array<{ description: string; quantity: number; unitPrice: number; lineTotal: number }>;
+  }>;
+};
+
+const money = (value: number) => new Intl.NumberFormat('id-ID', {
+  style: 'currency', currency: 'IDR', maximumFractionDigits: 0,
+}).format(value);
+
+const quoteStatusLabel: Record<string, string> = {
+  sent: 'Menunggu tanggapan', accepted: 'Disetujui', rejected: 'Perlu revisi',
+  superseded: 'Digantikan revisi baru', expired: 'Kedaluwarsa', draft: 'Draf',
+};
 
 export default function AccountPage({
   user,
@@ -22,7 +48,7 @@ export default function AccountPage({
   initialTab,
 }: {
   user: { name: string; email: string; phone: string; company: string; memberSince: string };
-  rfqs: Array<{ id: string; status: RFQStatus; createdAt: string; qtyRequested: number; productName: string }>;
+  rfqs: AccountRFQ[];
   orders: Array<{ id: string; orderNumber: string; orderStatus: string; paymentStatus: string; totalAmount: number; createdAt: string }>;
   notifications: Array<{ id: string; title: string; body: string; linkPath: string | null; readAt: string | null; createdAt: string }>;
   workspaceLinks: Array<{ href: string; label: string }>;
@@ -34,6 +60,7 @@ export default function AccountPage({
   const router = useRouter();
   const [profile, setProfile] = useState(user);
   const [activeTab, setActiveTab] = useState<AccountTab>(initialTab);
+  const [selectedRFQId, setSelectedRFQId] = useState<string | null>(null);
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileDraft, setProfileDraft] = useState({ fullName: user.name, phone: user.phone === '-' ? '' : user.phone });
   const [profileStatus, setProfileStatus] = useState('');
@@ -184,7 +211,7 @@ export default function AccountPage({
                   <h3 id="quick-links-title">Tautan akun</h3>
                   <div className={styles.quickLinkList}>
                     {workspaceLinks.map((workspace) => <Link href={workspace.href} key={workspace.href}>{workspace.label}<span aria-hidden="true">›</span></Link>)}
-                    <Link href="/rfq/new">Buat RFQ baru<span aria-hidden="true">›</span></Link>
+                    <Link href="/business">Buat RFQ baru<span aria-hidden="true">›</span></Link>
                     <Link href="/products">Lihat katalog<span aria-hidden="true">›</span></Link>
                     <Link href="/business">Portal perusahaan<span aria-hidden="true">›</span></Link>
                   </div>
@@ -245,15 +272,45 @@ export default function AccountPage({
               <header className={styles.pageHeader}>
                 <h2>Riwayat RFQ</h2>
                 <p>Lihat status permintaan produk khusus Anda.</p>
-                <Link href="/rfq/new" className={styles.outlineButton}>Buat RFQ baru</Link>
+                <Link href="/business" className={styles.outlineButton}>Buat RFQ baru</Link>
               </header>
               {rfqs.length ? <ul className={styles.recordList}>{rfqs.map((rfq) => {
                 const statusInfo = getRFQStatusInfo(rfq.status);
-                return <li className={styles.rfqRecord} key={rfq.id}>
-                  <div><span className={styles.recordEyebrow}>{rfq.id.toUpperCase()}</span><h3>{rfq.productName}</h3><p>{rfq.qtyRequested.toLocaleString('id-ID')} meter · {formatDate(rfq.createdAt)}</p></div>
-                  <div className={styles.recordActions}><span className={styles.rfqStatus}>{statusInfo.label}</span><button className={styles.outlineButton} type="button">Detail</button></div>
+                const isOpen = selectedRFQId === rfq.id;
+                const specifications = rfq.specifications;
+                const specRows: Array<[string, string]> = [
+                  ['Perusahaan', String(specifications.perusahaan ?? '-')],
+                  ['Kategori kain', String(specifications.jenisKain ?? '-')],
+                  ['Warna / Pantone', String(specifications.warna ?? '-')],
+                  ['Motif', String(specifications.motif ?? '-')],
+                  ['Gramasi', specifications.gramasiTarget ? `${String(specifications.gramasiTarget)} GSM` : '-'],
+                  ['Catatan', String(specifications.catatan ?? '-')],
+                ];
+                return <li key={rfq.id}>
+                  <div className={styles.rfqRecord}>
+                    <div><span className={styles.recordEyebrow}>{rfq.id.toUpperCase()}</span><h3>{rfq.productName}</h3><p>{rfq.qtyRequested.toLocaleString('id-ID')} meter · {formatDate(rfq.createdAt)}</p></div>
+                    <div className={styles.recordActions}><span className={styles.rfqStatus}>{statusInfo.label}</span><button className={styles.outlineButton} type="button" aria-expanded={isOpen} onClick={() => setSelectedRFQId(isOpen ? null : rfq.id)}>{isOpen ? 'Tutup detail' : 'Detail'}</button></div>
+                  </div>
+                  {isOpen && <div className={styles.rfqDetails}>
+                    <dl className={styles.rfqSpecGrid}>
+                      <div><dt>Target selesai</dt><dd>{rfq.deadline ? formatDate(rfq.deadline) : 'Fleksibel'}</dd></div>
+                      {specRows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+                    </dl>
+                    <h4>Penawaran</h4>
+                    {rfq.quotations.length ? <div className={styles.accountQuotes}>{rfq.quotations.map((quote) => {
+                      const total = quote.items.reduce((sum, item) => sum + item.lineTotal, 0);
+                      return <article className={styles.accountQuote} key={quote.id}>
+                        <div className={styles.accountQuoteHeader}><strong>Revisi {quote.revision}</strong><span>{quoteStatusLabel[quote.status] ?? quote.status}</span></div>
+                        {quote.items.map((item, index) => <p key={`${quote.id}-${index}`}>{item.description} · {item.quantity.toLocaleString('id-ID')} m × {money(item.unitPrice)}</p>)}
+                        <strong className={styles.accountQuoteTotal}>{money(total)}</strong>
+                        {quote.paymentTerms && <p>Syarat pembayaran: {quote.paymentTerms}</p>}
+                        {quote.validUntil && <small>Berlaku hingga {formatDate(quote.validUntil)}</small>}
+                        {quote.status === 'sent' && <Link href="/business" className={styles.outlineButton}>Tinjau di Portal Bisnis</Link>}
+                      </article>;
+                    })}</div> : <p className={styles.noQuote}>Belum ada penawaran dari tim Wina Jaya.</p>}
+                  </div>}
                 </li>;
-              })}</ul> : <div className={styles.emptyState}><h3>Belum ada permintaan RFQ</h3><p>Ajukan permintaan untuk kebutuhan kain khusus Anda.</p><Link href="/rfq/new" className={styles.outlineButton}>Ajukan RFQ</Link></div>}
+              })}</ul> : <div className={styles.emptyState}><h3>Belum ada permintaan RFQ</h3><p>Ajukan permintaan melalui perusahaan yang sudah terverifikasi.</p><Link href="/business" className={styles.outlineButton}>Buka Portal Bisnis</Link></div>}
             </div>
           )}
 

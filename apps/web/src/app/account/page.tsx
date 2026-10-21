@@ -43,9 +43,24 @@ export default async function AccountPage({
 
   const { data: rfqRows } = await supabase
     .from('rfqs')
-    .select('id,status,created_at,deadline,rfq_items(requested_quantity,products(name))')
+    .select('id,status,created_at,deadline,specifications,rfq_items(requested_quantity,products(name))')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
+
+  const rfqIds = (rfqRows ?? []).map((rfq) => rfq.id);
+  const quotationRows = rfqIds.length
+    ? (await supabase
+      .from('quotations')
+      .select('id,rfq_id,revision,status,payment_terms,valid_until,quotation_items(description,quantity,unit_price,line_total)')
+      .in('rfq_id', rfqIds)
+      .order('revision', { ascending: false })).data ?? []
+    : [];
+  const quotationsByRfq = new Map<string, Array<(typeof quotationRows)[number]>>();
+  for (const quotation of quotationRows) {
+    const current = quotationsByRfq.get(quotation.rfq_id) ?? [];
+    current.push(quotation);
+    quotationsByRfq.set(quotation.rfq_id, current);
+  }
 
   const { data: orderRows } = await supabase
     .from('orders')
@@ -85,6 +100,20 @@ export default async function AccountPage({
           deadline: rfq.deadline,
           qtyRequested: Number(item?.requested_quantity ?? 0),
           productName: product?.name ?? 'Permintaan kain custom',
+          specifications: (rfq.specifications ?? {}) as Record<string, unknown>,
+          quotations: (quotationsByRfq.get(rfq.id) ?? []).map((quotation) => ({
+            id: quotation.id,
+            revision: quotation.revision,
+            status: quotation.status,
+            paymentTerms: quotation.payment_terms,
+            validUntil: quotation.valid_until,
+            items: (quotation.quotation_items ?? []).map((line) => ({
+              description: line.description,
+              quantity: Number(line.quantity),
+              unitPrice: Number(line.unit_price),
+              lineTotal: Number(line.line_total),
+            })),
+          })),
         };
       })}
       orders={(orderRows ?? []).map((order) => {

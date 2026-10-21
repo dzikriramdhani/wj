@@ -41,6 +41,7 @@ function RFQFormContent() {
   const selectedFabricCategory = formData.jenisKain === 'lainnya'
     ? 'Lainnya / Custom'
     : formData.jenisKain;
+  const minimumTargetDate = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Jakarta' }).format(new Date());
   const previewRows = [
     ['Nama lengkap', formData.nama],
     ['Perusahaan / brand', formData.perusahaan],
@@ -48,6 +49,7 @@ function RFQFormContent() {
     ['Nomor WhatsApp', formData.telepon],
     ['Kategori kain', selectedFabricCategory],
     ['Estimasi volume', formData.jumlah],
+    ['Target tanggal selesai', formData.deadline ? new Date(`${formData.deadline}T12:00:00+07:00`).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' }) : ''],
     ['Warna / Pantone', formData.warna],
     ['Gramasi', formData.gramasi ? `${formData.gramasi} GSM` : ''],
     ['Catatan tambahan', formData.catatan],
@@ -93,6 +95,7 @@ function RFQFormContent() {
       productId: formData.produkDiminati || undefined,
       organizationId: organizationIdParam || undefined,
       qtyRequested: quantity,
+      deadline: formData.deadline ? new Date(`${formData.deadline}T23:59:59+07:00`).toISOString() : undefined,
       specDetails: {
         nama: formData.nama,
         email: formData.email,
@@ -167,6 +170,24 @@ function RFQFormContent() {
     );
   }
 
+  if (!organizationIdParam) {
+    return (
+      <div className={styles.main}>
+        <div className={styles.heroSection}>
+          <div className={styles.heroInner}>
+            <h1 className={styles.heroTitle}>Permintaan B2B</h1>
+            <p className={styles.introText}>RFQ hanya tersedia untuk anggota perusahaan yang sudah terverifikasi.</p>
+          </div>
+        </div>
+        <div className={styles.successWrapper}>
+          <h2 className={styles.successHeading}>Pilih perusahaan terverifikasi</h2>
+          <p className={styles.successDesc}>Buka Portal Bisnis untuk membuat perusahaan dan mengirim dokumen verifikasi. Setelah status perusahaan terverifikasi, ajukan RFQ dari perusahaan tersebut.</p>
+          <Link href="/business" className={styles.btnPrimary}>Buka Portal Bisnis</Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.main}>
       <section className={styles.heroSection}>
@@ -224,6 +245,10 @@ function RFQFormContent() {
                   <div className={styles.formGroup}>
                     <label htmlFor="jumlah">Estimasi Volume (Meter/Yard/Kg) *</label>
                     <input type="text" id="jumlah" name="jumlah" required value={formData.jumlah} onChange={handleChange} className={styles.input} />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="deadline">Target Tanggal Selesai (Opsional)</label>
+                    <input type="date" id="deadline" name="deadline" min={minimumTargetDate} value={formData.deadline} onChange={handleChange} className={styles.input} />
                   </div>
                   <div className={styles.formGroup}>
                     <label htmlFor="warna">Kode Warna / Pantone (Opsional)</label>
