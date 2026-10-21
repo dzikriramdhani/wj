@@ -5,14 +5,26 @@ import styles from './page.module.css';
 import { getRFQStatusInfo, formatDate } from '@/lib/routing-logic';
 import type { RFQ, RFQStatus } from '@/types';
 
-export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: RFQ[] }) {
+type AdminRFQRecord = RFQ & { revisionNotes: Array<{ revision: number; note: string; createdAt: string }> };
+
+export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: AdminRFQRecord[] }) {
   const [rfqs, setRfqs] = useState(initialRFQs);
   const [activeTab, setActiveTab] = useState<RFQStatus | 'SEMUA'>('SEMUA');
-  const [selectedRFQ, setSelectedRFQ] = useState<RFQ | null>(null);
+  const [selectedRFQ, setSelectedRFQ] = useState<AdminRFQRecord | null>(null);
   const [statusUpdate, setStatusUpdate] = useState<RFQStatus>('SUBMITTED');
   const [quotePrice, setQuotePrice] = useState('');
   const [quoteTerms, setQuoteTerms] = useState('Pembayaran sesuai kesepakatan kedua pihak.');
   const [quoteValidUntil, setQuoteValidUntil] = useState('');
+  const transitions: Record<RFQStatus, RFQStatus[]> = {
+    SUBMITTED: ['REVIEWED', 'REJECTED'],
+    REVIEWED: ['QUOTED', 'REJECTED'],
+    QUOTED: ['NEGOTIATING', 'ACCEPTED', 'REJECTED'],
+    NEGOTIATING: ['QUOTED', 'ACCEPTED', 'REJECTED'],
+    ACCEPTED: ['IN_PRODUCTION'],
+    REJECTED: [],
+    IN_PRODUCTION: ['COMPLETED'],
+    COMPLETED: [],
+  };
 
   const filteredRFQs = activeTab === 'SEMUA' 
     ? rfqs 
@@ -23,19 +35,29 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: RFQ[] }) {
     { label: 'Diajukan', value: 'SUBMITTED' },
     { label: 'Ditinjau', value: 'REVIEWED' },
     { label: 'Penawaran Dikirim', value: 'QUOTED' },
+    { label: 'Negosiasi', value: 'NEGOTIATING' },
     { label: 'Diterima', value: 'ACCEPTED' },
     { label: 'Ditolak', value: 'REJECTED' },
+    { label: 'Dalam Produksi', value: 'IN_PRODUCTION' },
+    { label: 'Selesai', value: 'COMPLETED' },
   ];
 
   const allStatuses: { label: string; value: RFQStatus }[] = [
     { label: 'Diajukan', value: 'SUBMITTED' },
     { label: 'Ditinjau', value: 'REVIEWED' },
     { label: 'Penawaran Dikirim', value: 'QUOTED' },
+    { label: 'Negosiasi', value: 'NEGOTIATING' },
     { label: 'Diterima', value: 'ACCEPTED' },
     { label: 'Ditolak', value: 'REJECTED' },
+    { label: 'Dalam Produksi', value: 'IN_PRODUCTION' },
+    { label: 'Selesai', value: 'COMPLETED' },
   ];
 
-  const handleViewDetail = (rfq: RFQ) => {
+  const selectableStatuses = selectedRFQ
+    ? allStatuses.filter((status) => status.value === selectedRFQ.status || transitions[selectedRFQ.status].includes(status.value))
+    : allStatuses;
+
+  const handleViewDetail = (rfq: AdminRFQRecord) => {
     setSelectedRFQ(rfq);
     setStatusUpdate(rfq.status);
   };
@@ -197,6 +219,12 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: RFQ[] }) {
                     {selectedRFQ.specDetails?.catatan || '-'}
                   </p>
                 </div>
+                {selectedRFQ.revisionNotes.length > 0 && <div className={styles.detailItem} style={{ marginTop: '1rem' }}>
+                  <span className={styles.detailLabel}>Catatan revisi dari perusahaan</span>
+                  {selectedRFQ.revisionNotes.map((entry, index) => <p className={styles.detailValue} key={`${entry.revision}-${index}`} style={{ backgroundColor: 'var(--color-bg)', padding: '1rem', borderRadius: 'var(--radius-sm)', marginTop: '4px', whiteSpace: 'pre-wrap' }}>
+                    Revisi {entry.revision} · {formatDate(entry.createdAt)}<br />{entry.note}
+                  </p>)}
+                </div>}
               </div>
 
               <div className={styles.detailSection}>
@@ -208,7 +236,7 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: RFQ[] }) {
                     value={statusUpdate}
                     onChange={(e) => setStatusUpdate(e.target.value as RFQStatus)}
                   >
-                    {allStatuses.map(status => (
+                    {selectableStatuses.map(status => (
                       <option key={status.value} value={status.value}>{status.label}</option>
                     ))}
                   </select>
@@ -218,7 +246,7 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: RFQ[] }) {
                 </div>
               </div>
 
-              {selectedRFQ.status === 'REVIEWED' && (
+              {(selectedRFQ.status === 'REVIEWED' || selectedRFQ.status === 'NEGOTIATING') && (
                 <div className={styles.detailSection}>
                   <h3 className={styles.sectionTitle}>Terbitkan Quotation</h3>
                   <div className={styles.statusUpdateArea}>

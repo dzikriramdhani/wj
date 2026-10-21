@@ -27,6 +27,7 @@ type Quote = {
   valid_until: string | null;
   created_at: string;
   quotation_items: Array<{ description: string; quantity: number | string; unit_price: number | string; line_total: number | string }>;
+  quotation_approvals: { decision: string; note: string | null; created_at: string } | Array<{ decision: string; note: string | null; created_at: string }> | null;
   bulk_orders: { bulk_order_number: string; status: string; total_amount: number | string } | Array<{ bulk_order_number: string; status: string; total_amount: number | string }> | null;
 };
 
@@ -66,6 +67,7 @@ export default function BusinessClient({
   const [managingOrganizationId, setManagingOrganizationId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', legalName: '', taxId: '', industry: '', website: '' });
   const [invite, setInvite] = useState<Record<string, { email: string; role: Exclude<OrganizationMemberRole, 'owner'> }>>({});
+  const [revisionNote, setRevisionNote] = useState<Record<string, string>>({});
 
   const create = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -107,7 +109,7 @@ export default function BusinessClient({
     router.refresh();
   };
 
-  const quoteAction = async (id: string, payload: Record<string, string>) => {
+  const quoteAction = async (id: string, payload: Record<string, string>, successMessage: string) => {
     setBusy(true);
     setMessage('');
     const response = await fetch(`/api/quotations/${id}`, {
@@ -117,6 +119,7 @@ export default function BusinessClient({
     });
     setBusy(false);
     if (!response.ok) return setMessage(await responseError(response, 'Aksi belum dapat diproses.'));
+    setMessage(successMessage);
     router.refresh();
   };
 
@@ -208,7 +211,7 @@ export default function BusinessClient({
                   <span className={styles.status}>{org.status}</span>
                 </div>
                 <div className={styles.cardActions}>
-                  {org.status === 'verified' && <Link href={`/rfq/new?organizationId=${org.id}`} className={styles.newRfq}>RFQ B2B</Link>}
+                  {org.status === 'verified' && org.role !== 'viewer' && <Link href={`/rfq/new?organizationId=${org.id}`} className={styles.newRfq}>RFQ B2B</Link>}
                   {isManager && (
                     <button className={styles.memberToggle} onClick={() => setManagingOrganizationId(isManaging ? null : org.id)}>
                       {isManaging ? 'Tutup anggota' : `Kelola anggota (${org.members.length})`}
@@ -285,20 +288,28 @@ export default function BusinessClient({
           <h2>Quotation</h2>
           {quotations.length ? quotations.map((quote) => {
             const total = quote.quotation_items.reduce((sum, item) => sum + Number(item.line_total), 0);
+            const approval = Array.isArray(quote.quotation_approvals) ? quote.quotation_approvals[0] : quote.quotation_approvals;
             return (
               <article className={styles.quote} key={quote.id}>
                 <div>
                   <strong>Quotation rev. {quote.revision}</strong>
                   <small>{quote.status} · berlaku hingga {quote.valid_until ? new Date(quote.valid_until).toLocaleDateString('id-ID') : '-'}</small>
                   {quote.quotation_items.map((item) => <p key={item.description}>{item.description} · {Number(item.quantity).toLocaleString('id-ID')} m</p>)}
+                  {approval?.note && <p className={styles.revisionNoteHistory}>Catatan revisi Anda: {approval.note}</p>}
                 </div>
                 <div>
                   <strong>{money(total)}</strong>
                   {quote.status === 'sent' && (
-                    <span className={styles.actions}>
-                      <button disabled={busy} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'accepted' })}>Setujui</button>
-                      <button disabled={busy} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'rejected' })}>Minta revisi</button>
-                    </span>
+                    <div className={styles.quoteResponse}>
+                      <label className={styles.revisionNote}>
+                        <span>Catatan untuk tim Wina Jaya</span>
+                        <textarea rows={3} maxLength={2000} value={revisionNote[quote.id] ?? ''} onChange={(event) => setRevisionNote((current) => ({ ...current, [quote.id]: event.target.value }))} placeholder="Jelaskan bagian harga, jumlah, atau syarat yang perlu ditinjau." />
+                      </label>
+                      <span className={styles.actions}>
+                        <button disabled={busy} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'accepted' }, 'Penawaran disetujui.')}>Setujui</button>
+                        <button disabled={busy || !(revisionNote[quote.id] ?? '').trim()} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'rejected', note: revisionNote[quote.id].trim() }, 'Catatan dan permintaan revisi berhasil dikirim ke tim Wina Jaya.')}>Minta revisi</button>
+                      </span>
+                    </div>
                   )}
                 </div>
               </article>

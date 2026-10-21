@@ -209,6 +209,22 @@
 .rfqRecord p { margin: 0; color: #71717a; font-size: 13px; }
 .recordEyebrow { color: #71717a; font-size: 11px; font-weight: 500; letter-spacing: .04em; }
 .recordActions { display: flex; align-items: center; gap: 1rem; }
+.rfqDetails { padding: 1rem 0 1.25rem; }
+.rfqSpecGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; margin: 0; }
+.rfqSpecGrid > div { padding: .7rem 0; border-top: 1px solid #f4f4f5; }
+.rfqSpecGrid dt { color: #71717a; font-size: 12px; }
+.rfqSpecGrid dd { margin: .25rem 0 0; color: #18181b; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rfqDetails h4 { margin: 1.25rem 0 .5rem; font-size: 14px; font-weight: 600; }
+.accountQuotes { display: grid; gap: .75rem; }
+.accountQuote { padding: 1rem; border: 1px solid #e4e4e7; border-radius: 6px; }
+.accountQuoteHeader { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.accountQuoteHeader strong { font-size: 14px; }
+.accountQuoteHeader span,
+.accountQuote small { color: #71717a; font-size: 12px; }
+.accountQuote p { margin: .5rem 0 0; color: #52525b; font-size: 13px; }
+.accountQuoteTotal { display: block; margin-top: .75rem; font-size: 15px; }
+.accountQuote .outlineButton { margin-top: .75rem; }
+.noQuote { color: #71717a; font-size: 13px; }
 .notificationItem { color: #18181b; text-decoration: none; }
 .notificationItem strong { display: block; font-size: 14px; font-weight: 600; }
 .notificationItem small { display: block; margin-top: .25rem; color: #52525b; font-size: 13px; }
@@ -255,6 +271,7 @@
   .formStatus { grid-column: auto; }
   .rfqRecord { align-items: flex-start; flex-direction: column; }
   .recordActions { width: 100%; justify-content: space-between; }
+  .rfqSpecGrid { grid-template-columns: 1fr; }
   .notificationItem { align-items: flex-start; flex-direction: column; }
   .overviewStats { gap: 2rem; }
   .orderInfoGrid { grid-template-columns: 1fr 1fr; }

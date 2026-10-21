@@ -34,7 +34,7 @@ export default async function BusinessPage() {
       .order('joined_at'),
     supabase
       .from('quotations')
-      .select('id,revision,status,payment_terms,valid_until,created_at,rfq_id,quotation_items(description,quantity,unit_price,line_total),bulk_orders(bulk_order_number,status,total_amount)')
+      .select('id,revision,status,payment_terms,valid_until,created_at,rfq_id,quotation_items(description,quantity,unit_price,line_total),quotation_approvals(decision,note,created_at),bulk_orders(bulk_order_number,status,total_amount)')
       .order('created_at', { ascending: false })
       .limit(100),
   ]);
