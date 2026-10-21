@@ -28,7 +28,7 @@ type Quote = {
   created_at: string;
   quotation_items: Array<{ description: string; quantity: number | string; unit_price: number | string; line_total: number | string }>;
   quotation_approvals: { decision: string; note: string | null; created_at: string } | Array<{ decision: string; note: string | null; created_at: string }> | null;
-  bulk_orders: { bulk_order_number: string; status: string; total_amount: number | string } | Array<{ bulk_order_number: string; status: string; total_amount: number | string }> | null;
+  bulk_orders: { id: string; bulk_order_number: string; status: string; payment_status: string; total_amount: number | string } | Array<{ id: string; bulk_order_number: string; status: string; payment_status: string; total_amount: number | string }> | null;
 };
 
 const money = (value: number) => new Intl.NumberFormat('id-ID', {
@@ -289,6 +289,7 @@ export default function BusinessClient({
           {quotations.length ? quotations.map((quote) => {
             const total = quote.quotation_items.reduce((sum, item) => sum + Number(item.line_total), 0);
             const approval = Array.isArray(quote.quotation_approvals) ? quote.quotation_approvals[0] : quote.quotation_approvals;
+            const bulkOrder = Array.isArray(quote.bulk_orders) ? quote.bulk_orders[0] : quote.bulk_orders;
             return (
               <article className={styles.quote} key={quote.id}>
                 <div>
@@ -299,6 +300,12 @@ export default function BusinessClient({
                 </div>
                 <div>
                   <strong>{money(total)}</strong>
+                  {quote.status === 'accepted' && bulkOrder && (
+                    <>
+                      <small>{bulkOrder.bulk_order_number} · {bulkOrder.payment_status === 'paid' ? 'Pembayaran berhasil' : 'Pembayaran ' + bulkOrder.payment_status}</small>
+                      {bulkOrder.payment_status !== 'paid' && <Link className={styles.quotePaymentLink} href={`/business/orders/${encodeURIComponent(bulkOrder.id)}/payment`}>Lanjut ke pembayaran</Link>}
+                    </>
+                  )}
                   {quote.status === 'sent' && (
                     <div className={styles.quoteResponse}>
                       <label className={styles.revisionNote}>

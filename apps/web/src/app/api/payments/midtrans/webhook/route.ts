@@ -48,7 +48,7 @@ export async function POST(request: Request) {
   })).digest('hex');
   try {
     const service = createServiceClient();
-    const { data, error } = await service.rpc('apply_midtrans_payment_notification', {
+    const notification = {
       p_provider_order_id: input.order_id,
       p_provider_transaction_id: input.transaction_id ?? null,
       p_transaction_status: input.transaction_status,
@@ -58,7 +58,10 @@ export async function POST(request: Request) {
       p_amount: Number(input.gross_amount),
       p_signature_valid: signatureValid,
       p_event_fingerprint: eventFingerprint,
-    });
+    };
+    const { data, error } = input.order_id.startsWith('B2B-')
+      ? await service.rpc('apply_midtrans_bulk_order_payment_notification', notification)
+      : await service.rpc('apply_midtrans_payment_notification', notification);
     if (error) throw error;
     if (!signatureValid) return NextResponse.json({ error: 'Signature tidak valid.' }, { status: 401 });
     if (!data?.accepted) return NextResponse.json({ error: 'Notification tidak dapat diterapkan.' }, { status: 422 });

@@ -113,6 +113,23 @@
 .revisionNote textarea:focus { outline: none; border-color: #18181b; box-shadow: 0 0 0 1px #18181b; }
 .revisionNoteHistory { max-width: 65ch; padding-top: .6rem; border-top: 1px solid #e4e4e7; white-space: pre-wrap; }
 .actions button + button { background: #fff; color: #18181b; border: 1px solid rgb(0 0 0 / 30%); }
+.quotePaymentLink {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: 1px solid rgb(0 0 0 / 30%);
+  border-radius: 6px;
+  background: #fff;
+  color: #18181b;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 180ms ease;
+}
+.quotePaymentLink:hover { opacity: .8; }
+.quotePaymentLink:focus-visible { outline: 2px solid #18181b; outline-offset: 3px; }
 .empty { margin: .75rem 0; padding: 1rem; border: 1px solid #e4e4e7; border-radius: 6px; background: #fff; color: #52525b; font-size: 13px; }
 
 @media (max-width: 700px) {

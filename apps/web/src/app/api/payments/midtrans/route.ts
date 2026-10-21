@@ -14,7 +14,10 @@ const methodSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('cstore'), store: z.enum(['indomaret', 'alfamart']) }).strict(),
 ]);
 
-const paymentSchema = z.object({ orderId: z.uuid(), method: methodSchema }).strict();
+const paymentSchema = z.union([
+  z.object({ orderId: z.uuid(), method: methodSchema }).strict(),
+  z.object({ bulkOrderId: z.uuid(), method: methodSchema }).strict(),
+]);
 
 type MidtransAction = { name: string; url: string; method?: string };
 type MidtransCharge = {
@@ -34,6 +37,14 @@ type MidtransCharge = {
   bill_key?: string;
   biller_code?: string;
   status_message?: string;
+};
+type PreparedPayment = {
+  providerOrderId: string;
+  amount: number | string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  expiresAt: string;
 };
 
 function midtransConfig() {
@@ -129,23 +140,51 @@ export async function POST(request: Request) {
 
     const owner = await getCommerceOwner();
     const service = createServiceClient();
-    const { data: payment, error: paymentError } = await service.rpc('prepare_midtrans_payment', {
-      p_order_id: parsed.data.orderId,
-      p_user_id: owner.userId,
-      p_guest_session_id: owner.guestSessionId,
-    });
+    const isBulkOrder = 'bulkOrderId' in parsed.data;
+    let payment: PreparedPayment | null = null;
+    let paymentError: { code: string; message: string } | null = null;
+    if ('bulkOrderId' in parsed.data) {
+      if (!owner.userId) {
+        return NextResponse.json({ error: 'Masuk ke akun perusahaan untuk membayar pesanan B2B.' }, { status: 401 });
+      }
+      const result = await service.rpc('prepare_midtrans_bulk_order_payment', {
+        p_bulk_order_id: parsed.data.bulkOrderId,
+        p_user_id: owner.userId,
+      });
+      payment = result.data as PreparedPayment | null;
+      paymentError = result.error;
+    } else {
+      const result = await service.rpc('prepare_midtrans_payment', {
+        p_order_id: parsed.data.orderId,
+        p_user_id: owner.userId,
+        p_guest_session_id: owner.guestSessionId,
+      });
+      payment = result.data as PreparedPayment | null;
+      paymentError = result.error;
+    }
     if (paymentError) {
       const missing = paymentError.code === 'P0002';
+      if (isBulkOrder) {
+        const forbidden = paymentError.code === '42501';
+        return NextResponse.json({
+          error: missing ? 'Pesanan perusahaan tidak ditemukan.' : forbidden ? 'Anda tidak memiliki akses untuk membayar pesanan ini.' : 'Pesanan perusahaan belum dapat dibayar. Periksa status quotation dan jumlah pembayaran.',
+        }, { status: missing ? 404 : forbidden ? 403 : 422 });
+      }
       return NextResponse.json({ error: missing ? 'Pesanan tidak ditemukan.' : paymentError.message }, { status: missing ? 404 : 422 });
     }
     if (!payment) return NextResponse.json({ error: 'Sesi pembayaran belum dapat dibuat.' }, { status: 500 });
 
-    const { data: currentPayment, error: lookupError } = await service
-      .from('payments')
-      .select('payment_url, payment_type, provider_data')
-      .eq('provider', 'midtrans')
-      .eq('provider_order_id', String(payment.providerOrderId))
-      .maybeSingle();
+    const { data: currentPayment, error: lookupError } = isBulkOrder
+      ? await service.from('bulk_order_payments')
+        .select('payment_type, provider_data')
+        .eq('provider', 'midtrans')
+        .eq('provider_order_id', String(payment.providerOrderId))
+        .maybeSingle()
+      : await service.from('payments')
+        .select('payment_url, payment_type, provider_data')
+        .eq('provider', 'midtrans')
+        .eq('provider_order_id', String(payment.providerOrderId))
+        .maybeSingle();
     if (lookupError) {
       console.error('Midtrans payment instruction lookup failed', lookupError);
       return NextResponse.json({ error: 'Instruksi pembayaran belum dapat dibaca. Terapkan migrasi checkout pembayaran terlebih dahulu.' }, { status: 503 });
@@ -195,13 +234,24 @@ export async function POST(request: Request) {
     }
 
     const instruction = publicInstruction(providerBody);
-    const { data: completed, error: completionError } = await service.rpc('complete_midtrans_core_payment', {
+    const completionInput = {
       p_provider_order_id: String(payment.providerOrderId),
       p_provider_transaction_id: instruction.transactionId,
       p_payment_type: instruction.paymentType,
       p_provider_response_code: providerBody.status_code ?? String(providerResponse.status),
       p_provider_data: instruction,
-    });
+    };
+    let completed: { providerData?: Record<string, unknown> } | null = null;
+    let completionError: { message: string } | null = null;
+    if (isBulkOrder) {
+      const result = await service.rpc('complete_midtrans_bulk_order_payment', completionInput);
+      completed = result.data as { providerData?: Record<string, unknown> } | null;
+      completionError = result.error;
+    } else {
+      const result = await service.rpc('complete_midtrans_core_payment', completionInput);
+      completed = result.data as { providerData?: Record<string, unknown> } | null;
+      completionError = result.error;
+    }
     if (completionError || !completed?.providerData) {
       console.error('Midtrans payment instructions could not be saved', completionError);
       return NextResponse.json({ error: 'Instruksi pembayaran dibuat, tetapi belum tersimpan. Buka status pesanan sebelum mencoba kembali.' }, { status: 503 });
