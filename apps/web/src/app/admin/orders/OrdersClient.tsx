@@ -60,21 +60,30 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
   };
 
   return <section className={styles.page}>
-    <div className={styles.heading}><div><p className={styles.eyebrow}>FULL COMMERCE</p><h1>Pesanan</h1></div><p>{rows.length} pesanan terbaru</p></div>
+    <header className={styles.heading}>
+      <div><h1>Pesanan</h1></div>
+      <p>{rows.length} pesanan terbaru</p>
+    </header>
     {message && <p className={styles.message} role="status">{message}</p>}
-    {rows.length === 0 ? <div className={styles.empty}>Belum ada pesanan yang masuk.</div> : <div className={styles.list}>
-      {rows.map((order) => <article key={order.id} className={styles.order}>
-        <div className={styles.orderHead}><div><strong>{order.orderNumber}</strong><span>{order.customerName} · {order.customerEmail}</span></div><div><b>{rupiah(order.total)}</b><span>{new Date(order.createdAt).toLocaleDateString('id-ID')}</span></div></div>
-        <div className={styles.meta}><span>Order: {order.status.replaceAll('_', ' ')}</span><span>Pembayaran: {order.paymentStatus}</span><span>{order.courier ?? 'Pengiriman akan dibuat setelah pembayaran berhasil.'}</span></div>
-        <div className={styles.actions}>
-          <input aria-label={`Nomor resi ${order.orderNumber}`} placeholder="Nomor resi" value={order.trackingNumber} onChange={(event) => setRows((current) => current.map((row) => row.id === order.id ? { ...row, trackingNumber: event.target.value } : row))} />
-          <button type="button" disabled={busyId === order.id} onClick={() => reconcile(order.id)}>Cek status pembayaran</button>
-          {order.status === 'PAID' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'PROCESSING')}>Proses</button>}
-          {order.status === 'PROCESSING' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'PACKED')}>Sudah dikemas</button>}
-          {order.status === 'PACKED' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'SHIPPED')}>Kirim</button>}
-          {order.status === 'SHIPPED' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'DELIVERED')}>Tandai diterima</button>}
-        </div>
-      </article>)}
+    {rows.length === 0 ? <div className={styles.empty}>Belum ada pesanan yang masuk.</div> : <div className={styles.tableWrap}>
+      <table className={styles.table}>
+        <thead><tr><th>Order</th><th>Pelanggan</th><th>Total</th><th>Status order</th><th>Pembayaran</th><th>Kurir &amp; resi</th><th>Aksi</th></tr></thead>
+        <tbody>{rows.map((order) => <tr key={order.id}>
+          <td><strong>{order.orderNumber}</strong><small>{new Date(order.createdAt).toLocaleDateString('id-ID')}</small></td>
+          <td><strong>{order.customerName}</strong><small>{order.customerEmail}</small></td>
+          <td className={styles.amount}>{rupiah(order.total)}</td>
+          <td><span className={styles.statusBadge}>{order.status.replaceAll('_', ' ')}</span></td>
+          <td><span className={order.paymentStatus.toLowerCase() === 'paid' ? styles.paidBadge : styles.pendingBadge}>{order.paymentStatus}</span></td>
+          <td><div className={styles.shippingCell}><span>{order.courier ?? 'Belum dibuat'}</span><input aria-label={`Nomor resi ${order.orderNumber}`} placeholder="Nomor resi" value={order.trackingNumber} onChange={(event) => setRows((current) => current.map((row) => row.id === order.id ? { ...row, trackingNumber: event.target.value } : row))} /></div></td>
+          <td><div className={styles.actions}>
+            <button type="button" disabled={busyId === order.id} onClick={() => reconcile(order.id)}>Cek pembayaran</button>
+            {order.status === 'PAID' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'PROCESSING')}>Proses</button>}
+            {order.status === 'PROCESSING' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'PACKED')}>Kemas</button>}
+            {order.status === 'PACKED' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'SHIPPED')}>Kirim</button>}
+            {order.status === 'SHIPPED' && <button type="button" disabled={busyId === order.id} onClick={() => updateFulfillment(order, 'DELIVERED')}>Selesai</button>}
+          </div></td>
+        </tr>)}</tbody>
+      </table>
     </div>}
   </section>;
 }

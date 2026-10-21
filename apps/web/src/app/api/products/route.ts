@@ -24,17 +24,21 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number.parseInt(params.get('page') ?? '1', 10) || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(params.get('limit') ?? '12', 10) || 12));
     const supabase = createPublicClient();
-    const { data, error } = await supabase
-      .from('products')
-      .select(catalogSelect)
-      .eq('is_active', true)
-      .not('published_at', 'is', null)
-      .lte('published_at', new Date().toISOString())
-      .eq('categories.is_active', true)
-      .order('name')
-      .limit(1000);
+    const [{ data, error }, { data: categoryRows, error: categoryError }] = await Promise.all([
+      supabase
+        .from('products')
+        .select(catalogSelect)
+        .eq('is_active', true)
+        .not('published_at', 'is', null)
+        .lte('published_at', new Date().toISOString())
+        .eq('categories.is_active', true)
+        .order('name')
+        .limit(1000),
+      supabase.from('categories').select('id,name,slug').eq('is_active', true).order('position').order('name'),
+    ]);
 
     if (error) throw error;
+    if (categoryError) throw categoryError;
 
     const catalogRows = data ?? [];
     const { data: availabilityRows } = await supabase.rpc('get_catalog_availability', {
@@ -67,7 +71,11 @@ export async function GET(request: NextRequest) {
     products = products.slice((page - 1) * limit, page * limit);
 
     return NextResponse.json(
-      { products, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } },
+      {
+        products,
+        categories: (categoryRows ?? []).map((item) => ({ id: item.id, name: item.name, slug: item.slug })),
+        pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
+      },
       { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' } },
     );
   } catch (error) {

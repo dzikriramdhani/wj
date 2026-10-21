@@ -5,3 +5,11 @@ medusa-store/
 *.stackdump
 /.vercel/
 .env*
+
+# Local reference projects and operator bootstrap files
+/e-commerce-ui-completed/
+/apps/web/create-admin.mjs
+/.worktrees/
+/cover.jpg
+/home.jpg
+/login.jpg

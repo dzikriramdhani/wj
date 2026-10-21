@@ -1,1 +1,30 @@
 .page{max-width:1180px;margin:auto}.page header p{font-size:.7rem;letter-spacing:.13em;color:var(--color-text-secondary)}.page h1{font-size:2.2rem;letter-spacing:-.05em;margin:.3rem 0}.page header span{color:var(--color-text-secondary)}.notice{padding:.7rem;background:#fff;border:1px solid var(--color-border);margin:1.2rem 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2rem}.grid article{background:#fff;border:1px solid var(--color-border);padding:1.1rem}.grid h2{font-size:.95rem;margin-bottom:.8rem}.item{display:flex;justify-content:space-between;gap:1rem;border-top:1px solid var(--color-border);padding:.8rem 0;font-size:.82rem}.item small{display:block;color:var(--color-text-secondary);margin-top:.25rem}.item p{color:var(--color-text-secondary);margin-top:.4rem}.item button{background:#fff;color:#18181b;border:1px solid rgb(0 0 0 / 30%);border-radius:6px;padding:.4rem .55rem;font-size:.7rem;margin-left:.35rem}.item button+button{background:#fff;color:#111;border:1px solid rgb(0 0 0 / 30%)}.wide{grid-column:1/-1}.tableWrap{overflow:auto}.tableWrap table{width:100%;border-collapse:collapse;font-size:.8rem}.tableWrap th,.tableWrap td{text-align:left;border-top:1px solid var(--color-border);padding:.7rem}@media(max-width:760px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.item{display:block}.item button{margin:.6rem .35rem 0 0}}
+
+/* Shared admin dashboard surfaces and controls */
+.page { max-width: none; color: var(--admin-ink); }
+.page header p { margin: 0 0 6px; color: var(--admin-muted); font-size: 11px; font-weight: 550; letter-spacing: .04em; }
+.page h1 { margin: 0 0 5px; color: var(--admin-ink); font-size: 25px; font-weight: 550; letter-spacing: -.035em; }
+.page header span { color: var(--admin-muted); font-size: 12px; }
+.grid { gap: 14px; margin-top: 16px; }
+.grid article { min-width: 0; padding: 16px; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-subcard); background: var(--admin-surface); box-shadow: var(--admin-shadow-soft); }
+.grid h2 { margin: 0 0 11px; color: var(--admin-ink); font-size: 14px; font-weight: 550; letter-spacing: -.01em; }
+.grid article > p { color: var(--admin-muted); font-size: 12px; }
+.item { align-items: flex-start; gap: 12px; border-top-color: var(--admin-line-light); color: var(--admin-ink-soft); font-size: 12px; }
+.item strong { color: var(--admin-ink); font-weight: 550; }
+.item small { color: var(--admin-muted); font-size: 11px; }
+.item p { color: var(--admin-muted-strong); font-size: 12px; line-height: 1.5; }
+.item button { min-height: 32px; margin-left: 4px; padding: 0 10px; border-color: var(--admin-line); border-radius: var(--admin-radius-pill); background: var(--admin-surface); color: var(--admin-ink-soft); font-size: 11px; font-weight: 550; }
+.item button:hover:not(:disabled) { background: var(--admin-hover-surface); }
+.item button + button { border-color: var(--admin-line); background: var(--admin-surface); color: var(--admin-ink-soft); }
+.notice { padding: 11px 14px; border-color: var(--admin-line); border-radius: 12px; background: var(--admin-surface); color: var(--admin-ink-soft); font-size: 12px; }
+.tableWrap { border: 1px solid var(--admin-border); border-radius: var(--admin-radius-subcard); background: var(--admin-surface); }
+.tableWrap table { border-collapse: separate; border-spacing: 0; color: var(--admin-ink-subtle); font-size: 12px; }
+.tableWrap th, .tableWrap td { padding: 10px 12px; border: 0; border-bottom: 1px solid var(--admin-line-light); }
+.tableWrap th { background: var(--admin-table-head); color: var(--admin-muted); font-size: 11px; font-weight: 550; }
+.tableWrap th:first-child { border-radius: 9px 0 0 9px; }
+.tableWrap th:last-child { border-radius: 0 9px 9px 0; }
+.tableWrap tbody tr:last-child td { border-bottom: 0; }
+.tableWrap tbody tr:hover { background: var(--admin-row-hover); }
+.item button + button { border-color: var(--admin-line); background: var(--admin-inset); color: var(--admin-muted-strong); }
+.item button:nth-of-type(3) { color: #fca5a5; }
+@media (max-width: 760px) { .grid { margin-top: 12px; } .item { display: flex; flex-direction: column; } .item button { margin: 6px 5px 0 0; } .tableWrap table { min-width: 650px; } }
