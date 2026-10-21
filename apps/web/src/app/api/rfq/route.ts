@@ -21,6 +21,12 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.json();
     const validation = createRFQSchema.safeParse(rawBody);
     if (!validation.success) {
+      if (!rawBody || typeof rawBody !== 'object' || Array.isArray(rawBody) || typeof (rawBody as { organizationId?: unknown }).organizationId !== 'string') {
+        return NextResponse.json(
+          { error: 'Pilih perusahaan terverifikasi melalui Portal Bisnis sebelum mengajukan RFQ.' },
+          { status: 403 },
+        );
+      }
       return NextResponse.json(
         { error: 'Data tidak valid.', details: validation.error.flatten() },
         { status: 400 },
@@ -57,9 +63,15 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Supabase RFQ creation failed:', error);
+      if (error.code === '42501') {
+        return NextResponse.json(
+          { error: 'RFQ hanya dapat diajukan oleh anggota perusahaan terverifikasi. Periksa status perusahaan di Portal Bisnis.' },
+          { status: 403 },
+        );
+      }
       return NextResponse.json(
         { error: 'Permintaan belum dapat disimpan. Periksa data lalu coba kembali.' },
-        { status: error.code === '42501' ? 403 : 400 },
+        { status: 400 },
       );
     }
 

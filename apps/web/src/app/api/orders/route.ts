@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     const input = parsed.data;
     const requestHash = createHash('sha256').update(JSON.stringify(input)).digest('hex');
     const service = createServiceClient();
-    const { data, error } = await service.rpc('create_checkout_order', {
+    const { data, error } = await service.rpc('create_checkout_order_with_idempotency_guard', {
       p_user_id: owner.userId,
       p_guest_session_id: owner.guestSessionId,
       p_customer_name: input.customerName,
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         details: error.details,
         hint: error.hint,
       });
-      const clientError = /required|unavailable|inventory|minimum|quote|address|quantity|price/i.test(error.message);
+      const clientError = /required|unavailable|inventory|minimum|quote|address|quantity|price|idempotency/i.test(error.message);
       return NextResponse.json({ error: clientError ? error.message : 'Pesanan gagal disimpan.' }, { status: clientError ? 422 : 500 });
     }
     return attachGuestSession(
