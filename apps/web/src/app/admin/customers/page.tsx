@@ -7,7 +7,7 @@ export default async function AdminCustomersPage() {
   const service = createServiceClient();
   const { data, error } = await service
     .from('profiles')
-    .select('id,full_name,phone,created_at,user_roles(roles(name)),organization_members(organizations(name))')
+    .select('id,full_name,phone,created_at,user_roles!user_roles_user_id_fkey(roles(name)),organization_members!organization_members_user_id_fkey(organizations(name))')
     .order('created_at', { ascending: false })
     .limit(200);
   type Row = {
