@@ -61,6 +61,10 @@ Rerun production website masih **BLOCKED**: `wj-wine.vercel.app`, Supabase hostn
 
 No E2E or local HTTP smoke was rerun after the dependency update because the current isolated production build did not complete (`EPERM` in temporary Next output). The existing 3-browser and 6-HTTP local results remain historical evidence for the prior standalone artifact only; they are **not** used to validate Next 16.4.3. No production browser session, QA account, authenticated workflow, or mutation was used in this checkpoint.
 
+## CI browser evidence — 27 Oktober 2026
+
+GitHub Actions Web CI run `40525479676` passed the fresh standalone startup, six unauthenticated local HTTP guard checks, and the three anonymous Playwright smoke checks after Chromium installed on Ubuntu 24.04. This is browser evidence for public rendering and anonymous protected-navigation only. No production browser session, test account, authenticated E2E flow, or mutation was used.
+
 ## Build recovery follow-up — 27 Oktober 2026
 
 The current isolated build now exits 0, but its generated workspace is deliberately removed after verification. The historical local HTTP (6 checks) and browser (3 checks) results are therefore still not reclassified as validation of this new artifact. The CI workflow contains a fresh-build standalone start plus the HTTP/Playwright steps, but CI has not been triggered for the dirty working tree. Authenticated E2E remains **BLOCKED**.

@@ -108,3 +108,7 @@ Fixture scope remains ready only as a plan: a disposable local stack must provid
 | CMS-001 | Synthetic home draft/revision and User/Admin/Super Admin sessions | Only authorized Super Admin can draft/publish; public read excludes unpublished draft | Restore baseline synthetic draft/revision from ledger | BLOCKED |
 
 No row above is runtime evidence. The common first step is `npm run qa:db:guard`; tests must abort if it does not exit 0.
+
+## Production authorization boundary — 27 Oktober 2026
+
+Production Supabase public preflight completed read-only with the confirmed project identity. It does not supply user JWT claims, table policy metadata, grants, or disposable fixture ownership. Therefore it is not evidence for any table, bucket, RPC, RBAC, or RLS row above. Synthetic writes remain blocked because no namespaced fixture adapter, confirmed QA owner, cleanup ledger, or side-effect isolation is available.

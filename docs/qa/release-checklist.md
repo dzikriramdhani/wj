@@ -101,6 +101,17 @@ No production deployment or mutation occurred in this checkpoint. **Release verd
 
 Web CI run `40525092311` for commit `1e3d48d` was executed and failed only at Chromium installation. `npm ci`, Node tests, QA syntax checks, lint, typecheck, dependency audit, and the placeholder production build all completed first. Failed log evidence: the `ubuntu-latest` runner resolved to Ubuntu 26.04, which Playwright 1.58.2 does not support for Chromium installation. The workflow now pins `ubuntu-24.04`, the supported image for the locked Playwright version; browser smoke gates remain required and must be rerun by the follow-up CI commit.
 
+## CI regression and production read-only retest — 27 Oktober 2026
+
+- [x] Web CI [40525479676](https://github.com/dzikriramdhani/wj/actions/runs/40525479676) passed on `7d0a830`: install, tests, QA check, lint, typecheck, audit, placeholder build, Chromium, local HTTP, anonymous Playwright, and cleanup.
+- [x] Production Supabase public preflight passed with the confirmed target and GET-only behavior.
+- [x] Deployed anonymous private denial/redirect cache headers now use no-store.
+- [ ] F-SEC-003 remains open until an owned synthetic QA identity verifies a successful private response header without exposing data.
+- [ ] RLS/RBAC, organization isolation, RFQ, checkout/payment, concurrency, Storage, MFA, and authenticated E2E remain blocked; do not infer them from CI or anonymous read-only results.
+- [ ] F-SEC-005 provider-side credential rotation and audit remain required.
+
+**Release verdict remains HOLD.**
+
 ## Dependency and typecheck update — 26 Oktober 2026
 
 - Dependency gate is now PASS in the working tree: Next 16.4.3, Nodemailer 10.2.1, and Zod 4.6.6 yield 0 high/critical advisories in a fresh npm audit.

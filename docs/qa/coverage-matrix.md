@@ -108,3 +108,13 @@ The current build failure occurred inside a temporary QA directory that was safe
 |---|---|---|
 | Web CI run for QA commit `1e3d48d` | [Run 40525092311](https://github.com/dzikriramdhani/wj/actions/runs/40525092311): setup, `npm ci`, tests, QA check, lint, typecheck, audit, and placeholder build passed | PARTIAL PASS |
 | Chromium/browser gates | Installation failed before smoke tests: Playwright 1.58.2 does not support Ubuntu 26.04 | FAIL — fixed in workflow; rerun pending |
+
+## Final CI and production read-only checkpoint — 27 Oktober 2026
+
+| Requirement | Execution evidence | Status |
+|---|---|---|
+| Web CI regression run | [Run 40525479676](https://github.com/dzikriramdhani/wj/actions/runs/40525479676) for `7d0a830`: one `web` job completed all configured gates | PASS |
+| Production Supabase identity/read-only reachability | Authorized public preflight: DNS public only; health/REST/Storage responses 401/401/400; no key/cookie/body/write | PASS — read-only only |
+| Deployed private cache denial path | Anonymous GET profile/Admin/CMS/order: 401/403/403/401 with `private, no-store`; protected dashboards redirect no-store | PASS — denial/redirect path |
+| Authenticated private cache success path | No owned QA account/session exists | BLOCKED; F-SEC-003 remains OPEN |
+| Production RBAC/RLS/workflow mutation tests | No disposable target or namespaced fixture adapter | BLOCKED |

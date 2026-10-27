@@ -140,3 +140,9 @@ Static review of `.github/workflows/ci.yml` confirms it uses placeholder loopbac
 ### F-SEC-003 post-deployment read-only checklist
 
 After an approved deployment, make only cookie-free GET requests to `/api/account/profile`, `/api/admin/search?q=qa-cache-check`, `/api/super-admin/content/home`, and `/api/orders/<synthetic-invalid-uuid>`. Record only status and non-secret response headers. Assert `private, no-store` for private 401/403 responses and no-store on protected redirects. Do not read a successful private body, use a customer identifier, or close the finding until a separately authorized QA-authenticated retest also preserves the cache policy.
+
+### Deployment retest — 27 Oktober 2026
+
+- **Anonymous denial/redirect paths:** PASS. The deployed storefront returned `private, no-store` for profile (401), Admin search (403), Super Admin CMS (403), and a synthetic-invalid order identifier (401). Admin and Super Admin page redirects also retained no-store. Response bodies were cancelled without being read.
+- **Status:** PARTIALLY REMEDIATED / **OPEN**. This confirms the deployed header fix for anonymous private paths, but not a successful authenticated private response. Close only after an owned synthetic QA identity proves the same policy on an allowed response.
+- No production record, user, Storage object, payment, email, or configuration was changed during retest.
