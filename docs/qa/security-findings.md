@@ -149,10 +149,11 @@ After an approved deployment, make only cookie-free GET requests to `/api/accoun
 
 ### Private-route source hardening — 27 Oktober 2026
 
-- **Scope:** Source audit found 22 additional authenticated JSON routes without an explicit cache policy, spanning RFQ, quotation, organization, verification, fulfillment, privileged product, payment-reconciliation, privacy, and role-management flows.
+- **Scope:** Source audit found 22 additional private JSON routes without an explicit cache policy, spanning RFQ, quotation, organization, verification, fulfillment, privileged product, payment-reconciliation, privacy, and role-management flows.
 - **Fix:** Those JSON-only routes now use `privateJsonResponse`, which delegates every response to `privateJson()` and forces `Cache-Control: private, no-store`. The original four routes remain covered directly.
-- **Regression evidence:** Static coverage now asserts helper use for all 26 authenticated private JSON routes, and the helper unit test verifies the compatibility shape. The isolated Node suite completed **65 PASS, 0 FAIL, 1 SKIP**.
-- **Status:** FIXED IN SOURCE / deployment verification pending. The deployed anonymous retest covers the original four paths only. Authenticated success and cross-user cache tests remain **BLOCKED** without owned synthetic identities.
+- **Regression evidence:** Static coverage now asserts helper use for all 26 private JSON routes, and the helper unit test verifies the compatibility shape. The Node suite completed **65 PASS, 0 FAIL, 1 SKIP**.
+- **Deployment/denial evidence:** Commit `c1a8f77` has a successful Vercel Production deployment and successful GitHub Actions run. A cookie-free GET to the canonical production quotation endpoint returned 401 with `Cache-Control: private, no-store`; the body was discarded. The deployment URL itself redirected with no-store.
+- **Status:** PARTIALLY REMEDIATED / **OPEN**. Authenticated success and cross-user cache tests remain **BLOCKED** without owned synthetic identities.
 
 ### F-SEC-005 inventory update — 27 Oktober 2026
 

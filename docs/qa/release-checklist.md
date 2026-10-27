@@ -65,8 +65,8 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 
 ## Final hardening checkpoint — 27 Oktober 2026
 
-- [x] Source hardening extends private JSON no-store policy to 26 authenticated routes; static/helper regressions: 65 pass, 1 skipped.
-- [ ] Deploy and production-retest the additional 22 private routes; authenticated success and cross-user cache tests still require two owned QA identities.
+- [x] Source hardening extends private JSON no-store policy to 26 private routes; static/helper regressions: 65 pass, 1 skipped.
+- [x] SHA `c1a8f77` Vercel production deployment and its cookie-free quotation denial path were verified: 401 with `private, no-store`. Authenticated success and cross-user cache tests still require two owned QA identities.
 - [ ] Official secret-store/provider access is required to rotate F-SEC-005 categories and review access logs. Repository scans cannot substitute for provider audit.
 - [ ] Local/disposable database, QA owner accounts, fixture ledger, cleanup adapter, mail sink, and payment sandbox are required before write-capable RBAC/RLS/commerce tests.
 
