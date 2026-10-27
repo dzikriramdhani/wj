@@ -116,3 +116,7 @@ Production Supabase public preflight completed read-only with the confirmed proj
 ## Guard recheck — 27 Oktober 2026
 
 `npm run qa:db:guard` again refused the production-linked Supabase metadata before reading a test environment file or opening a database connection. No local PostgreSQL process is treated as eligible merely because it is listening. Database/RLS runtime status remains **BLOCKED**.
+
+## Provider identity recheck — 27 Oktober 2026
+
+The authenticated Supabase CLI confirms that the known production project reference is visible to the current account. That project-level metadata is not a database credential, table/policy inventory, JWT fixture, or RLS result. No database command or production data access was performed, and all RLS rows remain **BLOCKED**.

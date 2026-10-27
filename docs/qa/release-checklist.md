@@ -72,6 +72,7 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 - [x] Source hardening: internal reservation, operations, and email workers are POST-only, non-cacheable, and official schedulers explicitly use POST. Current canonical cookie-free GET requests return 405; authorized POST runtime is intentionally deferred because it would process production state/outbox, and canonical exact-SHA mapping remains unavailable.
 - [ ] F-DATA-001 has narrow source compensation for product/lookbook upload failures; Storage runtime, other upload flows, retention, and reconciliation remain unverified.
 - [ ] F-SEC-002 remains OPEN: rate limiting is process-local and its trusted-ingress boundary cannot be verified from repository/provider metadata alone.
+- [ ] Supabase project identity is confirmed through official CLI metadata, but no database/RLS inspection or secret-store rotation was performed; a redacted provider rotation/audit workflow remains required.
 
 **Release verdict remains HOLD.**
 
