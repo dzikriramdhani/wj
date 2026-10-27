@@ -61,7 +61,8 @@ Temuan berasal dari source/migration, tes lokal, dan observasi HTTP production r
 - **Komponen:** Endpoint internal expiry reservation, operasi, dan email outbox serta scheduler GitHub Actions.
 - **Bukti:** Ketiga route mengekspor handler POST sebagai GET, sementara workflow scheduler memanggil URL tanpa method eksplisit (GET). Request GET berotorisasi dapat mengeksekusi perubahan reservation/outbox.
 - **Perbaikan:** Route sekarang POST-only, response JSON internal memakai `private, no-store`, dan seluruh workflow scheduler resmi memakai `--request POST`. Dokumentasi scheduler staging diselaraskan. Regression test statis memeriksa method route dan jumlah POST pada tiap workflow.
-- **Status:** FIXED IN SOURCE; tidak ada worker production dipanggil untuk retest karena itu akan memproses data/outbox nyata. Verifikasi deployment dan scheduler runtime masih diperlukan.
+- **Runtime evidence:** CI run `40533995887` passed for commit `e51fefb`. The matching Vercel deployment record reports success. Cookie-free GET requests to all three current canonical worker URLs returned 405 and bodies were discarded. The direct deployment URL is SSO-gated, so canonical exact-SHA mapping is not proven.
+- **Status:** PARTIALLY REMEDIATED. Current canonical GET denial is verified; no worker production POST was invoked because that would process reservations or outbox/email data. Authorized scheduler runtime remains BLOCKED pending a safe non-mutating verification path.
 
 ## Kontrol statis yang terlihat (belum runtime-verified)
 
