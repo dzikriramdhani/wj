@@ -97,6 +97,10 @@ No production deployment or mutation occurred in this checkpoint. **Release verd
 
 **Release verdict remains HOLD.**
 
+## CI execution — 27 Oktober 2026
+
+Web CI run `40525092311` for commit `1e3d48d` was executed and failed only at Chromium installation. `npm ci`, Node tests, QA syntax checks, lint, typecheck, dependency audit, and the placeholder production build all completed first. Failed log evidence: the `ubuntu-latest` runner resolved to Ubuntu 26.04, which Playwright 1.58.2 does not support for Chromium installation. The workflow now pins `ubuntu-24.04`, the supported image for the locked Playwright version; browser smoke gates remain required and must be rerun by the follow-up CI commit.
+
 ## Dependency and typecheck update — 26 Oktober 2026
 
 - Dependency gate is now PASS in the working tree: Next 16.4.3, Nodemailer 10.2.1, and Zod 4.6.6 yield 0 high/critical advisories in a fresh npm audit.

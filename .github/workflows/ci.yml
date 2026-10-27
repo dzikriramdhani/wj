@@ -18,7 +18,9 @@ permissions:
 
 jobs:
   web:
-    runs-on: ubuntu-latest
+    # Playwright 1.58.2 cannot install Chromium on the Ubuntu 26.04 image.
+    # Pin the supported runner rather than skipping the browser smoke gates.
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: apps/web
