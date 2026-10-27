@@ -4,6 +4,10 @@ const assetPathSchema = z.string().max(240).refine(
   (value) => value === '' || /^home\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/.test(value),
   'Path gambar tidak valid.',
 );
+const logoAssetPathSchema = z.string().max(240).regex(
+  /^home\/[a-z0-9-]+\.(?:jpg|jpeg|png|webp)$/,
+  'Path logo tidak valid.',
+);
 
 const lineText = (maximum: number) => z.string().trim().min(1).max(maximum);
 
@@ -21,12 +25,17 @@ export const homeContentSchema = z.object({
   }).strict().refine((value) => new Set(value.productSlugs).size === value.productSlugs.length, 'Produk unggulan tidak boleh duplikat.'),
   trusted: z.object({
     title: lineText(100),
+    logos: z.array(logoAssetPathSchema).max(12).optional(),
+    // Accept older saved CMS content, then normalize it to the image-only format.
     cards: z.array(z.object({
       name: lineText(80),
       username: lineText(100),
       body: lineText(280),
-    }).strict()).min(3).max(12),
-  }).strict(),
+    }).strict()).min(3).max(12).optional(),
+  }).strict().transform(({ title, logos }) => ({
+    title,
+    logos: logos ?? [],
+  })),
   about: z.object({
     title: lineText(120),
     body: lineText(900),
@@ -60,14 +69,7 @@ export const defaultHomeContent: HomeContent = {
   catalog: { title: 'Katalog\nUnggulan', linkLabel: 'Semua Katalog', productSlugs: [] },
   trusted: {
     title: 'Dipercaya oleh\nBrand',
-    cards: [
-      { name: 'Jack', username: '@jack', body: "I've never seen anything like this before. It's amazing. I love it." },
-      { name: 'Jill', username: '@jill', body: "I've never seen anything like this before. It's amazing. I love it." },
-      { name: 'John', username: '@john', body: "I'm at a loss for words. This is amazing. I love it." },
-      { name: 'Jane', username: '@jane', body: 'This completely changed the way I work. Absolutely incredible.' },
-      { name: 'Jenny', username: '@jenny', body: 'The quality is unmatched. I highly recommend this to everyone.' },
-      { name: 'James', username: '@james', body: 'Superb experience from start to finish. Exceeded expectations.' },
-    ],
+    logos: [],
   },
   about: {
     title: 'Pabrik tekstil\nterintegrasi\nsejak 1995',

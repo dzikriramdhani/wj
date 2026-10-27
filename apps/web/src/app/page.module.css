@@ -181,6 +181,7 @@
 }
 
 .productImageWrap {
+  position: relative;
   aspect-ratio: 4/3;
   overflow: hidden;
   background: var(--color-bg-mid);
@@ -307,7 +308,7 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4xl);
   align-items: center;
-  /* Center the title vertically against the marquee */
+  /* Center the title vertically against the logo columns */
 }
 
 .trustedLeft {
@@ -323,7 +324,7 @@
   margin: 0 0 var(--space-2xl);
 }
 
-/* Vertical Marquee */
+/* Vertical logo marquee */
 .marqueeContainer {
   position: relative;
   display: flex;
@@ -343,6 +344,7 @@
   height: 100%;
   overflow: hidden;
   position: relative;
+  align-items: center;
 }
 
 .marqueeTrack {
@@ -393,56 +395,16 @@
   z-index: 2;
 }
 
-/* Review Card */
-.reviewCard {
+.marqueeLogo {
   position: relative;
   width: 193px;
-  height: 193px;
+  height: 110px;
   flex-shrink: 0;
-  cursor: pointer;
-  overflow: hidden;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border-light);
   padding: var(--space-md);
-  background: var(--color-bg-white);
-  transition: background var(--transition-fast);
 }
 
-.reviewCard:hover {
-  background: var(--color-bg-mid);
-}
-
-.reviewHeader {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.reviewAvatar {
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
-  background: var(--color-bg-mid);
-}
-
-.reviewName {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text);
-  line-height: var(--line-height-tight);
-}
-
-.reviewUsername {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.reviewBody {
-  margin-top: var(--space-sm);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
+.marqueeLogo img {
+  object-fit: contain;
 }
 
 .bottomWrapper {
@@ -474,14 +436,14 @@
   right: 0;
   font-size: 400px;
   font-weight: 500;
-  color: #FFFFFF;
+  color: #f2f2f2;
   line-height: 327px;
   letter-spacing: -1.9px;
   pointer-events: none;
   user-select: none;
   z-index: 0;
   text-align: right;
-  opacity: 0.30;
+  opacity: 1;
 }
 
 .ctaInner {
@@ -519,10 +481,11 @@
   font-size: 20px;
   font-weight: 500;
   color: var(--color-text);
-  line-height: 20px;
+  line-height: 1.4;
   letter-spacing: 0;
-  max-width: 100%;
-  white-space: nowrap;
+  max-width: min(100%, 560px);
+  white-space: normal;
+  text-wrap: pretty;
 }
 
 .ctaBtn {
@@ -775,8 +738,28 @@
     padding: var(--space-2xl) var(--space-lg);
   }
 
+  .marqueeContainer {
+    height: 360px;
+  }
+
+  .marqueeLogo {
+    width: min(28vw, 140px);
+    height: 86px;
+  }
+
   .ctaSection {
     padding: var(--space-3xl) var(--space-lg);
+  }
+
+  .ctaWatermark {
+    top: 105px;
+    font-size: clamp(140px, 36vw, 220px);
+    line-height: .82;
+  }
+
+  .ctaDesc {
+    font-size: 18px;
+    line-height: 1.45;
   }
 
   .footer {

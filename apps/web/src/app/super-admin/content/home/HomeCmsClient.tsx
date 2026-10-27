@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
 import { ChevronRight, Clock3, Eye, History, ImagePlus, LoaderCircle, Plus, Save, Send, Smartphone, Trash2, Undo2 } from 'lucide-react';
 import { defaultHomeContent, getHomeAssetUrl, type HomeContent } from '@/lib/home-content';
 import styles from './page.module.css';
@@ -91,7 +92,7 @@ export default function HomeCmsClient({ products, productsError }: { products: P
   const active = sections.find((section) => section.id === activeSection) ?? sections[0];
   const previewImage = activeSection === 'about' ? content.about.imagePath : content.hero.imagePath;
   const previewTitle = activeSection === 'about' ? content.about.title : activeSection === 'cta' ? content.cta.title : activeSection === 'catalog' ? content.catalog.title : activeSection === 'trusted' ? content.trusted.title : activeSection === 'certifications' ? content.certifications.title : content.hero.title;
-  const previewBody = activeSection === 'about' ? content.about.body : activeSection === 'cta' ? content.cta.description : content.tagline;
+  const previewBody = activeSection === 'about' ? content.about.body : activeSection === 'cta' ? content.cta.description : activeSection === 'trusted' ? '' : content.tagline;
   const previewUrl = useMemo(() => getHomeAssetUrl(previewImage), [previewImage]);
 
   const saveDraft = async () => {
@@ -169,7 +170,7 @@ export default function HomeCmsClient({ products, productsError }: { products: P
     }
   };
 
-  const uploadImage = async (file: File, target: 'hero' | 'about') => {
+  const uploadImage = async (file: File, target: 'hero' | 'about' | 'trustedLogo') => {
     setBusy(true);
     setMessage('');
     try {
@@ -178,9 +179,12 @@ export default function HomeCmsClient({ products, productsError }: { products: P
       const response = await fetch('/api/super-admin/content/home/assets', { method: 'POST', body: form });
       const result = await response.json() as { error?: string; path?: string };
       if (!response.ok || !result.path) throw new Error(result.error ?? 'Gambar belum dapat diunggah.');
-      setContent((current) => target === 'hero'
-        ? { ...current, hero: { ...current.hero, imagePath: result.path! } }
-        : { ...current, about: { ...current.about, imagePath: result.path! } });
+      setContent((current) => {
+        if (target === 'hero') return { ...current, hero: { ...current.hero, imagePath: result.path! } };
+        if (target === 'about') return { ...current, about: { ...current.about, imagePath: result.path! } };
+        if (current.trusted.logos.length >= 12) return current;
+        return { ...current, trusted: { ...current.trusted, logos: [...current.trusted.logos, result.path!] } };
+      });
       setMessage('Gambar siap disimpan bersama draft.');
       setIsError(false);
     } catch (error) {
@@ -256,12 +260,24 @@ export default function HomeCmsClient({ products, productsError }: { products: P
 
             {activeSection === 'trusted' && <>
               {field('Judul bagian', content.trusted.title, (value) => setContent((current) => ({ ...current, trusted: { ...current.trusted, title: value } })), { multiline: true, maxLength: 100 })}
-              <div className={styles.repeatHeader}><span className={styles.fieldLabel}>Kutipan pelanggan ({content.trusted.cards.length}/12)</span><button className={styles.secondaryButton} type="button" disabled={content.trusted.cards.length >= 12} onClick={() => setContent((current) => ({ ...current, trusted: { ...current.trusted, cards: [...current.trusted.cards, { name: '', username: '', body: '' }] } }))}><Plus size={14} /> Tambah kutipan</button></div>
-              {content.trusted.cards.map((card, index) => <div className={styles.repeatItem} key={`quote-${index}`}><b>Kutipan {index + 1}</b><div className={styles.twoColumns}>
-                {field('Nama', card.name, (value) => setContent((current) => ({ ...current, trusted: { ...current.trusted, cards: current.trusted.cards.map((item, itemIndex) => itemIndex === index ? { ...item, name: value } : item) } })), { maxLength: 80 })}
-                {field('Nama akun', card.username, (value) => setContent((current) => ({ ...current, trusted: { ...current.trusted, cards: current.trusted.cards.map((item, itemIndex) => itemIndex === index ? { ...item, username: value } : item) } })), { maxLength: 100 })}
-                {field('Isi kutipan', card.body, (value) => setContent((current) => ({ ...current, trusted: { ...current.trusted, cards: current.trusted.cards.map((item, itemIndex) => itemIndex === index ? { ...item, body: value } : item) } })), { multiline: true, maxLength: 280 })}
-              </div><button type="button" className={styles.removeButton} disabled={content.trusted.cards.length <= 3} onClick={() => setContent((current) => ({ ...current, trusted: { ...current.trusted, cards: current.trusted.cards.filter((_, itemIndex) => itemIndex !== index) } }))}><Trash2 size={13} /> Hapus</button></div>)}
+              <div className={styles.field}>
+                <div className={styles.repeatHeader}>
+                  <span className={styles.fieldLabel}>Logo brand ({content.trusted.logos.length}/12)</span>
+                  <label className={`${styles.uploadButton} ${content.trusted.logos.length >= 12 || busy ? styles.uploadDisabled : ''}`}>
+                    <ImagePlus size={15} /> Tambah logo
+                    <input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy || content.trusted.logos.length >= 12} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadImage(file, 'trustedLogo'); event.currentTarget.value = ''; }} />
+                  </label>
+                </div>
+                <small>Unggah file logo JPG, PNG, atau WebP. Maksimal 10 MB per file.</small>
+                {content.trusted.logos.length > 0
+                  ? <div className={styles.logoGrid}>{content.trusted.logos.map((logoPath, index) => <div className={styles.logoItem} key={`${logoPath}-${index}`}>
+                      <div className={styles.logoPreview}>
+                        {getHomeAssetUrl(logoPath) && <Image src={getHomeAssetUrl(logoPath)} alt={`Logo brand ${index + 1}`} fill sizes="(max-width: 760px) 40vw, 160px" />}
+                      </div>
+                      <button type="button" className={styles.removeButton} aria-label={`Hapus logo ${index + 1}`} title="Hapus logo" disabled={busy} onClick={() => setContent((current) => ({ ...current, trusted: { ...current.trusted, logos: current.trusted.logos.filter((_, itemIndex) => itemIndex !== index) } }))}><Trash2 size={13} /> Hapus</button>
+                    </div>)}</div>
+                  : <p className={styles.note}>Belum ada logo. Tambahkan file gambar logo brand yang telah disetujui.</p>}
+              </div>
             </>}
 
             {activeSection === 'about' && <>
@@ -303,7 +319,9 @@ export default function HomeCmsClient({ products, productsError }: { products: P
         <aside className={styles.previewPanel}>
           <div className={styles.previewHeading}><strong>Pratinjau</strong><span className={styles.previewDevice}><Smartphone size={14} /></span></div>
           <div className={`${styles.previewCanvas} ${previewUrl ? styles.previewWithImage : ''}`} style={previewUrl ? { backgroundImage: `linear-gradient(180deg, rgb(0 0 0 / 18%), rgb(0 0 0 / 76%)), url("${previewUrl}")` } : undefined}>
-            <span className={styles.previewBrand}>WINA JAYA TEXTILE</span><h3>{previewTitle}</h3><p>{previewBody}</p><span className={styles.previewAction}>{activeSection === 'cta' ? content.cta.buttonLabel : activeSection === 'catalog' ? content.catalog.linkLabel : 'Jelajahi koleksi'} <ChevronRight size={13} /></span>
+            <span className={styles.previewBrand}>WINA JAYA TEXTILE</span><h3>{previewTitle}</h3>{previewBody && <p>{previewBody}</p>}
+            {activeSection === 'trusted' && <div className={styles.previewLogoList}>{content.trusted.logos.length ? content.trusted.logos.map((logoPath, index) => <span key={`${logoPath}-${index}`}>{getHomeAssetUrl(logoPath) && <Image src={getHomeAssetUrl(logoPath)} alt="" fill sizes="120px" />}</span>) : <small>Logo akan tampil di area ini.</small>}</div>}
+            {activeSection !== 'trusted' && <span className={styles.previewAction}>{activeSection === 'cta' ? content.cta.buttonLabel : activeSection === 'catalog' ? content.catalog.linkLabel : 'Jelajahi koleksi'} <ChevronRight size={13} /></span>}
           </div>
         </aside>
       </div>

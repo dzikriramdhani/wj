@@ -92,6 +92,11 @@
   border: none;
 }
 
+.navbar .menuBtn {
+  background: transparent !important;
+  box-shadow: none;
+}
+
 .menuLine {
   display: block;
   width: 24px;

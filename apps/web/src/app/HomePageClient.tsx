@@ -18,26 +18,9 @@ const categoryGradients: Record<string, string> = {
   Spandex: 'linear-gradient(135deg, #383838 0%, #282828 50%, #1a1a1a 100%)',
 };
 
-const defaultReviewImages = ['jack', 'jill', 'john', 'jane', 'jenny', 'james'].map((name) => `https://avatar.vercel.sh/${name}`);
-
 function Lines({ value }: { value: string }) {
   return <>{value.split(/\r?\n/).map((line, index) => <Fragment key={`${index}-${line}`}>{index > 0 && <br />}{line}</Fragment>)}</>;
 }
-
-const ReviewCard = ({ img, name, username, body }: { img: string, name: string, username: string, body: string }) => {
-  return (
-    <figure className={styles.reviewCard}>
-      <div className={styles.reviewHeader}>
-        <Image className={styles.reviewAvatar} width={32} height={32} alt="" src={img} />
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <figcaption className={styles.reviewName}>{name}</figcaption>
-          <p className={styles.reviewUsername}>{username}</p>
-        </div>
-      </div>
-      <blockquote className={styles.reviewBody}>{body}</blockquote>
-    </figure>
-  );
-};
 
 export default function HomePageClient({ initialContent }: { initialContent: HomeContent }) {
   const homeContent = initialContent;
@@ -68,10 +51,19 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
     return () => { active = false; };
   }, [initialContent]);
 
-  const trustedRows = [0, 1, 2].map((column) => homeContent.trusted.cards.filter((_, index) => index % 3 === column));
-  const renderTrustRow = (row: HomeContent['trusted']['cards'], column: number, reverse = false) => (
+  // Older published CMS payloads may not have the logo field yet.
+  const savedTrustedLogos = homeContent.trusted?.logos;
+  const trustedLogos = Array.isArray(savedTrustedLogos)
+    ? savedTrustedLogos.filter((path): path is string => typeof path === 'string' && path.length > 0)
+    : [];
+  const trustedRows = [0, 1, 2].map((column) => trustedLogos.filter((_, index) => index % 3 === column));
+  const renderTrustRow = (row: HomeContent['trusted']['logos'], column: number, reverse = false) => (
     <div className={`${styles.marqueeTrack} ${reverse ? styles.reverse : ''}`}>
-      {[...row, ...row].map((review, index) => <ReviewCard key={`${column}-${review.username}-${index}`} img={defaultReviewImages[(column * 2 + index) % defaultReviewImages.length]} {...review} />)}
+      {[...row, ...row].map((logoPath, index) => (
+        getHomeAssetUrl(logoPath) ? <div className={styles.marqueeLogo} key={`${column}-${logoPath}-${index}`}>
+          <Image src={getHomeAssetUrl(logoPath)} alt="" fill sizes="(max-width: 767px) 34vw, 15vw" />
+        </div> : null
+      ))}
     </div>
   );
 
@@ -167,12 +159,12 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
                   className={styles.productCard}
                 >
                   <div className={styles.productImageWrap}>
-                    <div
-                      className={styles.productImagePlaceholder}
-                      style={{
-                        background: categoryGradients[product.category] || categoryGradients.Katun,
-                      }}
-                    />
+                    {product.images?.[0]
+                      ? <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 767px) 60vw, (max-width: 1023px) 32vw, 24vw" className={styles.productImage} />
+                      : <div
+                          className={styles.productImagePlaceholder}
+                          style={{ background: categoryGradients[product.category] || categoryGradients.Katun }}
+                        />}
                   </div>
                   <div>
                     <h3 className={styles.productName}>{product.name}</h3>
@@ -198,7 +190,7 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
       </section>
 
       {/* ---- TRUSTED SECTION ---- */}
-      <section className={styles.trustedSection}>
+      {trustedLogos.length > 0 && <section className={styles.trustedSection}>
         <div className={styles.trustedInner}>
           <div className={styles.trustedLeft}>
             <h2 className={styles.trustedTitle}><Lines value={homeContent.trusted.title} /></h2>
@@ -206,26 +198,13 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
 
           <div className={styles.marqueeContainer}>
             <div className={styles.marqueeOverlayTop} />
-            
-            {/* Column 1 */}
-            <div className={styles.marqueeCol}>
-              {renderTrustRow(trustedRows[0], 0)}
-            </div>
-
-            {/* Column 2 (Reverse) */}
-            <div className={styles.marqueeCol}>
-              {renderTrustRow(trustedRows[1], 1, true)}
-            </div>
-
-            {/* Column 3 */}
-            <div className={styles.marqueeCol}>
-              {renderTrustRow(trustedRows[2], 2)}
-            </div>
-
+            <div className={styles.marqueeCol}>{renderTrustRow(trustedRows[0], 0)}</div>
+            <div className={styles.marqueeCol}>{renderTrustRow(trustedRows[1], 1, true)}</div>
+            <div className={styles.marqueeCol}>{renderTrustRow(trustedRows[2], 2)}</div>
             <div className={styles.marqueeOverlayBottom} />
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ---- INJECTED ABOUT SECTION ---- */}
       <section className={styles.aboutHeroSection}>
@@ -255,9 +234,7 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
         <div className={styles.footerWrapper}>
           {/* ---- CTA SECTION ---- */}
         <section className={styles.ctaSection}>
-          <span className={styles.ctaWatermark}>
-            Wina<br />Jaya
-          </span>
+          <span className={styles.ctaWatermark} aria-hidden="true">Wina<br />Jaya</span>
           <div className={styles.ctaInner}>
             <div className={styles.ctaLeft}>
               <h2 className={styles.ctaTitle}><Lines value={homeContent.cta.title} /></h2>
