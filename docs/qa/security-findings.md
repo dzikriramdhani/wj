@@ -21,7 +21,9 @@ Temuan berasal dari source/migration, tes lokal, dan observasi HTTP production r
 - **Dampak:** Batas permintaan dapat berbeda antar-instance atau di-reset saat cold start; brute-force/abuse tidak konsisten dibatasi.
 - **Rekomendasi:** Rate limit shared yang transaksional (RPC/database/Redis/edge) dan hanya memakai client IP yang ditetapkan trusted ingress.
 - **Regression test:** Belum ada distributed test.
-- **Status:** OPEN; belum diverifikasi di production/staging dan tidak diubah karena storage shared/deployment policy belum tersedia.
+- **Callsite inventory (27 Oktober 2026):** `checkRateLimit` dipanggil oleh login, register, contact, RFQ, order/checkout, payment QR retail/B2B, Midtrans initiation, kategori Admin, perubahan role Super Admin, dan organization membership. Password reset memakai RPC/HMAC guard terpisah.
+- **Implementation proposal:** Pilih satu atomic shared backend approved by architecture (Supabase RPC/table with bounded retention, managed Redis, or edge provider). Define trusted ingress so the platform overwrites the client-IP header before application use; do not trust an arbitrary client-supplied `x-forwarded-for`. Add multi-instance/restart tests plus proxy-header tests in the isolated QA target before rollout.
+- **Status:** OPEN; belum diverifikasi di production/staging dan tidak diubah karena shared storage dan deployment policy belum tersedia.
 
 ## F-SEC-003 — Response privat tidak selalu menetapkan cache `private, no-store`
 
@@ -47,12 +49,13 @@ Temuan berasal dari source/migration, tes lokal, dan observasi HTTP production r
 ## F-DATA-001 — Upload multi-file dapat meninggalkan objek yatim
 
 - **Severity:** Low/Medium, risiko konsistensi.
-- **Komponen:** RFQ attachments, product image, lookbook, CMS asset.
+- **Komponen:** Dokumen verification bisnis, RFQ attachments, product image, lookbook, CMS asset.
 - **Bukti:** Objek diunggah sebelum pembaruan metadata/record/audit. Gagal pada langkah berikutnya dapat meninggalkan objek Storage tanpa referensi bisnis yang lengkap.
 - **Dampak:** Storage membengkak dan file orphan sulit ditelusuri; transaksi database tidak mencakup Storage.
 - **Rekomendasi:** Catat upload intent/outbox, lakukan kompensasi idempotent pada objek yang dibuat permintaan tersebut, atau sediakan rekonsiliasi orphan berkala dengan retention yang disetujui.
-- **Mitigasi source 27 Oktober 2026:** Upload gambar produk dan lookbook kini mencatat hanya path yang berhasil dibuat oleh request aktif. Jika batch gagal sebelum metadata produk tersimpan (atau upload lookbook gagal), kompensasi best-effort memanggil Storage `remove` hanya untuk daftar path tersebut. Unit test membuktikan daftar kosong tidak dihapus, hanya path milik request diteruskan, dan kegagalan cleanup tidak melempar exception.
-- **Batasan:** Tidak ada cleanup sweep, wildcard, atau penghapusan objek production. Alur RFQ/CMS/attachment lain, kegagalan Storage runtime, dan retention/reconciliation terjadwal belum diverifikasi terhadap bucket nyata.
+- **Mitigasi source 27 Oktober 2026:** Product image, lookbook, dan RFQ attachment mencatat hanya path yang berhasil dibuat oleh request aktif. Jika metadata belum tersimpan ketika request gagal, kompensasi best-effort memanggil Storage `remove` hanya untuk daftar path tersebut. Kegagalan audit log setelah metadata RFQ/CMS asset berhasil tidak lagi memalsukan kegagalan upload yang sudah committed. Unit test membuktikan daftar kosong tidak dihapus, hanya path milik request diteruskan, dan kegagalan cleanup tidak melempar exception.
+- **Regression:** `test/storage-compensation.test.ts` dan `test/qa/upload-lifecycle.test.mjs`; source suite terbaru: 78 PASS, 0 FAIL, 1 SKIP.
+- **Batasan dan desain lanjutan:** Upload dokumen verification dan CMS asset masih dua tahap client-to-metadata; cleanup server tidak boleh menebak apakah path telah diklaim request berikutnya. Tambahkan upload-intent record (`run/request ID`, owner, bucket, path, expiry, claimed-at), claim secara atomik saat metadata ditulis, dan reconciliation hanya untuk intent kedaluwarsa yang belum claimed setelah retention yang disetujui. Audit setiap delete dan jangan gunakan wildcard/sweep pada Storage production.
 - **Status:** PARTIALLY REMEDIATED IN SOURCE; runtime Storage evidence tetap BLOCKED.
 
 ## F-SEC-006 — Worker mutatif sebelumnya menerima GET
@@ -162,7 +165,7 @@ After an approved deployment, make only cookie-free GET requests to `/api/accoun
 
 - **Scope:** Source audit found 22 additional private JSON routes without an explicit cache policy, spanning RFQ, quotation, organization, verification, fulfillment, privileged product, payment-reconciliation, privacy, and role-management flows.
 - **Fix:** Those JSON-only routes now use `privateJsonResponse`, which delegates every response to `privateJson()` and forces `Cache-Control: private, no-store`. The original four routes remain covered directly.
-- **Regression evidence:** Static coverage now asserts helper use for all 26 private JSON routes, and the helper unit test verifies the compatibility shape. The Node suite completed **65 PASS, 0 FAIL, 1 SKIP**.
+- **Regression evidence:** Static coverage now asserts helper use for all 27 private JSON routes, including CMS asset upload, and the helper unit test verifies the compatibility shape. Runtime evidence remains separate.
 - **Deployment/denial evidence:** Commit `c1a8f77` has a successful Vercel Production deployment record and successful GitHub Actions run. Its direct deployment URL is Vercel SSO-gated, so the canonical runtime cannot be cryptographically or header-level mapped to that exact SHA from this access path. A cookie-free GET to the current canonical production quotation endpoint returned 401 with `Cache-Control: private, no-store`; the body was discarded. This is denial evidence for the current public target, not exact-SHA runtime proof.
 - **Status:** PARTIALLY REMEDIATED / **OPEN**. Authenticated success and cross-user cache tests remain **BLOCKED** without owned synthetic identities.
 

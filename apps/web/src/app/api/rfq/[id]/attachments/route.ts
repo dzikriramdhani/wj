@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import { hasExpectedFileSignature } from '@/lib/upload-validation';
+import { compensateUploadedObjects } from '@/lib/storage-compensation';
 
 export const runtime = 'nodejs';
 
@@ -34,11 +35,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
   }
 
+  let service: ReturnType<typeof createServiceClient> | null = null;
+  const paths: string[] = [];
+  let metadataPersisted = false;
   try {
-    const service = createServiceClient();
+    service = createServiceClient();
     const { data: rfq, error: rfqError } = await service.from('rfqs').select('attachments').eq('id', id).single();
     if (rfqError || !rfq) throw rfqError ?? new Error('RFQ missing');
-    const paths: string[] = [];
     for (const file of files) {
       const path = `${id}/${randomUUID()}.${extensionByType[file.type]}`;
       const { error } = await service.storage.from('rfq-files').upload(path, file, { contentType: file.type, upsert: false });
@@ -48,9 +51,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const attachments = [...((rfq.attachments ?? []) as string[]), ...paths];
     const { error: updateError } = await service.from('rfqs').update({ attachments }).eq('id', id);
     if (updateError) throw updateError;
-    await service.from('audit_logs').insert({ actor_user_id: user.id, action: 'rfq.attachments_added', entity_type: 'rfq', entity_id: id, metadata: { count: paths.length } });
+    metadataPersisted = true;
+    const { error: auditError } = await service.from('audit_logs').insert({ actor_user_id: user.id, action: 'rfq.attachments_added', entity_type: 'rfq', entity_id: id, metadata: { count: paths.length } });
+    if (auditError) console.error('RFQ attachment audit logging failed', auditError);
     return NextResponse.json({ success: true, attachments: paths }, { status: 201 });
   } catch (error) {
+    if (service && !metadataPersisted) {
+      const cleaned = await compensateUploadedObjects(paths, (ownedPaths) => service!.storage.from('rfq-files').remove(ownedPaths));
+      if (!cleaned) console.error('RFQ attachment upload compensation failed');
+    }
     console.error('RFQ attachment upload failed', error);
     return NextResponse.json({ error: 'Lampiran belum dapat diunggah.' }, { status: 503 });
   }

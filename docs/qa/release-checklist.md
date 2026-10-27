@@ -65,7 +65,7 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 
 ## Final hardening checkpoint — 27 Oktober 2026
 
-- [x] Source hardening extends private JSON no-store policy to 26 private routes; static/helper regressions: 65 pass, 1 skipped.
+- [x] Source hardening extends private JSON no-store policy to 27 private routes; authenticated success and cache-isolation runtime evidence remains required.
 - [ ] SHA `c1a8f77` deployment reports success, but the direct deployment URL is Vercel SSO-gated; the current canonical quotation denial path is 401 with `private, no-store`, but exact-SHA runtime mapping is not verified. Authenticated success and cross-user cache tests still require two owned QA identities.
 - [ ] Official secret-store/provider access is required to rotate F-SEC-005 categories and review access logs. Repository scans cannot substitute for provider audit.
 - [ ] Local/disposable database, QA owner accounts, fixture ledger, cleanup adapter, mail sink, and payment sandbox are required before write-capable RBAC/RLS/commerce tests.
@@ -73,6 +73,7 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 - [ ] F-DATA-001 has narrow source compensation for product/lookbook upload failures; Storage runtime, other upload flows, retention, and reconciliation remain unverified.
 - [ ] F-SEC-002 remains OPEN: rate limiting is process-local and its trusted-ingress boundary cannot be verified from repository/provider metadata alone.
 - [ ] Supabase project identity is confirmed through official CLI metadata, but no database/RLS inspection or secret-store rotation was performed; a redacted provider rotation/audit workflow remains required.
+- [x] Latest source regression: `npm test` completed 78 PASS, 0 FAIL, 1 isolated-Supabase SKIP; QA syntax, typecheck, lint, and high-severity dependency audit passed before this checkpoint.
 
 **Release verdict remains HOLD.**
 

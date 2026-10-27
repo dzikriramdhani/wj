@@ -16,6 +16,15 @@
 
 Supabase project reference yang terhubung adalah **PRODUCTION**. Guard lokal tetap menolak seluruh target remote untuk tes DB/mutation; `npm run qa:db:guard` berhenti sebelum membaca `.env.test.local`, membuat koneksi, atau menjalankan migration. Izin production pada fase ini dipakai hanya untuk GET read-only ke halaman/API aplikasi, tanpa cookie. Tidak ada SQL/RPC/Storage/Auth/payment/email mutation ke project production.
 
+## Isolated QA readiness checkpoint — 27 Oktober 2026
+
+- Docker CLI tidak tersedia dan `supabase status` tidak dapat membuktikan stack lokal. Service PostgreSQL lokal yang berjalan tidak dianggap disposable; guard menerima hanya target Supabase loopback yang cocok pada port `54322` dan identity query yang sesuai.
+- Alternatif yang didukung adalah project Supabase QA terpisah milik organisasi, dengan mail sink dan payment sandbox. Target tersebut memerlukan mode target terpisah; guard lokal yang ada tidak boleh diubah untuk menerima production.
+- Fixture wajib: QA User A, QA User B, QA Admin, QA Super Admin, Organization A, dan Organization B. Ledger harus mencatat platform role terpisah dari role membership, ID fixture, namespace run, Storage path, idempotency key, dan status cleanup.
+- RLS wajib memakai JWT user asli. Service-role hanya boleh dipakai untuk setup/cleanup fixture yang tercatat, bukan bukti policy user.
+- F-SEC-003 memerlukan dua akun QA: setiap akun meminta response private yang berhasil, assertion hanya merekam status/header dan boolean ownership, lalu urutan dibalik dan diikuti anonymous request. Jangan menyimpan body, cookie, atau token.
+- `npm run qa:db:guard` dieksekusi kembali dari `apps/web` dan memblokir metadata link production sebelum membaca environment test atau membuka koneksi. Ini adalah **PASS guard / BLOCKED integration**, bukan bukti database runtime.
+
 Production target kini memiliki runner terpisah dan tidak mengendurkan guard lokal. Hasil preflight terbaru serta mode staging/production ada di [production-qa.md](production-qa.md). Runner lokal tetap menolak metadata link production; runner production memakai target ref dan hostname exact serta flag izin terpisah.
 
 ## Pengaman yang ditambahkan

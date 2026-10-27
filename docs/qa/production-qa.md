@@ -166,3 +166,8 @@ REA menganalisis statis direktori local `apps/web/.next/standalone` tanpa menjal
 
 - The official Supabase CLI authenticated locally and its project-list metadata confirmed that the known production project reference is visible to the current account. No database connection, table inspection, Auth query, Storage listing, or mutation was made.
 - The CLI’s secret-list help describes listing all project secrets but does not promise that secret values are redacted. It was deliberately not executed: inventory convenience does not override the rule against reading production secret values. Consequently provider-side secret rotation, consumer migration, and audit-log review remain **BLOCKED** pending an official redacted inventory/rotation workflow.
+
+## Credential and QA readiness follow-up — 27 Oktober 2026
+
+- Credential consumers and safe replacement order are documented in [credential-rotation-runbook.md](credential-rotation-runbook.md). The runbook is an operator procedure, not rotation evidence; no provider secret value, Vercel environment listing, Auth identity, database row, Storage object, or production mutation was accessed.
+- Docker remains unavailable, and the correctly invoked database guard rejected the linked production metadata before opening a database connection. An isolated QA project, controlled mail sink, payment sandbox, two QA users, role fixtures, and exact-ID cleanup ledger remain required for authenticated cache, RLS, cross-tenant, commerce, and Storage runtime tests.

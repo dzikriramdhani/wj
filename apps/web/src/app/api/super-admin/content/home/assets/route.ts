@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { requireSuperAdminUser } from '@/lib/super-admin-auth';
 import { createServiceClient } from '@/lib/supabase/service';
 import { hasExpectedFileSignature } from '@/lib/upload-validation';
@@ -39,8 +40,8 @@ export async function POST(request: NextRequest) {
       entity_id: 'home',
       metadata: { path, mime_type: file.type, size_bytes: file.size },
     });
-    if (auditError) throw auditError;
-    return NextResponse.json({ success: true, path }, { status: 201, headers: { 'Cache-Control': 'private, no-store' } });
+    if (auditError) console.error('admin homepage asset audit logging failed', auditError);
+    return NextResponse.json({ success: true, path }, { status: 201 });
   } catch (error) {
     console.error('admin homepage asset upload failed', error);
     return NextResponse.json({ error: 'Gambar belum dapat diunggah. Pastikan migrasi CMS Beranda sudah diterapkan.' }, { status: 503 });

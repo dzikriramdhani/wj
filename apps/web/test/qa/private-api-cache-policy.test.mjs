@@ -34,6 +34,7 @@ const compatibilityRoutes = [
   'src/app/api/business/verification/documents/route.ts',
   'src/app/api/admin/products/[id]/images/route.ts',
   'src/app/api/admin/orders/[id]/fulfillment/route.ts',
+  'src/app/api/super-admin/content/home/assets/route.ts',
 ];
 
 test('private JSON helper overrides caller cache directives with no-store', async () => {
