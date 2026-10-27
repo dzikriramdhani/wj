@@ -171,3 +171,9 @@ REA menganalisis statis direktori local `apps/web/.next/standalone` tanpa menjal
 
 - Credential consumers and safe replacement order are documented in [credential-rotation-runbook.md](credential-rotation-runbook.md). The runbook is an operator procedure, not rotation evidence; no provider secret value, Vercel environment listing, Auth identity, database row, Storage object, or production mutation was accessed.
 - Docker remains unavailable, and the correctly invoked database guard rejected the linked production metadata before opening a database connection. An isolated QA project, controlled mail sink, payment sandbox, two QA users, role fixtures, and exact-ID cleanup ledger remain required for authenticated cache, RLS, cross-tenant, commerce, and Storage runtime tests.
+
+## Upload lifecycle and CMS denial verification — 27 Oktober 2026
+
+- Commit `3c1178a6ef53d9a03e6546240e00cdabb15a6b2f` passed Web CI run `40538007645`: install, Node regression, QA syntax, lint, typecheck, high-severity dependency audit, local-placeholder build, Chromium, isolated HTTP guards, anonymous browser smoke, and cleanup.
+- A canonical production request used `POST` with no cookie, authorization header, or body to the Super Admin CMS asset route. It returned 403 with `Cache-Control: private, no-store`; the response body was discarded. The route therefore did not reach form parsing, upload, or an authenticated action.
+- This is only current canonical anonymous-denial evidence. Direct Vercel deployment URLs remain SSO-gated, exact-SHA mapping is not proven, and authenticated success/cache-isolation plus Storage runtime remain **BLOCKED**.

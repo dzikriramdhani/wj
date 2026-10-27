@@ -74,6 +74,7 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 - [ ] F-SEC-002 remains OPEN: rate limiting is process-local and its trusted-ingress boundary cannot be verified from repository/provider metadata alone.
 - [ ] Supabase project identity is confirmed through official CLI metadata, but no database/RLS inspection or secret-store rotation was performed; a redacted provider rotation/audit workflow remains required.
 - [x] Latest source regression: `npm test` completed 78 PASS, 0 FAIL, 1 isolated-Supabase SKIP; QA syntax, typecheck, lint, and high-severity dependency audit passed before this checkpoint.
+- [x] Web CI [40538007645](https://github.com/dzikriramdhani/wj/actions/runs/40538007645) passed for source SHA `3c1178a`; canonical anonymous CMS asset POST is denied 403 with `private, no-store`.
 
 **Release verdict remains HOLD.**
 
