@@ -124,6 +124,6 @@ The current build failure occurred inside a temporary QA directory that was safe
 | Requirement | Execution evidence | Status |
 |---|---|---|
 | Private JSON source cache policy | 26 route static regressions plus helper unit test; 65 PASS, 0 FAIL, 1 SKIP | PASS — source/unit only |
-| Extended private-route deployment retest | SHA `c1a8f77` Vercel production deployment completed; cookie-free canonical `GET /api/quotations` denied 401 with `private, no-store`; body discarded | PASS — anonymous denial path only |
+| Extended private-route deployment retest | SHA `c1a8f77` deployment reports success, but its direct Vercel URL is SSO-gated; cookie-free canonical `GET /api/quotations` denied 401 with `private, no-store`; body discarded | PASS — current canonical anonymous denial; exact-SHA runtime mapping NOT VERIFIED |
 | F-SEC-005 active/history pattern inventory | No high-confidence active value match outside intentional guard fixture; no provider-side audit available | PARTIAL / rotation BLOCKED |
 | Local DB target verification | `qa:db:guard` rejected production link before env read/connection | BLOCKED safely |
