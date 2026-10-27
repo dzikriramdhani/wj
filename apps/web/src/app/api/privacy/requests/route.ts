@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 const schema = z.object({ requestType: z.enum(['access', 'export', 'erasure']), note: z.string().max(2000).optional() });

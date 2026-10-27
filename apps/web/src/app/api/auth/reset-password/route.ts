@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { consumeResetPasswordRateLimit } from '@/lib/password-reset-rate-limit';
 import { validateResetPassword } from '@/lib/reset-password';

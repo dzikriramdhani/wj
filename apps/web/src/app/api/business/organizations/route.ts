@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 const schema = z.object({ name: z.string().trim().min(2).max(200), legalName: z.string().trim().max(200).optional(), taxId: z.string().trim().max(80).optional(), industry: z.string().trim().max(120).optional(), website: z.string().trim().url().max(300).optional().or(z.literal('')) });

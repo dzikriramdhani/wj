@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { requireAdminUser } from '@/lib/admin-auth';
 import { createServiceClient } from '@/lib/supabase/service';

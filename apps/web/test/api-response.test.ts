@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { privateJson } from '../src/lib/api-response';
+import { privateJson, privateJsonResponse } from '../src/lib/api-response';
 
 test('privateJson forces private no-store over caller cache directives', async () => {
   const response = privateJson(
@@ -11,4 +11,10 @@ test('privateJson forces private no-store over caller cache directives', async (
   assert.equal(response.status, 403);
   assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
   assert.deepEqual(await response.json(), { data: ['synthetic'] });
+});
+
+test('private JSON compatibility helper retains the no-store policy', () => {
+  const response = privateJsonResponse.json({ success: true }, { status: 201 });
+  assert.equal(response.status, 201);
+  assert.equal(response.headers.get('Cache-Control'), 'private, no-store');
 });

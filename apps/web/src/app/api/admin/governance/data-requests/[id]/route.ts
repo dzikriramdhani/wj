@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { requireAdminUser } from '@/lib/admin-auth';
 import { createClient } from '@/lib/supabase/server';

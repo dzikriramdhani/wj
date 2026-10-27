@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { ZodError } from 'zod';
 import { createRFQSchema } from '@/lib/validators';
 import { createClient } from '@/lib/supabase/server';

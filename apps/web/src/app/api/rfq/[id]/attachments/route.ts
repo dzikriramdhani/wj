@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { NextResponse } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';

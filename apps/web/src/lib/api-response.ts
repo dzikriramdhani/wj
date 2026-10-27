@@ -6,3 +6,6 @@ export function privateJson<T>(body: T, init: ResponseInit = {}) {
   headers.set('Cache-Control', 'private, no-store');
   return NextResponse.json(body, { ...init, headers });
 }
+
+/** Compatibility shape for private routes that only create JSON responses. */
+export const privateJsonResponse = Object.freeze({ json: privateJson });

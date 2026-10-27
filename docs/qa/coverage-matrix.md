@@ -118,3 +118,12 @@ The current build failure occurred inside a temporary QA directory that was safe
 | Deployed private cache denial path | Anonymous GET profile/Admin/CMS/order: 401/403/403/401 with `private, no-store`; protected dashboards redirect no-store | PASS — denial/redirect path |
 | Authenticated private cache success path | No owned QA account/session exists | BLOCKED; F-SEC-003 remains OPEN |
 | Production RBAC/RLS/workflow mutation tests | No disposable target or namespaced fixture adapter | BLOCKED |
+
+## Final hardening checkpoint — 27 Oktober 2026
+
+| Requirement | Execution evidence | Status |
+|---|---|---|
+| Authenticated private JSON source cache policy | 26 route static regressions plus helper unit test; 65 PASS, 0 FAIL, 1 SKIP | PASS — source/unit only |
+| Extended private-route deployment retest | New 22-route hardening is not yet deployed | NOT RUN |
+| F-SEC-005 active/history pattern inventory | No high-confidence active value match outside intentional guard fixture; no provider-side audit available | PARTIAL / rotation BLOCKED |
+| Local DB target verification | `qa:db:guard` rejected production link before env read/connection | BLOCKED safely |

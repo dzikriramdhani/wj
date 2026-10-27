@@ -63,6 +63,15 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 
 **Release verdict: HOLD.**
 
+## Final hardening checkpoint — 27 Oktober 2026
+
+- [x] Source hardening extends private JSON no-store policy to 26 authenticated routes; static/helper regressions: 65 pass, 1 skipped.
+- [ ] Deploy and production-retest the additional 22 private routes; authenticated success and cross-user cache tests still require two owned QA identities.
+- [ ] Official secret-store/provider access is required to rotate F-SEC-005 categories and review access logs. Repository scans cannot substitute for provider audit.
+- [ ] Local/disposable database, QA owner accounts, fixture ledger, cleanup adapter, mail sink, and payment sandbox are required before write-capable RBAC/RLS/commerce tests.
+
+**Release verdict remains HOLD.**
+
 ## Latest closure checkpoint — 26 Oktober 2026
 
 - [x] `npm test` completed: 42 PASS, 0 FAIL, 1 SKIP.

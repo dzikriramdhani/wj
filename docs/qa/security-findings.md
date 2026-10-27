@@ -146,3 +146,16 @@ After an approved deployment, make only cookie-free GET requests to `/api/accoun
 - **Anonymous denial/redirect paths:** PASS. The deployed storefront returned `private, no-store` for profile (401), Admin search (403), Super Admin CMS (403), and a synthetic-invalid order identifier (401). Admin and Super Admin page redirects also retained no-store. Response bodies were cancelled without being read.
 - **Status:** PARTIALLY REMEDIATED / **OPEN**. This confirms the deployed header fix for anonymous private paths, but not a successful authenticated private response. Close only after an owned synthetic QA identity proves the same policy on an allowed response.
 - No production record, user, Storage object, payment, email, or configuration was changed during retest.
+
+### Private-route source hardening — 27 Oktober 2026
+
+- **Scope:** Source audit found 22 additional authenticated JSON routes without an explicit cache policy, spanning RFQ, quotation, organization, verification, fulfillment, privileged product, payment-reconciliation, privacy, and role-management flows.
+- **Fix:** Those JSON-only routes now use `privateJsonResponse`, which delegates every response to `privateJson()` and forces `Cache-Control: private, no-store`. The original four routes remain covered directly.
+- **Regression evidence:** Static coverage now asserts helper use for all 26 authenticated private JSON routes, and the helper unit test verifies the compatibility shape. The isolated Node suite completed **65 PASS, 0 FAIL, 1 SKIP**.
+- **Status:** FIXED IN SOURCE / deployment verification pending. The deployed anonymous retest covers the original four paths only. Authenticated success and cross-user cache tests remain **BLOCKED** without owned synthetic identities.
+
+### F-SEC-005 inventory update — 27 Oktober 2026
+
+- Current workspace scan, excluding private local environment files and test artifacts, found no high-confidence credential value outside a purpose-built negative test fixture. History pattern scanning identified only QA guard code that recognizes publishable-key formats; it did not output a credential value.
+- This does not prove the prior untracked template was never copied, nor does it provide provider audit logs. GitHub Actions secret stores, Supabase/Auth, payment, shipping, SMTP, and deployment secret stores could not be inventoried or rotated from the available repository-only access path.
+- **Rotation/audit status:** **BLOCKED** pending official provider/secret-store access and audit-log scope. Sanitizing source does not close credential exposure.

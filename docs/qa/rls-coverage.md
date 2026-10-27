@@ -112,3 +112,7 @@ No row above is runtime evidence. The common first step is `npm run qa:db:guard`
 ## Production authorization boundary — 27 Oktober 2026
 
 Production Supabase public preflight completed read-only with the confirmed project identity. It does not supply user JWT claims, table policy metadata, grants, or disposable fixture ownership. Therefore it is not evidence for any table, bucket, RPC, RBAC, or RLS row above. Synthetic writes remain blocked because no namespaced fixture adapter, confirmed QA owner, cleanup ledger, or side-effect isolation is available.
+
+## Guard recheck — 27 Oktober 2026
+
+`npm run qa:db:guard` again refused the production-linked Supabase metadata before reading a test environment file or opening a database connection. No local PostgreSQL process is treated as eligible merely because it is listening. Database/RLS runtime status remains **BLOCKED**.
