@@ -35,6 +35,7 @@ jobs:
         run: |
           test -n "${SCHEDULER_CRON_SECRET}"
           curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --request POST \
             --header "Authorization: Bearer ${SCHEDULER_CRON_SECRET}" \
             "https://wj-wine.vercel.app/api/internal/commerce/expire-reservations"
 
@@ -49,5 +50,6 @@ jobs:
         run: |
           test -n "${SCHEDULER_CRON_SECRET}"
           curl --fail-with-body --silent --show-error --retry 2 --max-time 30 \
+            --request POST \
             --header "Authorization: Bearer ${SCHEDULER_CRON_SECRET}" \
             "https://wj-wine.vercel.app/api/internal/operations/process"

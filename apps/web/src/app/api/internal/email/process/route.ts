@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { NextResponse } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { isSchedulerAuthorized } from '@/lib/cron-auth';
 import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
@@ -90,5 +90,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Email belum dapat diproses.' }, { status: 500 });
   }
 }
-
-export { POST as GET };

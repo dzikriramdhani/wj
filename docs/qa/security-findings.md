@@ -51,7 +51,17 @@ Temuan berasal dari source/migration, tes lokal, dan observasi HTTP production r
 - **Bukti:** Objek diunggah sebelum pembaruan metadata/record/audit. Gagal pada langkah berikutnya dapat meninggalkan objek Storage tanpa referensi bisnis yang lengkap.
 - **Dampak:** Storage membengkak dan file orphan sulit ditelusuri; transaksi database tidak mencakup Storage.
 - **Rekomendasi:** Catat upload intent/outbox, lakukan kompensasi idempotent pada objek yang dibuat permintaan tersebut, atau sediakan rekonsiliasi orphan berkala dengan retention yang disetujui.
-- **Status:** OPEN; tidak menghapus file pengguna selama audit.
+- **Mitigasi source 27 Oktober 2026:** Upload gambar produk dan lookbook kini mencatat hanya path yang berhasil dibuat oleh request aktif. Jika batch gagal sebelum metadata produk tersimpan (atau upload lookbook gagal), kompensasi best-effort memanggil Storage `remove` hanya untuk daftar path tersebut. Unit test membuktikan daftar kosong tidak dihapus, hanya path milik request diteruskan, dan kegagalan cleanup tidak melempar exception.
+- **Batasan:** Tidak ada cleanup sweep, wildcard, atau penghapusan objek production. Alur RFQ/CMS/attachment lain, kegagalan Storage runtime, dan retention/reconciliation terjadwal belum diverifikasi terhadap bucket nyata.
+- **Status:** PARTIALLY REMEDIATED IN SOURCE; runtime Storage evidence tetap BLOCKED.
+
+## F-SEC-006 — Worker mutatif sebelumnya menerima GET
+
+- **Severity:** Medium.
+- **Komponen:** Endpoint internal expiry reservation, operasi, dan email outbox serta scheduler GitHub Actions.
+- **Bukti:** Ketiga route mengekspor handler POST sebagai GET, sementara workflow scheduler memanggil URL tanpa method eksplisit (GET). Request GET berotorisasi dapat mengeksekusi perubahan reservation/outbox.
+- **Perbaikan:** Route sekarang POST-only, response JSON internal memakai `private, no-store`, dan seluruh workflow scheduler resmi memakai `--request POST`. Dokumentasi scheduler staging diselaraskan. Regression test statis memeriksa method route dan jumlah POST pada tiap workflow.
+- **Status:** FIXED IN SOURCE; tidak ada worker production dipanggil untuk retest karena itu akan memproses data/outbox nyata. Verifikasi deployment dan scheduler runtime masih diperlukan.
 
 ## Kontrol statis yang terlihat (belum runtime-verified)
 
@@ -160,3 +170,4 @@ After an approved deployment, make only cookie-free GET requests to `/api/accoun
 - Current workspace scan, excluding private local environment files and test artifacts, found no high-confidence credential value outside a purpose-built negative test fixture. History pattern scanning identified only QA guard code that recognizes publishable-key formats; it did not output a credential value.
 - This does not prove the prior untracked template was never copied, nor does it provide provider audit logs. GitHub Actions secret stores, Supabase/Auth, payment, shipping, SMTP, and deployment secret stores could not be inventoried or rotated from the available repository-only access path.
 - **Rotation/audit status:** **BLOCKED** pending official provider/secret-store access and audit-log scope. Sanitizing source does not close credential exposure.
+- **Provider metadata recheck:** Official GitHub metadata access inventories two repository-level staging credential entries and one production-environment scheduler credential entry; values were never retrieved. Production worker and email-outbox workflows consume the environment scheduler credential; the staging worker consumes the two staging entries. Rotation cannot be safely performed from repository access alone because the matching Vercel/runtime consumers and rollback path are not available for verification.

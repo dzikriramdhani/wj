@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { requireAdminUser } from '@/lib/admin-auth';
 import { createServiceClient } from '@/lib/supabase/service';
 import { hasExpectedFileSignature } from '@/lib/upload-validation';
+import { compensateUploadedObjects } from '@/lib/storage-compensation';
 
 export const runtime = 'nodejs';
 
@@ -35,8 +36,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: 'Isi file tidak cocok dengan tipe gambar.' }, { status: 400 });
     }
   }
+  let service: ReturnType<typeof createServiceClient> | null = null;
+  const uploadedPaths: string[] = [];
+  let metadataPersisted = false;
   try {
-    const service = createServiceClient();
+    service = createServiceClient();
     const { data: product, error: productError } = await service.from('products').select('id').eq('id', productId).maybeSingle();
     if (productError || !product) return NextResponse.json({ error: 'Produk tidak ditemukan.' }, { status: 404 });
     const { data: latest } = await service.from('product_images').select('position').eq('product_id', productId).order('position', { ascending: false }).limit(1);
@@ -46,13 +50,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const path = `${productId}/${randomUUID()}.${extensionByType[file.type]}`;
       const { error } = await service.storage.from('product-images').upload(path, file, { contentType: file.type, upsert: false });
       if (error) throw error;
+      uploadedPaths.push(path);
       rows.push({ product_id: productId, storage_path: path, alt_text: file.name.slice(0, 200), position: position++, is_primary: rows.length === 0 && !latest?.length });
     }
     const { error: insertError } = await service.from('product_images').insert(rows);
     if (insertError) throw insertError;
+    metadataPersisted = true;
     await service.from('audit_logs').insert({ actor_user_id: editor.id, action: 'catalog.images_added', entity_type: 'product', entity_id: productId, metadata: { count: rows.length } });
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
+    if (service && !metadataPersisted) {
+      const cleaned = await compensateUploadedObjects(uploadedPaths, (paths) => service!.storage.from('product-images').remove(paths));
+      if (!cleaned) console.error('product image upload compensation failed');
+    }
     console.error('product image upload failed', error);
     return NextResponse.json({ error: 'Gambar belum dapat diunggah.' }, { status: 503 });
   }

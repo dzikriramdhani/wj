@@ -4,6 +4,7 @@ import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { requireAdminUser } from '@/lib/admin-auth';
 import { createServiceClient } from '@/lib/supabase/service';
 import { hasExpectedFileSignature } from '@/lib/upload-validation';
+import { compensateUploadedObjects } from '@/lib/storage-compensation';
 
 const extensionByType: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/avif': 'avif' };
 
@@ -20,9 +21,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Isi file tidak cocok dengan tipe gambar.' }, { status: 400 });
     }
   }
+  let service: ReturnType<typeof createServiceClient> | null = null;
+  const paths: string[] = [];
   try {
-    const service = createServiceClient();
-    const paths: string[] = [];
+    service = createServiceClient();
     for (const file of files) {
       // Keep lookbook assets at the bucket root so the public gallery can list
       // them without exposing or traversing an implementation-specific folder.
@@ -34,6 +36,10 @@ export async function POST(request: Request) {
     await service.from('audit_logs').insert({ actor_user_id: editor.id, action: 'lookbook.images_added', entity_type: 'lookbook', metadata: { count: paths.length } });
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
+    if (service) {
+      const cleaned = await compensateUploadedObjects(paths, (ownedPaths) => service!.storage.from('lookbook-images').remove(ownedPaths));
+      if (!cleaned) console.error('lookbook upload compensation failed');
+    }
     console.error('lookbook upload failed', error);
     return NextResponse.json({ error: 'Gambar lookbook belum dapat diunggah.' }, { status: 503 });
   }

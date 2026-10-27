@@ -69,6 +69,9 @@ Jangan release berdasarkan audit ini. Cache policy privat diperbaiki di working 
 - [ ] SHA `c1a8f77` deployment reports success, but the direct deployment URL is Vercel SSO-gated; the current canonical quotation denial path is 401 with `private, no-store`, but exact-SHA runtime mapping is not verified. Authenticated success and cross-user cache tests still require two owned QA identities.
 - [ ] Official secret-store/provider access is required to rotate F-SEC-005 categories and review access logs. Repository scans cannot substitute for provider audit.
 - [ ] Local/disposable database, QA owner accounts, fixture ledger, cleanup adapter, mail sink, and payment sandbox are required before write-capable RBAC/RLS/commerce tests.
+- [x] Source hardening: internal reservation, operations, and email workers are POST-only, non-cacheable, and official schedulers explicitly use POST. Runtime verification is intentionally deferred because calling workers would process production state/outbox.
+- [ ] F-DATA-001 has narrow source compensation for product/lookbook upload failures; Storage runtime, other upload flows, retention, and reconciliation remain unverified.
+- [ ] F-SEC-002 remains OPEN: rate limiting is process-local and its trusted-ingress boundary cannot be verified from repository/provider metadata alone.
 
 **Release verdict remains HOLD.**
 

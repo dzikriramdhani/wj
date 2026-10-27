@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse as NextResponse } from '@/lib/api-response';
 import { isSchedulerAuthorized } from '@/lib/cron-auth';
 import { reportServerError } from '@/lib/observability';
 import { createServiceClient } from '@/lib/supabase/service';
@@ -29,5 +30,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Worker operasional belum dapat diproses.' }, { status: 500 });
   }
 }
-
-export { POST as GET };

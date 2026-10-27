@@ -44,9 +44,9 @@ Authorization: Bearer <nilai CRON_SECRET dari .env.staging>
 
 | Frekuensi | Method | URL |
 | --- | --- | --- |
-| Setiap 5 menit (`*/5 * * * *`) | `GET` | `https://wj-staging.vercel.app/api/internal/commerce/expire-reservations` |
-| Setiap 2 menit (`*/2 * * * *`) | `GET` | `https://wj-staging.vercel.app/api/internal/email/process` |
-| Setiap 5 menit (`*/5 * * * *`) | `GET` | `https://wj-staging.vercel.app/api/internal/operations/process` |
+| Setiap 5 menit (`*/5 * * * *`) | `POST` | `https://wj-staging.vercel.app/api/internal/commerce/expire-reservations` |
+| Setiap 2 menit (`*/2 * * * *`) | `POST` | `https://wj-staging.vercel.app/api/internal/email/process` |
+| Setiap 5 menit (`*/5 * * * *`) | `POST` | `https://wj-staging.vercel.app/api/internal/operations/process` |
 | Setiap 5 menit, bila ERP dipakai | `GET` | `https://wj-staging.vercel.app/api/internal/erp/sync` |
 
 `CRON_SECRET` hanya ditempatkan pada header scheduler, bukan pada URL, repository, atau screenshot. Endpoint tanpa header yang benar harus selalu memberi `401`.
