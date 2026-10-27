@@ -208,36 +208,6 @@
   color: var(--color-text-secondary);
 }
 
-.sideMenuFooter {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding: var(--space-xl) var(--space-xl) var(--space-xl);
-  border-top: 1px solid var(--color-border-light);
-}
-
-.sideMenuFooterLink {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-text);
-  text-decoration: none;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  transition-delay: 0s;
-}
-
-.sideMenu.open .sideMenuFooterLink {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: calc(0.2s + (var(--stagger-idx, 0) * 0.05s));
-}
-
-.sideMenuFooterLink:hover {
-  color: var(--color-text-secondary);
-}
-
 @media (max-width: 768px) {
   .navbarInner {
     padding: 0 var(--space-lg);

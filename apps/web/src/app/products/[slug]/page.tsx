@@ -270,9 +270,7 @@ export default function ProductDetailPage() {
 
         <section className={styles.relatedSection} aria-labelledby="related-title">
           <div className={styles.relatedHeading}>
-            <p className={styles.relatedEyebrow}>Pilihan material</p>
             <h2 id="related-title" className={styles.relatedTitle}>Produk serupa</h2>
-            <p className={styles.relatedDescription}>Temukan material lain yang mungkin sesuai untuk kebutuhan produksi Anda.</p>
           </div>
           <div className={styles.relatedGrid}>
             {relatedProducts.map((rp) => (

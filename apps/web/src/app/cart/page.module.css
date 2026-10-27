@@ -176,14 +176,27 @@
 .quantityControl button:hover { background: #f4f4f5; }
 .quantityControl button:active { background: #e4e4e7; }
 
-.quantityControl span {
+.quantityControl:focus-within { border-color: #18181b; }
+
+.quantityControl input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
   overflow: hidden;
   color: #18181b;
+  font-family: inherit;
   font-size: 12px;
   text-align: center;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
+
+.quantityControl input::-webkit-inner-spin-button,
+.quantityControl input::-webkit-outer-spin-button { margin: 0; appearance: none; }
 
 .minimumNotice {
   margin: 6px 0 0;

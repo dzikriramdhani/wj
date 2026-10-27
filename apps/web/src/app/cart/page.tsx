@@ -9,6 +9,89 @@ import styles from './page.module.css';
 const formatRupiah = (amount: number) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 
+function CartQuantityControl({
+  productName,
+  quantity,
+  minimum,
+  onChange,
+  onMinimumAttempt,
+  onValidChange,
+}: {
+  productName: string;
+  quantity: number;
+  minimum: number;
+  onChange: (quantity: number) => void;
+  onMinimumAttempt: () => void;
+  onValidChange: () => void;
+}) {
+  const [draft, setDraft] = useState(String(quantity));
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) setDraft(String(quantity));
+  }, [isEditing, quantity]);
+
+  const setQuantity = (nextQuantity: number) => {
+    onChange(nextQuantity);
+    setDraft(String(nextQuantity));
+    onValidChange();
+  };
+  const isValidMeterValue = (value: string) => /^(?:\d+(?:\.\d{0,2})?|\.\d{1,2})$/.test(value)
+    && Number.isFinite(Number(value));
+
+  return (
+    <div className={styles.quantityControl} role="group" aria-label={'Jumlah ' + productName}>
+      <button
+        type="button"
+        aria-label="Kurangi jumlah"
+        onClick={() => {
+          if (quantity <= minimum) {
+            onMinimumAttempt();
+            return;
+          }
+          setQuantity(Math.max(minimum, Number((quantity - 1).toFixed(2))));
+        }}
+      >−</button>
+      <input
+        type="number"
+        min={minimum}
+        step="0.01"
+        inputMode="decimal"
+        aria-label={'Jumlah meter ' + productName}
+        value={draft}
+        onFocus={() => setIsEditing(true)}
+        onChange={(event) => {
+          const value = event.currentTarget.value;
+          setDraft(value);
+          if (!isValidMeterValue(value)) return;
+          const nextQuantity = Number(value);
+          if (nextQuantity < minimum) {
+            onMinimumAttempt();
+            return;
+          }
+          onChange(nextQuantity);
+          onValidChange();
+        }}
+        onBlur={() => {
+          setIsEditing(false);
+          const nextQuantity = Number(draft);
+          if (!isValidMeterValue(draft) || nextQuantity < minimum) {
+            if (draft && Number.isFinite(nextQuantity) && nextQuantity < minimum) onMinimumAttempt();
+            setDraft(String(quantity));
+            return;
+          }
+          setQuantity(Number(nextQuantity.toFixed(2)));
+        }}
+      />
+      <button
+        type="button"
+        aria-label="Tambah jumlah"
+        onClick={() => setQuantity(Number((quantity + 1).toFixed(2)))}
+      >+</button>
+    </div>
+  );
+}
+
 export default function CartPage() {
   const { items, removeItem, updateQty, totalAmount, isReady } = useCart();
   const [minimumNotices, setMinimumNotices] = useState<string[]>([]);
@@ -64,7 +147,7 @@ export default function CartPage() {
             <span>Produk</span><span /><span>Jumlah</span><span className={styles.priceHeading}>Harga</span><span className={styles.totalHeading}>Total</span>
           </div>
           {items.map((item) => {
-            const minimum = Math.max(item.minQtyMeters ?? 10, 1);
+            const minimum = Math.max(item.minQtyMeters ?? 1, 0.01);
             const noticeKey = `${item.productId}-${item.variantId ?? ''}`;
             return (
               <article className={styles.item} key={noticeKey}>
@@ -84,33 +167,17 @@ export default function CartPage() {
                         aria-label={'Hapus ' + item.productName + ' dari keranjang'}
                         onClick={() => removeItem(item.productId, item.variantId)}
                       ><Trash2 size={18} strokeWidth={1.6} /></button>
-                      <div className={styles.quantityControl} role="group" aria-label={'Jumlah ' + item.productName}>
-                        <button
-                          type="button"
-                          aria-label="Kurangi jumlah"
-                          onClick={() => {
-                            const nextQuantity = Math.max(minimum, item.qtyMeters - 10);
-                            if (nextQuantity === item.qtyMeters) {
-                              setMinimumNotices((current) => current.includes(noticeKey) ? current : [...current, noticeKey]);
-                              return;
-                            }
-                            setMinimumNotices((current) => current.filter((key) => key !== noticeKey));
-                            updateQty(item.productId, nextQuantity, item.variantId);
-                          }}
-                        >−</button>
-                        <span>{item.qtyMeters} meter</span>
-                        <button
-                          type="button"
-                          aria-label="Tambah jumlah"
-                          onClick={() => {
-                            setMinimumNotices((current) => current.filter((key) => key !== noticeKey));
-                            updateQty(item.productId, item.qtyMeters + 10, item.variantId);
-                          }}
-                        >+</button>
-                      </div>
+                      <CartQuantityControl
+                        productName={item.productName}
+                        quantity={item.qtyMeters}
+                        minimum={minimum}
+                        onChange={(quantity) => updateQty(item.productId, quantity, item.variantId)}
+                        onMinimumAttempt={() => setMinimumNotices((current) => current.includes(noticeKey) ? current : [...current, noticeKey])}
+                        onValidChange={() => setMinimumNotices((current) => current.filter((key) => key !== noticeKey))}
+                      />
                     </div>
                     {minimumNotices.includes(noticeKey) && (
-                      <p className={styles.minimumNotice} role="status">Minimum pemesanan: {minimum} meter.</p>
+                      <p className={styles.minimumNotice} role="status">Minimum pemesanan: {minimum.toLocaleString('id-ID')} meter.</p>
                     )}
                   </div>
                   <span className={styles.unitPrice}>{formatRupiah(item.pricePerMeter)} / meter</span>

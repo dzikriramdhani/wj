@@ -131,12 +131,9 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
-          </div>
-
-          <div className={styles.sideMenuFooter}>
             <Link 
               href="/cart"
-              className={styles.sideMenuFooterLink} 
+              className={styles.sideMenuLink}
               onClick={() => setMenuOpen(false)}
               style={{ '--stagger-idx': navItems.length } as React.CSSProperties}
             >
@@ -144,7 +141,7 @@ export default function Navbar() {
             </Link>
             <Link 
               href={accountHref} 
-              className={styles.sideMenuFooterLink} 
+              className={styles.sideMenuLink}
               onClick={() => setMenuOpen(false)}
               style={{ '--stagger-idx': navItems.length + 1 } as React.CSSProperties}
             >
