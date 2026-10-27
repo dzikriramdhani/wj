@@ -6,20 +6,25 @@ Use Node.js 22 or newer, as required by the current Supabase JavaScript SDK.
 
 ## Local development
 
-1. Copy `.env.example` to `.env.local` and fill in the Supabase project URL and publishable key.
-2. From the workspace root, apply the versioned migrations to a local Supabase instance with the Supabase CLI. Do not run migrations against production while setting up a developer machine:
+For isolated QA, follow [`docs/qa/local-test-environment.md`](../../docs/qa/local-test-environment.md). Never copy production Supabase credentials into local environment files. Do not overwrite an existing `.env.local` without first verifying its target.
+
+1. Use a dedicated local checkout whose Supabase CLI metadata is not linked to a remote project.
+2. Verify Docker, ports, and any existing local volumes before starting the stack. Run this from the workspace root only after those checks:
 
    ```bash
-   npx supabase start
-   npx supabase db reset
+   supabase start
    ```
-3. Start the application from this directory:
+
+   `supabase start` applies the local migrations (and configured seed). It can change existing local database state. Do not run `supabase db reset`; it deletes local database state. QA integration tests require `npm run qa:db:guard` to pass before the runner starts.
+3. Start the application from this directory only after verifying every loaded Supabase URL and key is local:
 
    ```bash
    npm run dev
    ```
 
 Without Supabase configuration, the storefront pages remain available for visual work. Login, registration, account, admin, and catalog API requests report that the service is not configured; no mock credential is accepted.
+
+Production-authorized QA uses a separate fail-closed runner and never reads `.env.local`. Review [`docs/qa/production-qa.md`](../../docs/qa/production-qa.md) before running `npm run qa:production:preflight`. The mutation command has no fixture adapter and currently stops without making a request or write.
 
 ## Supabase layout
 
@@ -41,7 +46,7 @@ Supabase Auth owns credentials and sessions. A database trigger creates the prof
 
 Set the Supabase Auth Site URL and allowed Redirect URLs for every environment, including `<NEXT_PUBLIC_APP_URL>/auth/callback`. Email verification uses the PKCE callback route and then returns the user to `/account`.
 
-Public catalog reads use the anonymous Data API under RLS. Private business and RFQ files use member-scoped Storage policies, though the upload UI is not implemented yet. Exact inventory, orders, checkout, and payment operations remain unavailable to browser clients until their transactional server-side flows are implemented.
+Public catalog reads use the anonymous Data API under RLS. Private business and RFQ files use member-scoped Storage policies, and upload controls are available for business verification documents and RFQ attachments. Browser clients cannot write inventory, order, checkout, or payment tables directly; transactional changes go through server-side flows and database functions.
 
 ## Environment variables
 

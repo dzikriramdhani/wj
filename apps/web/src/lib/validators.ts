@@ -53,7 +53,7 @@ export const updateProductSchema = createProductSchema.partial();
 // ---- RFQ Validators ----
 export const createRFQSchema = z.object({
   productId: z.string().uuid().optional(),
-  organizationId: z.string().uuid().optional(),
+  organizationId: z.string().uuid(),
   specDetails: z.object({
     warna: z.string().max(100).optional(),
     motif: z.string().max(200).optional(),

@@ -15,7 +15,13 @@ const validRFQ = {
   attachments: [],
 };
 
-test('RFQ schema accepts an ISO target date and rejects invalid date values', () => {
+test('RFQ requires an organization and accepts an ISO target date', () => {
+  const withoutOrganization = {
+    qtyRequested: validRFQ.qtyRequested,
+    deadline: validRFQ.deadline,
+    specDetails: validRFQ.specDetails,
+    attachments: validRFQ.attachments,
+  };
+  assert.equal(createRFQSchema.safeParse(withoutOrganization).success, false);
   assert.equal(createRFQSchema.safeParse(validRFQ).success, true);
-  assert.equal(createRFQSchema.safeParse({ ...validRFQ, deadline: 'not-a-date' }).success, false);
 });

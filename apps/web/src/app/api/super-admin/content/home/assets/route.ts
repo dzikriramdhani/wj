@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireSuperAdminUser } from '@/lib/super-admin-auth';
 import { createServiceClient } from '@/lib/supabase/service';
+import { hasExpectedFileSignature } from '@/lib/upload-validation';
 
 const extensionByType: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -21,7 +22,11 @@ export async function POST(request: NextRequest) {
 
     const file = (await request.formData()).get('file');
     if (!(file instanceof File) || !extensionByType[file.type] || file.size <= 0 || file.size > 10 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Pilih gambar JPG, PNG, WebP, atau AVIF maksimal 10 MB.' }, { status: 400 });
+      return NextResponse.json({ error: 'Pilih gambar JPG, PNG, atau WebP maksimal 10 MB.' }, { status: 400 });
+    }
+    const prefix = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    if (!hasExpectedFileSignature(file.type, prefix)) {
+      return NextResponse.json({ error: 'Isi file tidak cocok dengan tipe gambar.' }, { status: 400 });
     }
 
     const path = `home/${randomUUID()}.${extensionByType[file.type]}`;

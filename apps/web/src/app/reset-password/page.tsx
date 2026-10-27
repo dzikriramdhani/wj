@@ -9,11 +9,11 @@ import styles from '../login/page.module.css';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const [recoveryClient] = useState(createClient);
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerifyingRecovery, setIsVerifyingRecovery] = useState(true);
   const [isRecoveryReady, setIsRecoveryReady] = useState(false);
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
@@ -23,29 +23,23 @@ export default function ResetPasswordPage() {
     let cancelled = false;
 
     const establishRecoverySession = async () => {
-      const recoveryClient = createClient();
       const { data: { session }, error } = await recoveryClient.auth.getSession();
       if (cancelled) return;
       if (error || !session) {
         setMessage('Tautan pemulihan tidak valid atau telah kedaluwarsa. Minta tautan baru.');
-        setIsVerifyingRecovery(false);
         return;
       }
       setIsRecoveryReady(true);
-      setIsVerifyingRecovery(false);
     };
 
     void establishRecoverySession().catch(() => {
-      if (!cancelled) {
-        setMessage('Tautan pemulihan tidak dapat diverifikasi. Minta tautan baru.');
-        setIsVerifyingRecovery(false);
-      }
+      if (!cancelled) setMessage('Tautan pemulihan tidak dapat diverifikasi. Minta tautan baru.');
     });
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [recoveryClient]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -66,7 +60,7 @@ export default function ResetPasswordPage() {
       }
       if (!response.ok) return setMessage(result.error ?? 'Password belum dapat diperbarui. Coba kembali.');
 
-      await createClient().auth.signOut({ scope: 'local' });
+      await recoveryClient.auth.signOut({ scope: 'local' });
       setMessage('Password berhasil diperbarui. Silakan masuk menggunakan password baru.');
       router.replace('/login?reset=success');
       router.refresh();
@@ -85,7 +79,6 @@ export default function ResetPasswordPage() {
     setIsVerifyingMfa(true);
     setMessage('');
     try {
-      const recoveryClient = createClient();
       const { data: factors, error: factorsError } = await recoveryClient.auth.mfa.listFactors();
       const factor = factors?.totp.find((item: { status: string }) => item.status === 'verified');
       if (factorsError || !factor) {
@@ -115,7 +108,7 @@ export default function ResetPasswordPage() {
             <div className={styles.formGroup}><label htmlFor="password">Password baru</label><input id="password" type="password" className={styles.input} value={password} onChange={(event) => setPassword(event.target.value)} required /></div>
             <div className={styles.formGroup}><label htmlFor="confirmation">Konfirmasi password</label><input id="confirmation" type="password" className={styles.input} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} required /></div>
             {message && <p role="status">{message}</p>}
-            <button type="submit" className={styles.submitBtn} disabled={isSubmitting || !isRecoveryReady}>{isSubmitting ? 'Menyimpan…' : isVerifyingRecovery ? 'Memverifikasi tautan…' : 'Simpan password'}</button>
+            <button type="submit" className={styles.submitBtn} disabled={isSubmitting || !isRecoveryReady}>{isSubmitting ? 'Menyimpan…' : isRecoveryReady ? 'Simpan password' : 'Memverifikasi tautan…'}</button>
           </form>
           {mfaRequired && <form className={styles.form} onSubmit={verifyMfa}>
             <div className={styles.formGroup}>

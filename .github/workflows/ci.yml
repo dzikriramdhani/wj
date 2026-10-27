@@ -30,5 +30,45 @@ jobs:
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
       - run: npm ci
+      - run: npm test
+      - run: npm run qa:check
       - run: npm run lint
-      - run: npm run build
+      - run: npm run typecheck
+      - run: npm audit --audit-level=high
+      - name: Build with local-only Supabase placeholders
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: local-qa-placeholder
+          SUPABASE_SECRET_KEY: ''
+      - name: Install Chromium for local browser smoke tests
+        run: npx playwright install --with-deps chromium
+      - name: Start isolated standalone app
+        run: |
+          node scripts/qa/start-local-standalone.mjs > "$RUNNER_TEMP/wj-qa-standalone.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/wj-qa-standalone.pid"
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3100/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/wj-qa-standalone.log"
+          exit 1
+        env:
+          QA_LOCAL_APP_MARKER: local
+          QA_LOCAL_APP_URL: http://127.0.0.1:3100/
+      - name: Verify local unauthenticated HTTP guards
+        run: npm run qa:local-http
+        env:
+          QA_LOCAL_APP_MARKER: local
+          QA_LOCAL_APP_URL: http://127.0.0.1:3100/
+      - name: Verify public pages and anonymous dashboard navigation
+        run: npm run test:e2e:local
+        env:
+          QA_LOCAL_APP_MARKER: local
+          QA_LOCAL_APP_URL: http://127.0.0.1:3100/
+      - name: Stop isolated standalone app
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/wj-qa-standalone.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/wj-qa-standalone.pid")" 2>/dev/null || true
+          fi

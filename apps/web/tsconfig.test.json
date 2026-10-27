@@ -12,10 +12,12 @@
   },
   "include": [
     "src/lib/app-url.ts",
+    "src/lib/upload-validation.ts",
     "src/lib/reset-password.ts",
     "src/lib/reset-security.ts",
     "src/lib/password-reset-rate-limit-core.ts",
     "src/lib/sentry-sanitize.ts",
+    "src/lib/validators.ts",
     "src/lib/passwords/common-passwords.ts",
     "test/**/*.test.ts"
   ]

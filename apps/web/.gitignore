@@ -13,6 +13,7 @@
 # testing
 /coverage
 /.test-build/
+/test-results/
 
 # next.js
 /.next/
@@ -44,4 +45,5 @@ next-env.d.ts
 **/.env
 **/.env.*
 !**/.env.example
+!**/.env.qa.production.example
 supabase/.temp/

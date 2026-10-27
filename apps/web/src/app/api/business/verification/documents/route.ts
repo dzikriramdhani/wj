@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { hasExpectedFileSignature } from '@/lib/upload-validation';
 
 const allowed: Record<string, string> = { 'application/pdf': 'pdf', 'image/jpeg': 'jpg', 'image/png': 'png' };
 export async function POST(request: Request) {
@@ -11,6 +12,12 @@ export async function POST(request: Request) {
   const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser(); if (!user) return NextResponse.json({ error: 'Silakan masuk terlebih dahulu.' }, { status: 401 });
   const { data: membership } = await supabase.from('organization_members').select('role').eq('organization_id', organizationId).eq('user_id', user.id).maybeSingle();
   if (!membership || !['owner', 'admin'].includes(membership.role)) return NextResponse.json({ error: 'Hanya owner atau admin perusahaan yang dapat mengunggah dokumen.' }, { status: 403 });
+  for (const file of files) {
+    const prefix = new Uint8Array(await file.slice(0, 1029).arrayBuffer());
+    if (!hasExpectedFileSignature(file.type, prefix)) {
+      return NextResponse.json({ error: 'Isi file tidak cocok dengan tipe PDF/JPG/PNG.' }, { status: 400 });
+    }
+  }
   try { const service = createServiceClient(); const documents = [] as Array<{ name: string; path: string }>;
     for (const file of files) { const path = `${organizationId}/${randomUUID()}.${allowed[file.type]}`; const { error } = await service.storage.from('business-documents').upload(path, file, { contentType: file.type, upsert: false }); if (error) throw error; documents.push({ name: file.name, path }); }
     return NextResponse.json({ documents }, { status: 201 });

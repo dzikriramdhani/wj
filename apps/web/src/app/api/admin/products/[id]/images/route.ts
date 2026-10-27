@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireAdminUser } from '@/lib/admin-auth';
 import { createServiceClient } from '@/lib/supabase/service';
+import { hasExpectedFileSignature } from '@/lib/upload-validation';
 
 export const runtime = 'nodejs';
 
@@ -26,6 +27,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!files.length || files.length > 6) return NextResponse.json({ error: 'Unggah 1 sampai 6 gambar.' }, { status: 400 });
   if (files.some((file) => !allowedTypes.has(file.type) || file.size <= 0 || file.size > 10 * 1024 * 1024)) {
     return NextResponse.json({ error: 'Gambar harus JPG, PNG, WebP, atau AVIF dengan ukuran maksimal 10 MB.' }, { status: 400 });
+  }
+  for (const file of files) {
+    const prefix = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+    if (!hasExpectedFileSignature(file.type, prefix)) {
+      return NextResponse.json({ error: 'Isi file tidak cocok dengan tipe gambar.' }, { status: 400 });
+    }
   }
   try {
     const service = createServiceClient();

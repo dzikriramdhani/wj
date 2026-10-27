@@ -1,12 +1,20 @@
 import { createServiceClient } from '@/lib/supabase/service';
-import { getCurrentPlatformAccess } from '@/lib/role-access';
+import { getCurrentPlatformAccess, hasCurrentMfaLevel2 } from '@/lib/role-access';
 import SuperAdminUsersClient from './SuperAdminUsersClient';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 const managedRoles = ['admin', 'super_admin'] as const;
 
 export default async function SuperAdminPage() {
+  // Keep service-role reads behind a page-level role/MFA check even if the
+  // parent layout is rendering concurrently with this server component.
+  const access = await getCurrentPlatformAccess();
+  if (!access.user) redirect('/login?next=/super-admin');
+  if (!access.roles.includes('super_admin')) redirect(access.defaultPortal);
+  if (!await hasCurrentMfaLevel2()) redirect('/account?error=mfa-required&next=/super-admin');
+
   const service = createServiceClient();
   const [{ data: profiles }, { data: authUsers }] = await Promise.all([
     service
@@ -16,7 +24,6 @@ export default async function SuperAdminPage() {
       .limit(500),
     service.auth.admin.listUsers({ page: 1, perPage: 500 }),
   ]);
-  const access = await getCurrentPlatformAccess();
   const emailById = new Map((authUsers?.users ?? []).map((user) => [user.id, user.email ?? '']));
 
   const users = ((profiles ?? []) as Array<{

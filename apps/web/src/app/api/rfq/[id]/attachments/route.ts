@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
+import { hasExpectedFileSignature } from '@/lib/upload-validation';
 
 export const runtime = 'nodejs';
 
@@ -25,6 +26,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!files.length || files.length > 5) return NextResponse.json({ error: 'Lampirkan 1 sampai 5 file.' }, { status: 400 });
   if (files.some((file) => !allowedTypes.has(file.type) || file.size <= 0 || file.size > 20 * 1024 * 1024)) {
     return NextResponse.json({ error: 'File harus PDF, JPG, PNG, atau WebP dengan ukuran maksimal 20 MB.' }, { status: 400 });
+  }
+  for (const file of files) {
+    const prefix = new Uint8Array(await file.slice(0, 1029).arrayBuffer());
+    if (!hasExpectedFileSignature(file.type, prefix)) {
+      return NextResponse.json({ error: 'Isi file tidak cocok dengan tipe PDF/JPG/PNG/WebP.' }, { status: 400 });
+    }
   }
 
   try {

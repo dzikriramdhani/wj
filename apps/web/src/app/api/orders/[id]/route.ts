@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
 import { z } from 'zod';
+import { privateJson } from '@/lib/api-response';
 import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 
@@ -8,13 +9,13 @@ export const runtime = 'nodejs';
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  if (!z.uuid().safeParse(id).success) return NextResponse.json({ error: 'ID pesanan tidak valid.' }, { status: 400 });
+  if (!z.uuid().safeParse(id).success) return privateJson({ error: 'ID pesanan tidak valid.' }, { status: 400 });
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const guestSessionId = (await cookies()).get('wj_guest_session')?.value;
   if (!user && !z.uuid().safeParse(guestSessionId).success) {
-    return NextResponse.json({ error: 'Masuk ke akun Anda atau gunakan perangkat checkout untuk melihat pesanan.' }, { status: 401 });
+    return privateJson({ error: 'Masuk ke akun Anda atau gunakan perangkat checkout untuk melihat pesanan.' }, { status: 401 });
   }
 
   const service = createServiceClient();
@@ -24,13 +25,13 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const { data, error } = await query.maybeSingle();
   if (error) {
     console.error('order lookup failed', error);
-    return NextResponse.json({ error: 'Status pesanan belum dapat dimuat.' }, { status: 500 });
+    return privateJson({ error: 'Status pesanan belum dapat dimuat.' }, { status: 500 });
   }
-  if (!data) return NextResponse.json({ error: 'Pesanan tidak ditemukan.' }, { status: 404 });
+  if (!data) return privateJson({ error: 'Pesanan tidak ditemukan.' }, { status: 404 });
   const payment = Array.isArray(data.payments) ? data.payments[0] : data.payments;
   const shipment = Array.isArray(data.shipments) ? data.shipments[0] : data.shipments;
   const invoice = Array.isArray(data.invoices) ? data.invoices[0] : data.invoices;
-  return NextResponse.json({
+  return privateJson({
     success: true,
     data: {
       id: data.id,
@@ -62,5 +63,5 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
         lineTotal: Number(item.line_total),
       })),
     },
-  }, { headers: { 'Cache-Control': 'private, no-store' } });
+  });
 }

@@ -1,9 +1,20 @@
+import { redirect } from 'next/navigation';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import { getCurrentPlatformAccess, hasCurrentMfaLevel2, requiresMfaForRoles } from '@/lib/role-access';
 import { createServiceClient } from '@/lib/supabase/service';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  // Enforce access in the page as well as the layout: server components may
+  // begin rendering in parallel, so privileged reads must follow this check.
+  const access = await getCurrentPlatformAccess();
+  if (!access.user) redirect('/login?next=/admin');
+  if (!access.roles.some((role) => role === 'admin' || role === 'super_admin')) redirect(access.defaultPortal);
+  if (requiresMfaForRoles(access.roles) && !await hasCurrentMfaLevel2()) {
+    redirect('/account?error=mfa-required&next=/admin');
+  }
+
   const supabase = createServiceClient();
   const detailStart = new Date();
   detailStart.setUTCDate(detailStart.getUTCDate() - 90);
