@@ -211,7 +211,7 @@ export default function ProductDetailPage() {
                         alt={`${product.name} — tampilan ${imageIndex + 1}`}
                         fill
                         sizes="(max-width: 720px) 100vw, (max-width: 1024px) 65vw, 56vw"
-                        priority={imageIndex === 0}
+                        preload={imageIndex === 0}
                       />
                     ) : (
                       <div

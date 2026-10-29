@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronDown } from 'lucide-react';
 import styles from './page.module.css';
@@ -741,7 +742,7 @@ export default function CheckoutPage() {
                   <span>{formatRupiah(totalAmount + (selectedShippingQuote?.cost ?? 0))}</span>
                 </div>
                 <div className={styles.summaryItems}>{items.map((item) => <div className={styles.summaryItem} key={`${item.productId}-${item.variantId}`}>
-                  {item.imageUrl && <img src={item.imageUrl} alt="" />}
+                  {item.imageUrl && <Image src={item.imageUrl} alt="" width={64} height={64} sizes="64px" />}
                   <span><strong>{item.productName}</strong><small>{item.variantName ? `${item.variantName} · ` : ''}{item.qtyMeters} meter</small></span>
                   <strong>{formatRupiah(item.pricePerMeter * item.qtyMeters)}</strong>
                 </div>)}</div>

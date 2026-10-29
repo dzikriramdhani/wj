@@ -21,29 +21,41 @@ export async function GET(request: NextRequest) {
 
   try {
     const params = request.nextUrl.searchParams;
-    const page = Math.max(1, Number.parseInt(params.get('page') ?? '1', 10) || 1);
-    const limit = Math.min(50, Math.max(1, Number.parseInt(params.get('limit') ?? '12', 10) || 12));
+    const homepageRequest = params.get('home') === '1';
+    const page = homepageRequest ? 1 : Math.max(1, Number.parseInt(params.get('page') ?? '1', 10) || 1);
+    const limit = homepageRequest ? 8 : Math.min(50, Math.max(1, Number.parseInt(params.get('limit') ?? '12', 10) || 12));
+    const rawSlugs = homepageRequest ? params.get('slugs') : null;
+    const homepageSlugs = rawSlugs ? rawSlugs.split(',') : [];
+    if (homepageSlugs.length > 8
+      || homepageSlugs.some((slug) => slug.length > 120 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
+      || new Set(homepageSlugs).size !== homepageSlugs.length) {
+      return NextResponse.json({ error: 'Pilihan produk beranda tidak valid.' }, { status: 400 });
+    }
+
     const supabase = createPublicClient();
+    let productQuery = supabase
+      .from('products')
+      .select(catalogSelect)
+      .eq('is_active', true)
+      .not('published_at', 'is', null)
+      .lte('published_at', new Date().toISOString())
+      .eq('categories.is_active', true)
+      .order('name');
+    if (homepageSlugs.length) productQuery = productQuery.in('slug', homepageSlugs);
     const [{ data, error }, { data: categoryRows, error: categoryError }] = await Promise.all([
-      supabase
-        .from('products')
-        .select(catalogSelect)
-        .eq('is_active', true)
-        .not('published_at', 'is', null)
-        .lte('published_at', new Date().toISOString())
-        .eq('categories.is_active', true)
-        .order('name')
-        .limit(1000),
-      supabase.from('categories').select('id,name,slug').eq('is_active', true).order('position').order('name'),
+      productQuery.limit(homepageRequest ? 8 : 1000),
+      homepageRequest
+        ? Promise.resolve({ data: [], error: null })
+        : supabase.from('categories').select('id,name,slug').eq('is_active', true).order('position').order('name'),
     ]);
 
     if (error) throw error;
     if (categoryError) throw categoryError;
 
     const catalogRows = data ?? [];
-    const { data: availabilityRows } = await supabase.rpc('get_catalog_availability', {
-      p_product_ids: catalogRows.map((row) => row.id),
-    });
+    const { data: availabilityRows } = catalogRows.length
+      ? await supabase.rpc('get_catalog_availability', { p_product_ids: catalogRows.map((row) => row.id) })
+      : { data: [] };
     const availability = new Set(
       ((availabilityRows ?? []) as Array<{ is_available: boolean; product_id: string }>)
         .filter((row) => row.is_available)

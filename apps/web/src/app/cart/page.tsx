@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowUpRight, Trash2 } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
 import styles from './page.module.css';
@@ -152,7 +153,7 @@ export default function CartPage() {
             return (
               <article className={styles.item} key={noticeKey}>
                 <div className={styles.itemImage} aria-hidden="true">
-                  {item.imageUrl ? <img src={item.imageUrl} alt="" /> : <span>{item.category}</span>}
+                  {item.imageUrl ? <Image src={item.imageUrl} alt="" width={96} height={96} sizes="(max-width: 767px) 64px, (max-width: 1023px) 80px, 96px" /> : <span>{item.category}</span>}
                 </div>
                 <div className={styles.itemInfo}>
                   <h2>{item.productName}</h2>

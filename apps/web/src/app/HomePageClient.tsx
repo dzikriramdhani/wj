@@ -22,6 +22,35 @@ function Lines({ value }: { value: string }) {
   return <>{value.split(/\r?\n/).map((line, index) => <Fragment key={`${index}-${line}`}>{index > 0 && <br />}{line}</Fragment>)}</>;
 }
 
+function CmsBackdropImage({
+  src,
+  fallbackSrc,
+  sizes,
+  preload,
+  className,
+}: {
+  src: string;
+  fallbackSrc: string;
+  sizes: string;
+  preload?: boolean;
+  className: string;
+}) {
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const useFallback = !src || failedSource === src;
+
+  return <Image
+    src={useFallback ? fallbackSrc : src}
+    alt=""
+    fill
+    sizes={sizes}
+    preload={preload}
+    className={className}
+    onError={() => {
+      if (src && !useFallback) setFailedSource(src);
+    }}
+  />;
+}
+
 export default function HomePageClient({ initialContent }: { initialContent: HomeContent }) {
   const homeContent = initialContent;
   const [featuredProducts, setFeaturedProducts] = useState(
@@ -29,13 +58,12 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
   );
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [maxScroll, setMaxScroll] = useState(0);
+  const maxScrollRef = useRef(0);
 
   useEffect(() => {
     let active = true;
     const productRequest = process.env.NEXT_PUBLIC_SUPABASE_URL
-      ? fetch('/api/products?limit=50').then(async (response) => response.ok ? await response.json() as { products?: Product[] } : null).catch(() => null)
+      ? fetch(`/api/products?home=1${initialContent.catalog.productSlugs.length ? `&slugs=${encodeURIComponent(initialContent.catalog.productSlugs.join(','))}` : ''}`).then(async (response) => response.ok ? await response.json() as { products?: Product[] } : null).catch(() => null)
       : Promise.resolve({ products });
 
     productRequest.then((productResult) => {
@@ -70,58 +98,59 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
   useEffect(() => {
     if (!trackRef.current || !sectionRef.current) return;
 
-    const updateMaxScroll = () => {
-      if (trackRef.current && sectionRef.current) {
-        // We add 32px (var(--space-xl)) to the scroll distance so the last card's 
-        // right edge aligns perfectly with the "Semua Katalog" text.
-        const ms = trackRef.current.scrollWidth - window.innerWidth + 32;
-        setMaxScroll(ms > 0 ? ms : 0);
-        // Add a 300px scroll buffer at the end so it stays still for a moment
-        // when the last card is visible, before scrolling down.
-        sectionRef.current.style.height = `${window.innerHeight + (ms > 0 ? ms : 0) + 300}px`;
-      }
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    let frame = 0;
+
+    const updatePosition = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const { top, height } = section.getBoundingClientRect();
+        const scrollableDistance = height - window.innerHeight;
+        const progress = top <= 0 && scrollableDistance > 0
+          ? Math.max(0, Math.min(Math.abs(top) / scrollableDistance, 1))
+          : 0;
+        track.style.transform = `translate3d(-${progress * maxScrollRef.current}px, 0, 0)`;
+      });
     };
 
-    updateMaxScroll();
+    const updateMetrics = () => {
+      // The 32px offset aligns the last card with the "Semua Katalog" label.
+      const scrollDistance = track.scrollWidth - window.innerWidth + 32;
+      maxScrollRef.current = Math.max(scrollDistance, 0);
+      // Keep the existing 300px pause after the last card becomes visible.
+      section.style.height = `${window.innerHeight + maxScrollRef.current + 300}px`;
+      updatePosition();
+    };
 
-    const observer = new ResizeObserver(() => {
-      updateMaxScroll();
-    });
-    
-    observer.observe(trackRef.current);
-    observer.observe(document.body);
+    const observer = new ResizeObserver(updateMetrics);
+    observer.observe(track);
+    window.addEventListener('scroll', updatePosition, { passive: true });
+    window.addEventListener('resize', updateMetrics, { passive: true });
+    updateMetrics();
 
     return () => {
       observer.disconnect();
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updateMetrics);
+      if (frame) window.cancelAnimationFrame(frame);
     };
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return;
-      
-      const { top, height } = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      if (top <= 0) {
-        const scrollableDistance = height - windowHeight;
-        let progress = Math.abs(top) / scrollableDistance;
-        progress = Math.max(0, Math.min(progress, 1));
-        setScrollProgress(progress);
-      } else {
-        setScrollProgress(0);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <>
       {/* ---- HERO ---- */}
       <section className={styles.hero}>
-        <div className={styles.heroBg} style={homeContent.hero.imagePath ? { backgroundImage: `url("${getHomeAssetUrl(homeContent.hero.imagePath)}")` } : undefined} />
+        <div className={styles.heroBg}>
+          <CmsBackdropImage
+            src={getHomeAssetUrl(homeContent.hero.imagePath)}
+            fallbackSrc="/cover.jpg"
+            sizes="100vw"
+            preload
+            className={styles.heroBgImage}
+          />
+        </div>
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>
             <Lines value={homeContent.hero.title} />
@@ -147,11 +176,7 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
               <Link href="/products" className={styles.catalogLink}>{homeContent.catalog.linkLabel}</Link>
             </div>
 
-            <div 
-              className={styles.productGrid} 
-              ref={trackRef}
-              style={{ transform: `translateX(-${scrollProgress * maxScroll}px)` }}
-            >
+            <div className={styles.productGrid} ref={trackRef}>
               {featuredProducts.map((product) => (
                 <Link
                   key={product.id}
@@ -218,7 +243,14 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
       </section>
 
       <section className={styles.aboutImageBreakSection}>
-        <div className={styles.aboutImageBreakPlaceholder} style={homeContent.about.imagePath ? { backgroundImage: `url("${getHomeAssetUrl(homeContent.about.imagePath)}")`, backgroundPosition: 'center', backgroundSize: 'cover' } : undefined} />
+        <div className={styles.aboutImageBreakPlaceholder}>
+          <CmsBackdropImage
+            src={getHomeAssetUrl(homeContent.about.imagePath)}
+            fallbackSrc="/home.jpg"
+            sizes="calc(100vw - 64px)"
+            className={styles.aboutImage}
+          />
+        </div>
       </section>
 
       <section className={styles.certSection}>
