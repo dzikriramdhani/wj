@@ -341,7 +341,7 @@
   width: 100%;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   overflow: hidden;
   gap: var(--space-md);
 }
@@ -692,6 +692,10 @@
 
   .trustedInner {
     grid-template-columns: 1fr;
+  }
+
+  .marqueeContainer {
+    justify-content: center;
   }
 
   .trustedRight {
