@@ -1,4 +1,4 @@
-/* Product detail — quiet, image-led three-column layout. */
+/* Product detail — description left, gallery center, purchase controls right. */
 .pageWrapper {
   min-height: 100vh;
   padding: 6.5rem 0 7rem;
@@ -30,16 +30,18 @@
 
 .productInfo {
   grid-column: 1;
-  position: sticky;
-  padding: 2rem 0;
+  grid-row: 1;
+  padding: 0;
 }
 
 .gallery {
   grid-column: 2;
+  grid-row: 1;
 }
 
 .purchasePanel {
   grid-column: 3;
+  grid-row: 1;
 }
 
 .productCategory {
@@ -253,7 +255,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 2rem 0;
+  padding: 0 0 2rem;
 }
 
 .variantsSection {
@@ -506,38 +508,19 @@
 }
 
 @media (max-width: 1023px) {
+  .relatedGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1023px) {
   .layout {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-  }
-
-  .gallery,
-  .purchasePanel,
-  .productInfo {
-    grid-column: 1;
-  }
-
-  .productInfo {
-    position: static;
-    padding-block: 2rem 0;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.3fr) minmax(0, 0.85fr);
+    gap: clamp(0.5rem, 1.5vw, 1.25rem);
   }
 
   .galleryImages {
-    margin-inline: 0;
-  }
-
-  .purchasePanel {
-    position: static;
-    gap: 0.5rem;
-    padding: 0;
-  }
-
-  .priceBlock {
-    padding-top: 0.25rem;
-  }
-
-  .relatedGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-inline: clamp(0.5rem, 2vw, 1.25rem);
   }
 }
 
@@ -553,6 +536,13 @@
   .layout {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
+  }
+
+  .gallery,
+  .purchasePanel,
+  .productInfo {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .productInfo {
@@ -577,6 +567,7 @@
 
   .galleryImages {
     gap: 1rem;
+    margin-inline: 0;
   }
 
   .fabricSample {
@@ -589,6 +580,10 @@
     display: flex;
     gap: 0.5rem;
     padding: 0;
+  }
+
+  .priceBlock {
+    padding-top: 0.25rem;
   }
 
   .colorOption {
