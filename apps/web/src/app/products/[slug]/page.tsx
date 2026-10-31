@@ -164,41 +164,6 @@ export default function ProductDetailPage() {
     <div className={styles.pageWrapper}>
       <main className={styles.main}>
         <div className={styles.layout} data-testid="product-detail-layout">
-          <section className={styles.productInfo} aria-labelledby="product-title">
-            {product.category && <p className={styles.productCategory}>{product.category}</p>}
-            <h1 id="product-title" className={styles.productName}>{product.name}</h1>
-            <p className={styles.description}>{product.description}</p>
-
-            <div className={styles.detailsList}>
-              <details className={styles.detailDisclosure}>
-                <summary className={styles.detailSummary}>
-                  <span>Informasi Produk</span>
-                  <span className={styles.disclosureIcon} aria-hidden="true">+</span>
-                </summary>
-                <div className={styles.specsGrid}>
-                  <div className={styles.specsColumn}>
-                    <div className={styles.specItem}><strong>Komposisi</strong><p>{product.composition || '—'}</p></div>
-                    <div className={styles.specItem}><strong>Lebar kain</strong><p>{product.width ? `${product.width} inch` : '—'}</p></div>
-                  </div>
-                  <div className={styles.specsColumn}>
-                    <div className={styles.specItem}><strong>Gramasi</strong><p>{product.gsm ? `${product.gsm} gsm` : '—'}</p></div>
-                    {product.certifications?.length ? <div className={styles.specItem}><strong>Sertifikasi</strong><p>{product.certifications.join(', ')}</p></div> : null}
-                  </div>
-                </div>
-              </details>
-
-              <details className={styles.detailDisclosure}>
-                <summary className={styles.detailSummary}>
-                  <span>Pengiriman &amp; Retur</span>
-                  <span className={styles.disclosureIcon} aria-hidden="true">+</span>
-                </summary>
-                <p className={styles.shippingCopy}>
-                  Ongkir dihitung saat checkout berdasarkan tujuan dan layanan yang tersedia. Untuk bantuan retur atau pertanyaan pesanan, hubungi tim Wina Jaya.
-                </p>
-              </details>
-            </div>
-          </section>
-
           <section className={styles.gallery} aria-label={'Galeri ' + product.name}>
             <div className={styles.galleryImages}>
               {(product.images?.length ? product.images : Array.from({ length: 4 }, () => ''))
@@ -266,6 +231,41 @@ export default function ProductDetailPage() {
               ) : null}
             </div>
           </aside>
+
+          <section className={styles.productInfo} aria-labelledby="product-title">
+            {product.category && <p className={styles.productCategory}>{product.category}</p>}
+            <h1 id="product-title" className={styles.productName}>{product.name}</h1>
+            <p className={styles.description}>{product.description}</p>
+
+            <div className={styles.detailsList}>
+              <details className={styles.detailDisclosure}>
+                <summary className={styles.detailSummary}>
+                  <span>Informasi Produk</span>
+                  <span className={styles.disclosureIcon} aria-hidden="true">+</span>
+                </summary>
+                <div className={styles.specsGrid}>
+                  <div className={styles.specsColumn}>
+                    <div className={styles.specItem}><strong>Komposisi</strong><p>{product.composition || '—'}</p></div>
+                    <div className={styles.specItem}><strong>Lebar kain</strong><p>{product.width ? `${product.width} inch` : '—'}</p></div>
+                  </div>
+                  <div className={styles.specsColumn}>
+                    <div className={styles.specItem}><strong>Gramasi</strong><p>{product.gsm ? `${product.gsm} gsm` : '—'}</p></div>
+                    {product.certifications?.length ? <div className={styles.specItem}><strong>Sertifikasi</strong><p>{product.certifications.join(', ')}</p></div> : null}
+                  </div>
+                </div>
+              </details>
+
+              <details className={styles.detailDisclosure}>
+                <summary className={styles.detailSummary}>
+                  <span>Pengiriman &amp; Retur</span>
+                  <span className={styles.disclosureIcon} aria-hidden="true">+</span>
+                </summary>
+                <p className={styles.shippingCopy}>
+                  Ongkir dihitung saat checkout berdasarkan tujuan dan layanan yang tersedia. Untuk bantuan retur atau pertanyaan pesanan, hubungi tim Wina Jaya.
+                </p>
+              </details>
+            </div>
+          </section>
         </div>
 
         <section className={styles.relatedSection} aria-labelledby="related-title">

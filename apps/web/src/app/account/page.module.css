@@ -248,6 +248,18 @@
 .supportFooter p { max-width: 520px; margin: 0; color: #52525b; font-size: 14px; }
 .supportFooter a { display: inline-flex; align-items: center; gap: .45rem; color: #18181b; font-size: 14px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 
+@media (min-width: 2400px) {
+  .main {
+    padding-inline: 3rem 3.5rem;
+  }
+
+  .accountShell,
+  .supportFooter {
+    width: 100%;
+    max-width: none;
+  }
+}
+
 @media (max-width: 767px) {
   .main { padding: 88px 1.125rem 2rem; }
   .accountShell { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding: 1.5rem 0 2.5rem; }

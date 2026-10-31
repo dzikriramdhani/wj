@@ -125,7 +125,10 @@
 }
 
 .itemImage img { width: 100%; height: 100%; object-fit: cover; }
-.itemInfo { min-width: 0; }
+.itemInfo,
+.itemHeading { display: contents; }
+
+.itemNameBlock { grid-column: 2; min-width: 0; }
 
 .itemInfo h2 {
   overflow: hidden;
@@ -145,7 +148,6 @@
   line-height: 18px;
 }
 
-.itemActions { display: contents; }
 .quantityCell { grid-column: 3; min-width: 0; }
 .quantityRow { display: flex; align-items: center; gap: 8px; }
 
@@ -330,6 +332,24 @@
   font-size: 14px;
 }
 
+@media (min-width: 2400px) {
+  .main {
+    padding-inline: 3rem 3.5rem;
+  }
+
+  .layout,
+  .emptyState,
+  .loading {
+    width: 100%;
+    max-width: none;
+  }
+
+  .emptyState,
+  .loading {
+    padding-inline: 0;
+  }
+}
+
 @media (max-width: 1279px) {
   .layout { grid-template-columns: minmax(0, 1fr); row-gap: 24px; }
   .summary { position: static; padding: 0 0 24px; }
@@ -355,27 +375,38 @@
   .cartTitleRow h1,
   .summary h2 { font-size: 28px; line-height: 36px; }
   .tableHeader { display: none; }
-  .item { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 16px 0; }
+  .item { grid-template-columns: 64px minmax(0, 1fr); align-items: start; gap: 12px; padding: 16px 0; }
   .itemImage { width: 64px; }
-  .itemActions {
+  .itemInfo {
     display: grid;
-    grid-column: 1 / -1;
-    grid-template-columns: minmax(128px, 1fr) auto;
-    align-items: start;
-    gap: 12px;
+    min-width: 0;
+    grid-column: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 8px;
   }
-  .quantityCell,
+  .itemHeading {
+    display: grid;
+    min-width: 0;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 8px;
+  }
+  .itemNameBlock { grid-column: 1; min-width: 0; }
+  .itemNameBlock h2 { overflow-wrap: anywhere; }
+  .itemNameBlock p { overflow-wrap: anywhere; }
+  .quantityCell { grid-column: 2; grid-row: 1; }
+  .quantityRow { gap: 4px; }
   .unitPrice,
   .lineTotal { grid-column: auto; }
   .unitPrice { display: none; }
-  .lineTotal { align-self: center; padding: 0; font-size: 13px; }
+  .lineTotal { grid-column: 2; align-self: start; justify-self: end; padding: 0; font-size: 13px; text-align: right; }
   .summary { gap: 20px; }
   .emptyState { min-height: 360px; padding: 144px 0 32px; }
 }
 
 @media (max-width: 420px) {
   .main { padding-inline: 16px; }
-  .itemActions { grid-template-columns: minmax(118px, 1fr) auto; gap: 8px; }
   .quantityControl { width: 120px; grid-template-columns: 32px minmax(52px, 1fr) 32px; }
   .removeButton { width: 28px; }
 }

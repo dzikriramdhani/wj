@@ -14,7 +14,8 @@
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 300px);
+  grid-template-columns: minmax(0, 49.5rem) minmax(0, 18.75rem);
+  justify-content: space-between;
   align-items: start;
   gap: 0;
 }
@@ -28,6 +29,8 @@
 }
 
 .productInfo {
+  grid-column: 1 / -1;
+  position: static;
   padding: 2rem 0;
 }
 
@@ -475,6 +478,23 @@
   min-height: 20rem;
   padding-top: 4rem;
   color: #4b5563;
+}
+
+@media (min-width: 2400px) {
+  .main {
+    width: 100%;
+    max-width: none;
+    padding-inline: 3rem 3.5rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 49.5rem) minmax(0, 18.75rem);
+    justify-content: space-between;
+  }
+
+  .relatedGrid {
+    max-width: 87rem;
+  }
 }
 
 @media (max-width: 1023px) {

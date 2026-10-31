@@ -643,6 +643,21 @@
   .layout { grid-template-columns: minmax(0, 1fr) 416px; gap: 160px; }
 }
 
+@media (min-width: 2400px) {
+  .checkoutHeaderInner,
+  .contentSection {
+    width: 100%;
+    max-width: none;
+    padding-inline: 3rem 3.5rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 41rem) 26rem;
+    justify-content: space-between;
+    gap: 0;
+  }
+}
+
 @media (max-width: 767px) {
   .checkoutHeader,
   .checkoutHeaderInner { min-height: 60px; }

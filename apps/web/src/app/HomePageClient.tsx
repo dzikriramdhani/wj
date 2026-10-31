@@ -100,12 +100,18 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
 
     const section = sectionRef.current;
     const track = trackRef.current;
+    const mobileViewport = window.matchMedia('(max-width: 767px)');
     let frame = 0;
 
     const updatePosition = () => {
+      if (mobileViewport.matches) return;
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
+        if (mobileViewport.matches) {
+          track.style.transform = '';
+          return;
+        }
         const { top, height } = section.getBoundingClientRect();
         const scrollableDistance = height - window.innerHeight;
         const progress = top <= 0 && scrollableDistance > 0
@@ -116,11 +122,19 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
     };
 
     const updateMetrics = () => {
-      // The 32px offset aligns the last card with the "Semua Katalog" label.
-      const scrollDistance = track.scrollWidth - window.innerWidth + 32;
+      if (mobileViewport.matches) {
+        maxScrollRef.current = 0;
+        section.style.height = '';
+        track.style.transform = '';
+        return;
+      }
+
+      // Scale the end inset and pause with the shared root rem size.
+      const trackEndInset = Number.parseFloat(window.getComputedStyle(track).paddingRight) || 0;
+      const rootFontSize = Number.parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+      const scrollDistance = track.scrollWidth - window.innerWidth + trackEndInset;
       maxScrollRef.current = Math.max(scrollDistance, 0);
-      // Keep the existing 300px pause after the last card becomes visible.
-      section.style.height = `${window.innerHeight + maxScrollRef.current + 300}px`;
+      section.style.height = `${window.innerHeight + maxScrollRef.current + rootFontSize * 18.75}px`;
       updatePosition();
     };
 
@@ -176,7 +190,7 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
               <Link href="/products" className={styles.catalogLink}>{homeContent.catalog.linkLabel}</Link>
             </div>
 
-            <div className={styles.productGrid} ref={trackRef}>
+            <div className={styles.productGrid} ref={trackRef} data-lenis-prevent-horizontal>
               {featuredProducts.map((product) => (
                 <Link
                   key={product.id}
@@ -185,7 +199,7 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
                 >
                   <div className={styles.productImageWrap}>
                     {product.images?.[0]
-                      ? <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 767px) 60vw, (max-width: 1023px) 32vw, 24vw" className={styles.productImage} />
+                      ? <Image src={product.images[0]} alt={product.name} fill sizes="(max-width: 360px) 88vw, (max-width: 767px) 80vw, (max-width: 1023px) 32vw, 24vw" className={styles.productImage} />
                       : <div
                           className={styles.productImagePlaceholder}
                           style={{ background: categoryGradients[product.category] || categoryGradients.Katun }}
@@ -247,7 +261,7 @@ export default function HomePageClient({ initialContent }: { initialContent: Hom
           <CmsBackdropImage
             src={getHomeAssetUrl(homeContent.about.imagePath)}
             fallbackSrc="/home.jpg"
-            sizes="calc(100vw - 64px)"
+            sizes="(max-width: 767px) calc(100vw - 48px), calc(100vw - 64px)"
             className={styles.aboutImage}
           />
         </div>

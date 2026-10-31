@@ -156,30 +156,32 @@ export default function CartPage() {
                   {item.imageUrl ? <Image src={item.imageUrl} alt="" width={96} height={96} sizes="(max-width: 767px) 64px, (max-width: 1023px) 80px, 96px" /> : <span>{item.category}</span>}
                 </div>
                 <div className={styles.itemInfo}>
-                  <h2>{item.productName}</h2>
-                  {item.variantName && <p>{item.variantName}</p>}
-                </div>
-                <div className={styles.itemActions}>
-                  <div className={styles.quantityCell}>
-                    <div className={styles.quantityRow}>
-                      <button
-                        type="button"
-                        className={styles.removeButton}
-                        aria-label={'Hapus ' + item.productName + ' dari keranjang'}
-                        onClick={() => removeItem(item.productId, item.variantId)}
-                      ><Trash2 size={18} strokeWidth={1.6} /></button>
-                      <CartQuantityControl
-                        productName={item.productName}
-                        quantity={item.qtyMeters}
-                        minimum={minimum}
-                        onChange={(quantity) => updateQty(item.productId, quantity, item.variantId)}
-                        onMinimumAttempt={() => setMinimumNotices((current) => current.includes(noticeKey) ? current : [...current, noticeKey])}
-                        onValidChange={() => setMinimumNotices((current) => current.filter((key) => key !== noticeKey))}
-                      />
+                  <div className={styles.itemHeading}>
+                    <div className={styles.itemNameBlock}>
+                      <h2>{item.productName}</h2>
+                      {item.variantName && <p>{item.variantName}</p>}
                     </div>
-                    {minimumNotices.includes(noticeKey) && (
-                      <p className={styles.minimumNotice} role="status">Minimum pemesanan: {minimum.toLocaleString('id-ID')} meter.</p>
-                    )}
+                    <div className={styles.quantityCell}>
+                      <div className={styles.quantityRow}>
+                        <button
+                          type="button"
+                          className={styles.removeButton}
+                          aria-label={'Hapus ' + item.productName + ' dari keranjang'}
+                          onClick={() => removeItem(item.productId, item.variantId)}
+                        ><Trash2 size={18} strokeWidth={1.6} /></button>
+                        <CartQuantityControl
+                          productName={item.productName}
+                          quantity={item.qtyMeters}
+                          minimum={minimum}
+                          onChange={(quantity) => updateQty(item.productId, quantity, item.variantId)}
+                          onMinimumAttempt={() => setMinimumNotices((current) => current.includes(noticeKey) ? current : [...current, noticeKey])}
+                          onValidChange={() => setMinimumNotices((current) => current.filter((key) => key !== noticeKey))}
+                        />
+                      </div>
+                      {minimumNotices.includes(noticeKey) && (
+                        <p className={styles.minimumNotice} role="status">Minimum pemesanan: {minimum.toLocaleString('id-ID')} meter.</p>
+                      )}
+                    </div>
                   </div>
                   <span className={styles.unitPrice}>{formatRupiah(item.pricePerMeter)} / meter</span>
                   <strong className={styles.lineTotal}>{formatRupiah(item.pricePerMeter * item.qtyMeters)}</strong>
