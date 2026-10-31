@@ -11,7 +11,7 @@ const scriptSrc = process.env.NODE_ENV === 'development'
 const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
-  images: { remotePatterns: [{ protocol: 'https', hostname: 'avatar.vercel.sh', pathname: '/**' }, ...(supabaseImagePattern ? [supabaseImagePattern] : [])] },
+  images: { remotePatterns: [{ protocol: 'https', hostname: 'avatar.vercel.sh', pathname: '/**' }, { protocol: 'https', hostname: 'cdn.simpleicons.org', pathname: '/**' }, ...(supabaseImagePattern ? [supabaseImagePattern] : [])] },
   async headers() {
     const globalHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
       {
         key: 'Content-Security-Policy',
-        value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; ${scriptSrc}; connect-src 'self' https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io; frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com; upgrade-insecure-requests`,
+        value: `default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; ${scriptSrc}; connect-src 'self' https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io; frame-src 'self' https://app.sandbox.midtrans.com https://app.midtrans.com https://maps.google.com https://www.google.com; upgrade-insecure-requests`,
       },
     ];
 

@@ -1,8 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import styles from './page.module.css';
-import { companyInfo } from '@/lib/mock-data';
+
+const contactEmail = 'adminwinajaya@gmail.com';
+const contactWhatsapp = '+62 838 5076 2579';
+const contactWhatsappNumber = '6283850762579';
+const factoryAddress = 'Kp. Elos, Jl. Raya Cicalengka - Majalaya, RT.04/RW.01, Cijagra, Kec. Paseh, Kabupaten Bandung, Jawa Barat 40383';
+const mapLocation = 'XQ9M+35 Cijagra, Kabupaten Bandung, Jawa Barat';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -55,38 +61,38 @@ export default function ContactPage() {
               <h3 className={styles.infoTitle}>Informasi Kontak</h3>
               <ul className={styles.infoList}>
                 <li>
-                  <span className={styles.infoIcon}>E</span>
-                  <span>sales@winajaya.co.id</span>
+                  <span className={styles.infoIcon} aria-hidden="true">
+                    <Image src="https://cdn.simpleicons.org/gmail/111111" alt="" width={18} height={18} unoptimized />
+                  </span>
+                  <a className={styles.contactLink} href={`mailto:${contactEmail}`}>{contactEmail}</a>
                 </li>
                 <li>
-                  <span className={styles.infoIcon}>W</span>
-                  <span>{companyInfo.whatsapp}</span>
-                </li>
-                <li>
-                  <span className={styles.infoIcon}>T</span>
-                  <span>{companyInfo.phone}</span>
+                  <span className={styles.infoIcon} aria-hidden="true">
+                    <Image src="https://cdn.simpleicons.org/whatsapp/111111" alt="" width={18} height={18} unoptimized />
+                  </span>
+                  <a className={styles.contactLink} href={`https://wa.me/${contactWhatsappNumber}`} target="_blank" rel="noreferrer">{contactWhatsapp}</a>
                 </li>
               </ul>
             </div>
 
             <div className={styles.infoBlock}>
               <h3 className={styles.infoTitle}>Alamat Pabrik &amp; Lab</h3>
-              <p className={styles.addressText}>{companyInfo.address}</p>
+              <p className={styles.addressText}>{factoryAddress}</p>
             </div>
 
             <div className={styles.infoBlock}>
               <h3 className={styles.infoTitle}>Jam Operasional</h3>
               <ul className={styles.timeList}>
                 <li>
-                  <span className={styles.timeLabel}>Senin - Jumat</span>
-                  <span className={styles.timeValue}>08:00 - 17:00 WIB</span>
+                  <span className={styles.timeLabel}>Senin–Jumat</span>
+                  <span className={styles.timeValue}>07.00–16.30</span>
                 </li>
                 <li>
                   <span className={styles.timeLabel}>Sabtu</span>
-                  <span className={styles.timeValue}>08:00 - 12:00 WIB</span>
+                  <span className={styles.timeValue}>07.00–15.30</span>
                 </li>
                 <li className={styles.timeClosed}>
-                  <span className={styles.timeLabel}>Minggu &amp; Libur</span>
+                  <span className={styles.timeLabel}>Minggu</span>
                   <span className={styles.timeValue}>Tutup</span>
                 </li>
               </ul>
@@ -134,7 +140,14 @@ export default function ContactPage() {
       {/* 3. Map Break */}
       <section className={styles.mapSection}>
         <div className={styles.mapPlaceholder}>
-          <p className={styles.mapText}>COORDINATES: -6.9175° S, 107.6191° E — BANDUNG, INDONESIA</p>
+          <iframe
+            className={styles.mapFrame}
+            title="Peta lokasi pabrik Wina Jaya"
+            src={`https://maps.google.com/maps?q=${encodeURIComponent(mapLocation)}&output=embed`}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+          <p className={styles.mapText}>{mapLocation}</p>
         </div>
       </section>
     </div>
