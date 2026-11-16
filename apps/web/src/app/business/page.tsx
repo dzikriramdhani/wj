@@ -21,10 +21,21 @@ function isOrganizationMemberRole(value: string): value is OrganizationMemberRol
   return organizationMemberRoles.includes(value as OrganizationMemberRole);
 }
 
-export default async function BusinessPage() {
+export default async function BusinessPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const query = await searchParams;
+  const productId = typeof query.productId === 'string' ? query.productId : undefined;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  if (!user) {
+    const returnTo = productId
+      ? `/business?productId=${encodeURIComponent(productId)}`
+      : '/business';
+    redirect(`/login?redirectTo=${encodeURIComponent(returnTo)}`);
+  }
 
   const [{ data: memberships }, { data: quotes }] = await Promise.all([
     supabase
@@ -81,5 +92,5 @@ export default async function BusinessPage() {
     } : null;
   }).filter((item): item is NonNullable<typeof item> => item !== null);
 
-  return <BusinessClient organizations={organizations} quotations={quotes ?? []} currentUserId={user.id} />;
+  return <BusinessClient organizations={organizations} quotations={quotes ?? []} currentUserId={user.id} productId={productId} />;
 }

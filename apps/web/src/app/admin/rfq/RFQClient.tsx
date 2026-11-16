@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './page.module.css';
+import AdminPagination, { useAdminPagination } from '../_components/AdminPagination';
 import { getRFQStatusInfo, formatDate } from '@/lib/routing-logic';
 import type { RFQ, RFQStatus } from '@/types';
 
@@ -29,6 +30,7 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: AdminRFQRecord[]
   const filteredRFQs = activeTab === 'SEMUA' 
     ? rfqs 
     : rfqs.filter(rfq => rfq.status === activeTab);
+  const pagination = useAdminPagination(filteredRFQs);
 
   const tabs: { label: string; value: RFQStatus | 'SEMUA' }[] = [
     { label: 'Semua', value: 'SEMUA' },
@@ -106,7 +108,10 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: AdminRFQRecord[]
           <button 
             key={tab.value}
             className={`${styles.tab} ${activeTab === tab.value ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab(tab.value)}
+            onClick={() => {
+              setActiveTab(tab.value);
+              pagination.resetPage();
+            }}
           >
             {tab.label}
           </button>
@@ -128,11 +133,11 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: AdminRFQRecord[]
             </tr>
           </thead>
           <tbody>
-            {filteredRFQs.map((rfq, index) => {
+            {pagination.items.map((rfq, index) => {
               const statusInfo = getRFQStatusInfo(rfq.status);
               return (
                 <tr key={rfq.id}>
-                  <td>{index + 1}</td>
+                  <td>{pagination.start + index}</td>
                   <td style={{ fontWeight: 600 }}>{rfq.id}</td>
                   <td>{rfq.productName}</td>
                   <td>{rfq.qtyRequested.toLocaleString('id-ID')}</td>
@@ -166,6 +171,17 @@ export default function AdminRFQ({ rfqs: initialRFQs }: { rfqs: AdminRFQRecord[]
             )}
           </tbody>
         </table>
+        <AdminPagination
+          page={pagination.page}
+          pageCount={pagination.pageCount}
+          pageSize={pagination.pageSize}
+          total={pagination.total}
+          start={pagination.start}
+          end={pagination.end}
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+          label="RFQ dan B2B"
+        />
       </div>
 
       {selectedRFQ && (

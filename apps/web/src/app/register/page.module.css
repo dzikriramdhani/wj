@@ -33,7 +33,7 @@
   margin-bottom: 2.5rem;
   color: var(--color-bg);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 1.5px;
   text-transform: uppercase;
 }
@@ -41,9 +41,9 @@
   margin: 0 0 1rem;
   color: var(--color-bg);
   font-size: clamp(3.5rem, 5.2vw, 4.5rem);
-  font-weight: 500;
-  line-height: .98;
-  letter-spacing: -.055em;
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -.04em;
 }
 .brandDesc { max-width: 400px; margin: 0; color: rgba(255,255,255,.62); font-size: 14px; line-height: 1.6; }
 
@@ -57,10 +57,10 @@
 .formWrapper { width: 100%; max-width: 500px; }
 .formTitle {
   margin: 0 0 1.25rem;
-  font-size: 1.75rem;
-  font-weight: 500;
-  line-height: 1.2;
-  letter-spacing: -.035em;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -.025em;
 }
 
 .form {
@@ -137,11 +137,11 @@
 .submitBtn:focus-visible, .termsLink:focus-visible, .switchLink:focus-visible { outline: 2px solid #111; outline-offset: 3px; }
 
 .switchText { margin: .9rem 0 0; color: var(--color-text-secondary); font-size: 12px; line-height: 1.5; text-align: center; }
-.switchLink { color: var(--color-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.switchLink { color: var(--color-text); font-weight: 400; text-decoration: underline; text-underline-offset: 3px; }
 
 @media (max-width: 480px) {
   .formCol { padding: .75rem 1rem; }
-  .formTitle { margin-bottom: .9rem; font-size: 1.5rem; }
+  .formTitle { margin-bottom: .9rem; font-size: 1.375rem; }
   .form { column-gap: .65rem; row-gap: .65rem; }
   .formGrid { gap: .5rem; }
   .formGroup label { font-size: 11px; }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import styles from './page.module.css';
+import AdminPagination, { useAdminPagination } from '../_components/AdminPagination';
 
 type Order = {
   id: string;
@@ -23,6 +24,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
   const [rows, setRows] = useState(orders);
   const [message, setMessage] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const pagination = useAdminPagination(rows);
 
   const reconcile = async (orderId: string) => {
     setBusyId(orderId);
@@ -68,7 +70,7 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
     {rows.length === 0 ? <div className={styles.empty}>Belum ada pesanan yang masuk.</div> : <div className={styles.tableWrap}>
       <table className={styles.table}>
         <thead><tr><th>Order</th><th>Pelanggan</th><th>Total</th><th>Status order</th><th>Pembayaran</th><th>Kurir &amp; resi</th><th>Aksi</th></tr></thead>
-        <tbody>{rows.map((order) => <tr key={order.id}>
+        <tbody>{pagination.items.map((order) => <tr key={order.id}>
           <td><strong>{order.orderNumber}</strong><small>{new Date(order.createdAt).toLocaleDateString('id-ID')}</small></td>
           <td><strong>{order.customerName}</strong><small>{order.customerEmail}</small></td>
           <td className={styles.amount}>{rupiah(order.total)}</td>
@@ -84,6 +86,17 @@ export default function OrdersClient({ orders }: { orders: Order[] }) {
           </div></td>
         </tr>)}</tbody>
       </table>
+      <AdminPagination
+        page={pagination.page}
+        pageCount={pagination.pageCount}
+        pageSize={pagination.pageSize}
+        total={pagination.total}
+        start={pagination.start}
+        end={pagination.end}
+        onPageChange={pagination.setPage}
+        onPageSizeChange={pagination.setPageSize}
+        label="pesanan"
+      />
     </div>}
   </section>;
 }

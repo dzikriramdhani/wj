@@ -4,6 +4,7 @@ import React, { FormEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
+import AdminPagination, { useAdminPagination } from '../_components/AdminPagination';
 import { formatRupiah } from '@/lib/routing-logic';
 
 type AdminProduct = {
@@ -119,6 +120,7 @@ export default function AdminProducts({
     || product.sku.toLowerCase().includes(searchTerm.toLowerCase())
     || product.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+  const pagination = useAdminPagination(filteredProducts);
 
   const openCreate = () => {
     setDraft(createEmptyDraft(categories));
@@ -306,7 +308,10 @@ export default function AdminProducts({
             placeholder="Cari produk (nama, SKU, kategori)..."
             className={styles.searchInput}
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event) => {
+              setSearchTerm(event.target.value);
+              pagination.resetPage();
+            }}
           />
           <button type="button" className={styles.addBtn} onClick={openCategoryDrawer}>
             <span>+</span> Tambah kategori
@@ -332,9 +337,9 @@ export default function AdminProducts({
             </tr>
           </thead>
           <tbody>
-            {filteredProducts.map((product, index) => (
+            {pagination.items.map((product, index) => (
               <tr key={product.id}>
-                <td>{index + 1}</td>
+                <td>{pagination.start + index}</td>
                 <td style={{ fontWeight: 500 }}>{product.sku}</td>
                 <td>{product.name}</td>
                 <td>{product.category}</td>
@@ -372,6 +377,17 @@ export default function AdminProducts({
             )}
           </tbody>
         </table>
+        <AdminPagination
+          page={pagination.page}
+          pageCount={pagination.pageCount}
+          pageSize={pagination.pageSize}
+          total={pagination.total}
+          start={pagination.start}
+          end={pagination.end}
+          onPageChange={pagination.setPage}
+          onPageSizeChange={pagination.setPageSize}
+          label="produk"
+        />
       </div>
 
       {isModalOpen && (

@@ -28,6 +28,19 @@ test('homepage remains CMS-driven and renders responsive CMS backgrounds through
   assert.match(styles, /\.aboutImage\s*\{[^}]*object-fit:\s*cover/s);
 });
 
+test('proportional root scaling is activated only by the homepage', async () => {
+  const [homeClient, productsPage, globalStyles] = await Promise.all([
+    read('src/app/HomePageClient.tsx'),
+    read('src/app/products/page.tsx'),
+    read('src/app/globals.css'),
+  ]);
+
+  assert.match(homeClient, /<div data-ui-scale="home">/);
+  assert.doesNotMatch(productsPage, /data-ui-scale="products"/);
+  assert.match(globalStyles, /html:has\(\[data-ui-scale="home"\]\)\s*\{[^}]*font-size:\s*clamp\(16px,\s*0\.833333333vw,\s*21\.333333px\)/s);
+  assert.doesNotMatch(globalStyles, /html\s*\{\s*font-size:/);
+});
+
 test('homepage catalog scroll updates at most once per frame without React state renders', async () => {
   const homeClient = await read('src/app/HomePageClient.tsx');
   const styles = await read('src/app/page.module.css');

@@ -45,6 +45,12 @@ const membershipRoleLabel: Record<OrganizationMemberRole, string> = {
 };
 
 const inviteRoles: Array<Exclude<OrganizationMemberRole, 'owner'>> = ['admin', 'buyer', 'viewer'];
+const organizationStatusLabel: Record<string, string> = {
+  pending: 'Menunggu verifikasi',
+  verified: 'Terverifikasi',
+  rejected: 'Perlu ditinjau',
+  suspended: 'Ditangguhkan',
+};
 
 async function responseError(response: Response, fallback: string) {
   const result = await response.json().catch(() => ({})) as { error?: string };
@@ -55,10 +61,12 @@ export default function BusinessClient({
   organizations,
   quotations,
   currentUserId,
+  productId,
 }: {
   organizations: Org[];
   quotations: Quote[];
   currentUserId: string;
+  productId?: string;
 }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
@@ -68,6 +76,11 @@ export default function BusinessClient({
   const [form, setForm] = useState({ name: '', legalName: '', taxId: '', industry: '', website: '' });
   const [invite, setInvite] = useState<Record<string, { email: string; role: Exclude<OrganizationMemberRole, 'owner'> }>>({});
   const [revisionNote, setRevisionNote] = useState<Record<string, string>>({});
+  const rfqHref = (organizationId: string) => {
+    const query = new URLSearchParams({ organizationId });
+    if (productId) query.set('productId', productId);
+    return `/rfq/new?${query.toString()}`;
+  };
 
   const create = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -171,29 +184,63 @@ export default function BusinessClient({
   return (
     <main className={styles.main}>
       <div className={styles.wrap}>
-        <header>
+        <header className={styles.hero}>
           <h1>Perusahaan &amp; penawaran</h1>
           <p>Kelola status perusahaan, anggota B2B, persetujuan quotation, dan bulk order.</p>
         </header>
+
+        <nav className={styles.sectionIndex} aria-label="Bagian portal bisnis">
+          <a href="#organizations" className={styles.indexLink}>
+            <span>Perusahaan</span>
+            <span className={styles.indexCount}>{String(organizations.length).padStart(2, '0')}</span>
+          </a>
+          <a href="#quotations" className={styles.indexLink}>
+            <span>Quotation</span>
+            <span className={styles.indexCount}>{String(quotations.length).padStart(2, '0')}</span>
+          </a>
+        </nav>
+
         {message && <p className={styles.message} role="status">{message}</p>}
 
-        <section className={styles.section}>
+        <section className={styles.section} id="organizations" aria-labelledby="organizations-title">
           <div className={styles.sectionHead}>
             <div>
-              <h2>Perusahaan</h2>
+              <h2 id="organizations-title">Perusahaan</h2>
               <p className={styles.roleNote}>Pemilik dan Admin perusahaan mengatur anggota serta quotation. Pembeli membuat RFQ. Pembaca hanya melihat informasi perusahaan.</p>
             </div>
-            <button onClick={() => setCreating(!creating)}>+ Tambah perusahaan</button>
+            <button
+              className={styles.addOrganizationButton}
+              type="button"
+              aria-expanded={creating}
+              onClick={() => setCreating(!creating)}
+            >
+              <span>{creating ? 'Tutup form' : 'Tambah perusahaan'}</span>
+              <svg className={styles.addIcon} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                {creating
+                  ? <path d="m3 3 10 10M13 3 3 13" stroke="currentColor" strokeWidth="1.3" />
+                  : <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.3" />}
+              </svg>
+            </button>
           </div>
           {creating && (
-            <form className={styles.form} onSubmit={create}>
+            <form className={styles.form} id="company-create-form" onSubmit={create}>
               {Object.entries(form).map(([key, value]) => (
                 <label key={key}>
                   {key === 'name' ? 'Nama perusahaan' : key === 'legalName' ? 'Nama legal' : key === 'taxId' ? 'NPWP' : key === 'industry' ? 'Industri' : 'Website'}
-                  <input required={key === 'name'} value={value} onChange={(event) => setForm({ ...form, [key]: event.target.value })} />
+                  <input
+                    required={key === 'name'}
+                    value={value}
+                    onChange={(event) => setForm({ ...form, [key]: event.target.value })}
+                    autoComplete={key === 'name' ? 'organization' : key === 'website' ? 'url' : 'off'}
+                  />
                 </label>
               ))}
-              <button disabled={busy}>Simpan perusahaan</button>
+              <button className={styles.formSubmit} disabled={busy}>
+                <span>{busy ? 'Menyimpan...' : 'Simpan perusahaan'}</span>
+                <svg className={styles.actionArrow} viewBox="0 0 22 16" fill="none" aria-hidden="true">
+                  <path d="M1 8h19m0 0-6-6m6 6-6 6" stroke="currentColor" strokeWidth="1.25" />
+                </svg>
+              </button>
             </form>
           )}
           {organizations.length ? organizations.map((org) => {
@@ -208,10 +255,19 @@ export default function BusinessClient({
                     <strong>{org.name}</strong>
                     <small>{org.legalName || 'Nama legal belum diisi'} · {membershipRoleLabel[org.role]}</small>
                   </div>
-                  <span className={styles.status}>{org.status}</span>
+                  <span className={styles.status} data-status={org.status}>
+                    {organizationStatusLabel[org.status] ?? org.status}
+                  </span>
                 </div>
                 <div className={styles.cardActions}>
-                  {org.status === 'verified' && org.role !== 'viewer' && <Link href={`/rfq/new?organizationId=${org.id}`} className={styles.newRfq}>RFQ B2B</Link>}
+                  {org.status === 'verified' && org.role !== 'viewer' && (
+                    <Link href={rfqHref(org.id)} className={styles.newRfq}>
+                      <span>RFQ B2B</span>
+                      <svg className={styles.actionArrow} viewBox="0 0 22 16" fill="none" aria-hidden="true">
+                        <path d="M1 8h19m0 0-6-6m6 6-6 6" stroke="currentColor" strokeWidth="1.25" />
+                      </svg>
+                    </Link>
+                  )}
                   {isManager && (
                     <button className={styles.memberToggle} onClick={() => setManagingOrganizationId(isManaging ? null : org.id)}>
                       {isManaging ? 'Tutup anggota' : `Kelola anggota (${org.members.length})`}
@@ -284,8 +340,8 @@ export default function BusinessClient({
           }) : <p className={styles.empty}>Belum ada perusahaan. Buat perusahaan untuk mengajukan RFQ B2B dan menerima harga khusus.</p>}
         </section>
 
-        <section className={styles.section}>
-          <h2>Quotation</h2>
+        <section className={styles.section} id="quotations" aria-labelledby="quotations-title">
+          <h2 id="quotations-title">Quotation</h2>
           {quotations.length ? quotations.map((quote) => {
             const total = quote.quotation_items.reduce((sum, item) => sum + Number(item.line_total), 0);
             const approval = Array.isArray(quote.quotation_approvals) ? quote.quotation_approvals[0] : quote.quotation_approvals;
@@ -303,7 +359,14 @@ export default function BusinessClient({
                   {quote.status === 'accepted' && bulkOrder && (
                     <>
                       <small>{bulkOrder.bulk_order_number} · {bulkOrder.payment_status === 'paid' ? 'Pembayaran berhasil' : 'Pembayaran ' + bulkOrder.payment_status}</small>
-                      {bulkOrder.payment_status !== 'paid' && <Link className={styles.quotePaymentLink} href={`/business/orders/${encodeURIComponent(bulkOrder.id)}/payment`}>Lanjut ke pembayaran</Link>}
+                      {bulkOrder.payment_status !== 'paid' && (
+                        <Link className={styles.quotePaymentLink} href={`/business/orders/${encodeURIComponent(bulkOrder.id)}/payment`}>
+                          <span>Lanjut ke pembayaran</span>
+                          <svg className={styles.actionArrow} viewBox="0 0 22 16" fill="none" aria-hidden="true">
+                            <path d="M1 8h19m0 0-6-6m6 6-6 6" stroke="currentColor" strokeWidth="1.25" />
+                          </svg>
+                        </Link>
+                      )}
                     </>
                   )}
                   {quote.status === 'sent' && (
@@ -313,8 +376,8 @@ export default function BusinessClient({
                         <textarea rows={3} maxLength={2000} value={revisionNote[quote.id] ?? ''} onChange={(event) => setRevisionNote((current) => ({ ...current, [quote.id]: event.target.value }))} placeholder="Jelaskan bagian harga, jumlah, atau syarat yang perlu ditinjau." />
                       </label>
                       <span className={styles.actions}>
-                        <button disabled={busy} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'accepted' }, 'Penawaran disetujui.')}>Setujui</button>
-                        <button disabled={busy || !(revisionNote[quote.id] ?? '').trim()} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'rejected', note: revisionNote[quote.id].trim() }, 'Catatan dan permintaan revisi berhasil dikirim ke tim Wina Jaya.')}>Minta revisi</button>
+                        <button type="button" disabled={busy} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'accepted' }, 'Penawaran disetujui.')}>Setujui</button>
+                        <button type="button" disabled={busy || !(revisionNote[quote.id] ?? '').trim()} onClick={() => quoteAction(quote.id, { action: 'respond', decision: 'rejected', note: revisionNote[quote.id].trim() }, 'Catatan dan permintaan revisi berhasil dikirim ke tim Wina Jaya.')}>Minta revisi</button>
                       </span>
                     </div>
                   )}

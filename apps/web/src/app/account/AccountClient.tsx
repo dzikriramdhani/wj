@@ -9,6 +9,8 @@ import type { RFQStatus } from '@/types';
 import MfaSetup from './MfaSetup';
 
 type AccountTab = 'overview' | 'profil' | 'orders' | 'rfq' | 'notifikasi';
+type AccountPageSize = 5 | 10 | 15 | 'all';
+type AccountPagination = { page: number; pageSize: AccountPageSize; total: number };
 type AccountRFQ = {
   id: string;
   status: RFQStatus;
@@ -40,7 +42,11 @@ export default function AccountPage({
   user,
   rfqs,
   orders,
+  recentOrders,
+  ordersPagination,
+  rfqsPagination,
   notifications,
+  notificationsPagination,
   workspaceLinks,
   mfaRequired,
   mfaContinueTo,
@@ -50,7 +56,11 @@ export default function AccountPage({
   user: { name: string; email: string; phone: string; company: string; memberSince: string };
   rfqs: AccountRFQ[];
   orders: Array<{ id: string; orderNumber: string; orderStatus: string; paymentStatus: string; totalAmount: number; createdAt: string }>;
+  recentOrders: Array<{ id: string; orderNumber: string; orderStatus: string; paymentStatus: string; totalAmount: number; createdAt: string }>;
+  ordersPagination: AccountPagination;
+  rfqsPagination: AccountPagination;
   notifications: Array<{ id: string; title: string; body: string; linkPath: string | null; readAt: string | null; createdAt: string }>;
+  notificationsPagination: AccountPagination;
   workspaceLinks: Array<{ href: string; label: string }>;
   mfaRequired: boolean;
   mfaContinueTo: string;
@@ -71,7 +81,80 @@ export default function AccountPage({
 
   const changeTab = (tab: AccountTab) => {
     setActiveTab(tab);
-    router.replace(tab === 'overview' ? '/account' : `/account?tab=${tab}`, { scroll: false });
+    const params = new URLSearchParams(window.location.search);
+    if (tab === 'overview') params.delete('tab');
+    else params.set('tab', tab);
+    const query = params.toString();
+    router.replace(query ? `/account?${query}` : '/account', { scroll: false });
+  };
+
+  const openOrders = () => {
+    setActiveTab('orders');
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', 'orders');
+    params.set('ordersPage', '1');
+    const query = params.toString();
+    router.replace(`/account?${query}`, { scroll: false });
+  };
+
+  const changeListPage = (list: 'orders' | 'rfq' | 'notifikasi', page: number, pageSize?: AccountPageSize) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', list);
+    params.set(`${list}Page`, String(page));
+    if (pageSize) params.set(`${list}PageSize`, String(pageSize));
+    const query = params.toString();
+    router.push(`/account?${query}`, { scroll: false });
+  };
+
+  const changeListPageSize = (list: 'orders' | 'rfq' | 'notifikasi', pageSize: AccountPageSize) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', list);
+    params.set(`${list}Page`, '1');
+    params.set(`${list}PageSize`, String(pageSize));
+    router.replace(`/account?${params.toString()}`, { scroll: false });
+  };
+
+  const renderPaginationSummary = (list: 'orders' | 'rfq' | 'notifikasi', pagination: AccountPagination) => {
+    const start = pagination.total === 0 ? 0 : pagination.pageSize === 'all' ? 1 : (pagination.page - 1) * pagination.pageSize + 1;
+    const end = pagination.pageSize === 'all'
+      ? pagination.total
+      : Math.min(pagination.page * pagination.pageSize, pagination.total);
+
+    return (
+      <div className={styles.paginationSummary}>
+        <span>Menampilkan {start}–{end} dari {pagination.total}</span>
+        <label className={styles.pageSizeControl}>
+          <span>Tampilkan</span>
+          <select value={pagination.pageSize} onChange={(event) => {
+            const value = event.target.value === 'all' ? 'all' : Number(event.target.value) as 5 | 10 | 15;
+            changeListPageSize(list, value);
+          }}>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="all">Semua</option>
+          </select>
+        </label>
+      </div>
+    );
+  };
+
+  const renderPagination = (list: 'orders' | 'rfq' | 'notifikasi', pagination: AccountPagination) => {
+    if (pagination.pageSize === 'all') return null;
+    const pageCount = Math.max(1, Math.ceil(pagination.total / pagination.pageSize));
+    const label = list === 'orders' ? 'pesanan' : list === 'rfq' ? 'RFQ' : 'notifikasi';
+
+    return (
+      <nav className={styles.pagination} aria-label={`Navigasi ${label}`}>
+        <button type="button" className={styles.pageButton} disabled={pagination.page <= 1} onClick={() => changeListPage(list, pagination.page - 1)}>
+          Sebelumnya
+        </button>
+        <span>Halaman {pagination.page} dari {pageCount}</span>
+        <button type="button" className={styles.pageButton} disabled={pagination.page >= pageCount} onClick={() => changeListPage(list, pagination.page + 1)}>
+          Berikutnya
+        </button>
+      </nav>
+    );
   };
 
   const handleLogout = async () => {
@@ -187,17 +270,20 @@ export default function AccountPage({
                   <div className={styles.overviewStat}>
                     <h3>Pesanan</h3>
                     <div className={styles.statLine}>
-                      <strong>{orders.length}</strong>
+                      <strong>{ordersPagination.total}</strong>
                       <span>Tersimpan</span>
                     </div>
                   </div>
                 </div>
 
                 <section className={styles.recentOrders} aria-labelledby="recent-orders-title">
-                  <h3 id="recent-orders-title">Pesanan terbaru</h3>
-                  {orders.length ? (
+                  <div className={styles.sectionHeadingRow}>
+                    <h3 id="recent-orders-title">Pesanan terbaru</h3>
+                    {ordersPagination.total > 0 && <button className={styles.textLink} type="button" onClick={openOrders}>Lihat semua</button>}
+                  </div>
+                  {recentOrders.length ? (
                     <ul className={styles.orderList}>
-                      {orders.slice(0, 5).map((order) => <li key={order.id}>{renderOrder(order, true)}</li>)}
+                      {recentOrders.slice(0, 2).map((order) => <li key={order.id}>{renderOrder(order, true)}</li>)}
                     </ul>
                   ) : (
                     <div className={styles.emptyState}>
@@ -261,7 +347,11 @@ export default function AccountPage({
                 <h2>Pesanan</h2>
                 <p>Lihat riwayat pesanan dan status pembayarannya.</p>
               </header>
-              {orders.length ? <ul className={`${styles.orderList} ${styles.fullOrderList}`}>{orders.map((order) => <li key={order.id}>{renderOrder(order)}</li>)}</ul> : (
+              {orders.length ? <>
+                {renderPaginationSummary('orders', ordersPagination)}
+                <ul className={`${styles.orderList} ${styles.fullOrderList}`}>{orders.map((order) => <li key={order.id}>{renderOrder(order)}</li>)}</ul>
+                {renderPagination('orders', ordersPagination)}
+              </> : (
                 <div className={styles.emptyState}><h3>Belum ada pesanan</h3><p>Pesanan Anda akan muncul di sini setelah checkout.</p><Link href="/products" className={styles.outlineButton}>Lanjut belanja</Link></div>
               )}
             </div>
@@ -274,7 +364,9 @@ export default function AccountPage({
                 <p>Lihat status permintaan produk khusus Anda.</p>
                 <Link href="/business" className={styles.outlineButton}>Buat RFQ baru</Link>
               </header>
-              {rfqs.length ? <ul className={styles.recordList}>{rfqs.map((rfq) => {
+              {rfqs.length ? <>
+                {renderPaginationSummary('rfq', rfqsPagination)}
+                <ul className={styles.recordList}>{rfqs.map((rfq) => {
                 const statusInfo = getRFQStatusInfo(rfq.status);
                 const isOpen = selectedRFQId === rfq.id;
                 const specifications = rfq.specifications;
@@ -310,19 +402,25 @@ export default function AccountPage({
                     })}</div> : <p className={styles.noQuote}>Belum ada penawaran dari tim Wina Jaya.</p>}
                   </div>}
                 </li>;
-              })}</ul> : <div className={styles.emptyState}><h3>Belum ada permintaan RFQ</h3><p>Ajukan permintaan melalui perusahaan yang sudah terverifikasi.</p><Link href="/business" className={styles.outlineButton}>Buka Portal Bisnis</Link></div>}
+                })}</ul>
+                {renderPagination('rfq', rfqsPagination)}
+              </> : <div className={styles.emptyState}><h3>Belum ada permintaan RFQ</h3><p>Ajukan permintaan melalui perusahaan yang sudah terverifikasi.</p><Link href="/business" className={styles.outlineButton}>Buka Portal Bisnis</Link></div>}
             </div>
           )}
 
           {activeTab === 'notifikasi' && (
             <div className={styles.tabContent}>
               <header className={styles.pageHeader}><h2>Notifikasi</h2><p>Pembaruan terbaru mengenai akun Anda.</p></header>
-              {notifications.length ? <ul className={styles.recordList}>{notifications.map((notification) => (
+              {notifications.length ? <>
+                {renderPaginationSummary('notifikasi', notificationsPagination)}
+                <ul className={styles.recordList}>{notifications.map((notification) => (
                 <li key={notification.id}><Link href={notification.linkPath ?? '/account'} className={styles.notificationItem}>
                   <span><strong>{notification.title}</strong><small>{notification.body}</small></span>
                   <time dateTime={notification.createdAt}>{formatDate(notification.createdAt)}</time>
                 </Link></li>
-              ))}</ul> : <div className={styles.emptyState}><h3>Belum ada notifikasi</h3><p>Notifikasi akun Anda akan ditampilkan di sini.</p></div>}
+                ))}</ul>
+                {renderPagination('notifikasi', notificationsPagination)}
+              </> : <div className={styles.emptyState}><h3>Belum ada notifikasi</h3><p>Notifikasi akun Anda akan ditampilkan di sini.</p></div>}
             </div>
           )}
         </section>
