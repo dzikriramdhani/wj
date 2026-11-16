@@ -5,7 +5,7 @@
 .main {
   min-height: 100vh;
   padding-top: 5rem;
-  background: #f6f7f8;
+  background: var(--color-bg);
   color: #181919;
 }
 
