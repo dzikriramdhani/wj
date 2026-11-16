@@ -13,18 +13,30 @@
 .tableWrap table { width: 100%; min-width: 700px; border-collapse: separate; border-spacing: 0; }
 .tableWrap th, .tableWrap td { padding: 11px 14px; border-bottom: 1px solid var(--admin-line-light); color: var(--admin-ink-subtle); text-align: left; vertical-align: middle; font-size: 14px; }
 .tableWrap th { background: transparent; color: var(--admin-muted); font-size: 14px; font-weight: 500; letter-spacing: 0; }
+.tableWrap th:last-child, .tableWrap td:last-child { text-align: left; }
 .tableWrap th:first-child { border-top-left-radius: 8px; }
 .tableWrap th:last-child { border-top-right-radius: 8px; }
 .tableWrap tbody tr:last-child td { border-bottom: 0; }
 .tableWrap tbody tr:hover { background: var(--admin-row-hover); }
+.tableWrap th:first-child, .tableWrap td:first-child { width: 65%; }
+.tableWrap th:last-child, .tableWrap td:last-child { width: 35%; }
 .tableWrap td:first-child { min-width: 240px; }
 .tableWrap td strong, .tableWrap td small { display: block; }
 .tableWrap td strong { color: var(--admin-ink); font-weight: 600; }
 .tableWrap td small { margin-top: 3px; color: var(--admin-muted); font-size: 12px; }
-.fixedRole { color: var(--admin-ink-soft); }
-.toggle { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: var(--admin-muted); font-size: 12px; }
-.toggle input { width: 14px; height: 14px; margin: 0; accent-color: var(--admin-accent); }
-.toggle input:disabled { cursor: not-allowed; opacity: .55; }
+.roleCell,
+.roleEditor { display: flex; align-items: center; gap: 12px; }
+.roleCell { min-height: 34px; justify-content: space-between; }
+.editRoleButton,
+.roleAction { padding: 0; border: 0; background: transparent !important; color: var(--admin-ink-soft); font: inherit; font-size: 13px; }
+.editRoleButton { color: var(--admin-muted); cursor: pointer; }
+.editRoleButton:hover:not(:disabled),
+.roleAction:hover:not(:disabled) { color: var(--admin-ink); text-decoration: underline; }
+.editRoleButton:disabled,
+.roleAction:disabled { cursor: not-allowed; opacity: .5; }
+.roleEditor { display: grid; grid-template-columns: minmax(100px, 1fr) auto auto; gap: 10px; width: 100%; }
+.roleSelect { min-height: 34px; padding: 0 9px; border: 1px solid var(--admin-border); border-radius: 6px; background: var(--admin-inset); color: var(--admin-ink); font: inherit; }
+.roleCancel { color: var(--admin-muted); }
 .empty { padding: 24px !important; color: var(--admin-muted); text-align: center !important; }
 @media (max-width: 700px) {
   .heading { flex-direction: column; gap: 12px; }
